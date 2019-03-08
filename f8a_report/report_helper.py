@@ -128,12 +128,19 @@ class ReportHelper:
             raise ValueError("Invalid date format")
 
         # Avoiding SQL injection
-        query = sql.SQL('SELECT {} FROM {} WHERE {} BETWEEN \'%s\' AND \'%s\'').format(
-            sql.Identifier('id'), sql.Identifier('stack_analyses_request'),
-            sql.Identifier('submitTime')
-        )
+        if start_date == end_date:
+            query = sql.SQL('SELECT {} FROM {} WHERE {} = \'%s\'').format(
+                sql.Identifier('id'), sql.Identifier('stack_analyses_request'),
+                sql.Identifier('submitTime')
+            )
+            self.cursor.execute(query.as_string(self.conn) % start_date)
+        else:
+            query = sql.SQL('SELECT {} FROM {} WHERE {} BETWEEN \'%s\' AND \'%s\'').format(
+                sql.Identifier('id'), sql.Identifier('stack_analyses_request'),
+                sql.Identifier('submitTime')
+            )
+            self.cursor.execute(query.as_string(self.conn) % (start_date, end_date))
 
-        self.cursor.execute(query.as_string(self.conn) % (start_date, end_date))
         rows = self.cursor.fetchall()
 
         id_list = []
@@ -262,7 +269,7 @@ class ReportHelper:
                 self.s3.store_json_content(content=training_data, bucket_name=bucket_name,
                                            obj_key=obj_key)
 
-    def normalize_worker_data(self, start_date, end_date, stack_data, worker, frequency='weekly'):
+    def normalize_worker_data(self, start_date, end_date, stack_data, worker, frequency='daily'):
         """Normalize worker data for reporting."""
         total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0}
         if frequency == 'monthly':
@@ -353,11 +360,13 @@ class ReportHelper:
                 'maven': self.populate_key_count(stacks_list['maven'])
             }
 
-            # Collate Data from Previous Month for Model Retraining
-            collated_data = self.collate_raw_data(unique_stacks_with_recurrence_count, frequency)
-
-            # Store ecosystem specific data to their respective Training Buckets
-            if frequency == 'weekly':
+            today = dt.today()
+            # Invoke this every Monday. In Python, Monday is 0 and Sunday is 6
+            if today.weekday() == 0:
+                # Collate Data from Previous Month for Model Retraining
+                collated_data = self.collate_raw_data(unique_stacks_with_recurrence_count,
+                                                      'weekly')
+                # Store ecosystem specific data to their respective Training Buckets
                 self.store_training_data(collated_data)
 
             unique_stacks_with_deps_count = \
@@ -420,7 +429,7 @@ class ReportHelper:
             return None
 
     def retrieve_worker_results(self, start_date, end_date, id_list=[], worker_list=[],
-                                frequency='weekly'):
+                                frequency='daily'):
         """Retrieve results for selected worker from RDB."""
         result = {}
         # convert the elements of the id_list to sql.Literal
@@ -441,6 +450,7 @@ class ReportHelper:
             result[worker] = self.normalize_worker_data(start_date, end_date, data, worker,
                                                         frequency)
         return result
+
 
     def retrieve_ingestion_results(self, start_date, end_date, frequency='daily'):
         """Retrieve results for selected worker from RDB."""
@@ -577,7 +587,8 @@ class ReportHelper:
             logger.exception('Unable to store the report on S3. Reason: %r' % e)
         return template
 
-    def get_report(self, start_date, end_date, frequency='weekly'):
+      
+    def get_report(self, start_date, end_date, frequency='daily'):
         """Generate the stacks report."""
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
         result = self.retrieve_ingestion_results(start_date, end_date)

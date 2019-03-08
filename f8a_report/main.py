@@ -11,7 +11,8 @@ logger = logging.getLogger(__file__)
 
 def time_to_generate_monthly_report(today):
     """Check whether it is the right time to generate monthly report."""
-    return today.day in (1, 2, 3, 4, 5, 6, 7)
+    # We will make three attempts to generate the monthly report every month
+    return today.day in (1, 2, 3)
 
 
 def main():
@@ -20,8 +21,9 @@ def main():
 
     today = dt.today()
 
-    start_date = (today - timedelta(days=7)).strftime('%Y-%m-%d')
+    start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
+
     weekly_response, ingestion_results = r.get_report(start_date, end_date, 'weekly')
     logger.debug('Weekly report data from {s} to {e}'.format(s=start_date, e=end_date))
     logger.debug(json.dumps(weekly_response, indent=2))
