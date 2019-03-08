@@ -32,6 +32,12 @@ class EPVReport:
     def get_list_of_scheduled_ingestions(self):
         """Connect to RDS and get a list of scheduled ingestions."""
         # source: http://initd.org/psycopg/docs/usage.html#passing-parameters-to-sql-queries
+        # SELECT ECOSYSTEMS.NAME, PACKAGES.NAME, VERSIONS.IDENTIFIER
+        # FROM ANALYSES
+        # WHERE ANALYSES.STARTED_AT BETWEEN %s and %s
+        # INNER JOIN VERSIONS ON ANALYSES.VERSION_ID=VERSIONS.ID
+        # INNER JOIN PACKAGES ON ANALYSES.PACKAGE_ID=PACKAGES.ID
+        # INNER JOIN ECOSYSTEMS ON PACKAGES.ECOSYSTEM_ID=ECOSYSTEM.ID
         self.pg.cursor.execute("""
                                SELECT EC.NAME, PK.NAME, VR.IDENTIFIER
                                FROM ANALYSES AN, PACKAGES PK, VERSIONS VR, ECOSYSTEMS EC
