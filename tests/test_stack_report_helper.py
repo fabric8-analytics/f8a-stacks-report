@@ -15,6 +15,10 @@ with open('tests/data/collateddata.json', 'r') as f:
 with open('tests/data/stackdata.json', 'r') as f:
     stackdata = f.read()
 
+with open('tests/data/ingestiondata.json', 'r') as f:
+    ingestiondata = f.read()
+    ingestiondata = json.loads(ingestiondata)
+
 
 def test_validate_and_process_date_success():
     """Test the success scenario of the function validate_and_process_date."""
@@ -229,7 +233,7 @@ def test_normalize_worker_data_no_stack_aggregator(_mock_count):
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_stack_analyses_ids', return_value=['1'])
 def test_get_report(_mock1, _mock2):
     """Test sucess Get Report."""
-    res = r.get_report('2018-10-10', '2018-10-18')
+    res, ing_res = r.get_report('2018-10-10', '2018-10-18')
     assert res is True
 
 
@@ -237,7 +241,7 @@ def test_get_report(_mock1, _mock2):
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_stack_analyses_ids', return_value=[])
 def test_get_report(_mock1, _mock2):
     """Test failure Get Report."""
-    res = r.get_report('2018-10-10', '2018-10-18')
+    res, ing_res = r.get_report('2018-10-10', '2018-10-18')
     assert res is False
 
 
@@ -245,3 +249,16 @@ def test_retrieve_worker_results():
     """Test failure worker results."""
     res = r.retrieve_worker_results('2018-10-10', '2018-10-18', ['1', '2'], [])
     assert res == {}
+
+
+@mock.patch('f8a_report.report_helper.S3Helper.store_json_content', return_value=True)
+def test_normalize_ingestion_data(_mock1):
+    """Test the success scenario of the function normalize_worker_data."""
+    resp = r.normalize_ingestion_data('2018-10-10', '2018-10-18', ingestiondata, 'daily')
+    assert resp is not None
+
+
+def test_retrieve_ingestion_results():
+    """Test failure worker results."""
+    res = r.retrieve_ingestion_results('2015-10-10', '2015-10-18')
+    assert res == {'EPV_GRAPH_FAILED_DATA': '[]', 'EPV_INGESTION_DATA': '[]'}

@@ -20,7 +20,7 @@ class Postgres:
 
     def __init__(self):
         """Initialize the connection to Postgres database."""
-        conn_string = "host='{host}' dbname='{dbname}' user='{user}' password='{password}'".\
+        conn_string = "host='{host}' dbname='{dbname}' user='{user}' password='{password}'". \
             format(host=os.getenv('PGBOUNCER_SERVICE_HOST', 'bayesian-pgbouncer'),
                    dbname=os.getenv('POSTGRESQL_DATABASE', 'coreapi'),
                    user=os.getenv('POSTGRESQL_USER', 'coreapi'),
@@ -40,7 +40,7 @@ class S3Helper:
         self.deployment_prefix = os.environ.get('DEPLOYMENT_PREFIX') or 'dev'
         self.report_bucket_name = os.environ.get('REPORT_BUCKET_NAME')
 
-        if self.aws_s3_secret_access_key is None or self.aws_s3_access_key is None or\
+        if self.aws_s3_secret_access_key is None or self.aws_s3_access_key is None or \
                 self.region_name is None or self.deployment_prefix is None:
             raise ValueError("AWS credentials or S3 configuration was "
                              "not provided correctly. Please set the AWS_S3_REGION, "
@@ -219,7 +219,7 @@ class ReportHelper:
             result.update({
                 eco: dict(Counter(result.get(eco)) +
                           Counter(collated_big_query_data.get(eco)))
-                    })
+            })
 
         return result
 
@@ -323,7 +323,7 @@ class ReportHelper:
                         unknown_dependencies.append(dep)
                     stack_info_template['unknown_dependencies'] = self.normalize_deps_list(
                         unknown_dependencies)
-                    all_unknown_deps[user_stack_info['ecosystem']].\
+                    all_unknown_deps[user_stack_info['ecosystem']]. \
                         append(stack_info_template['unknown_dependencies'])
 
                     stack_info_template['license']['unknown'] = \
@@ -360,7 +360,7 @@ class ReportHelper:
             if frequency == 'weekly':
                 self.store_training_data(collated_data)
 
-            unique_stacks_with_deps_count =\
+            unique_stacks_with_deps_count = \
                 self.set_unique_stack_deps_count(unique_stacks_with_recurrence_count)
 
             avg_response_time = {}
@@ -381,9 +381,9 @@ class ReportHelper:
                 'npm': {
                     'stack_requests_count': total_stack_requests['npm'],
                     'unique_dependencies_with_frequency':
-                    self.populate_key_count(self.flatten_list(all_deps['npm'])),
+                        self.populate_key_count(self.flatten_list(all_deps['npm'])),
                     'unique_unknown_dependencies_with_frequency':
-                    self.populate_key_count(self.flatten_list(all_unknown_deps['npm'])),
+                        self.populate_key_count(self.flatten_list(all_unknown_deps['npm'])),
                     'unique_stacks_with_frequency': unique_stacks_with_recurrence_count['npm'],
                     'unique_stacks_with_deps_count': unique_stacks_with_deps_count['npm'],
                     'average_response_time': '{} ms'.format(avg_response_time['npm'])
@@ -442,14 +442,158 @@ class ReportHelper:
                                                         frequency)
         return result
 
+    def retrieve_ingestion_results(self, start_date, end_date, frequency='daily'):
+        """Retrieve results for selected worker from RDB."""
+        result = {}
+        # No of EPV ingested in a given day
+        query = sql.SQL('SELECT EC.NAME, PK.NAME, VR.IDENTIFIER FROM ANALYSES AN,'
+                        ' PACKAGES PK, VERSIONS VR, ECOSYSTEMS EC WHERE'
+                        ' AN.STARTED_AT >= \'%s\' AND AN.STARTED_AT < \'%s\''
+                        ' AND AN.VERSION_ID = VR.ID AND VR.PACKAGE_ID = PK.ID'
+                        ' AND PK.ECOSYSTEM_ID = EC.ID')
+
+        self.cursor.execute(query.as_string(self.conn) % (start_date, end_date))
+        data = json.dumps(self.cursor.fetchall())
+
+        result['EPV_INGESTION_DATA'] = data
+
+        # No of EPV failed ingesting into graph
+
+        query = sql.SQL('SELECT EC.NAME, PK.NAME, VR.IDENTIFIER FROM ANALYSES AN,'
+                        ' PACKAGES PK, VERSIONS VR, ECOSYSTEMS EC WHERE'
+                        ' AN.STARTED_AT >= \'%s\' AND AN.STARTED_AT < \'%s\''
+                        ' AND AN.VERSION_ID = VR.ID AND VR.PACKAGE_ID = PK.ID'
+                        ' AND PK.ECOSYSTEM_ID = EC.ID AND VR.SYNCED2GRAPH = \'%s\'')
+
+        self.cursor.execute(query.as_string(self.conn) % (start_date, end_date, 'FALSE'))
+        data = json.dumps(self.cursor.fetchall())
+
+        result['EPV_GRAPH_FAILED_DATA'] = data
+
+        self.normalize_ingestion_data(start_date, end_date, result, frequency)
+        return result
+
+    def normalize_ingestion_data(self, start_date, end_date, ingestion_data, frequency='daily'):
+        """Normalize worker data for reporting."""
+        report_type = 'ingestion-data'
+        if frequency == 'monthly':
+            report_name = dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m')
+        else:
+            report_name = dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
+
+        template = {
+            'report': {
+                'from': start_date,
+                'to': end_date,
+                'generated_on': dt.now().isoformat('T')
+            },
+            'ingestion_summary': {},
+            'ingestion_details': []
+        }
+
+        all_deps_count = {'all': 0, 'npm': 0, 'maven': 0, 'python': 0}
+        failed_deps_count = {'all': 0, 'npm': 0, 'maven': 0, 'python': 0}
+        all_epv_list = {'npm': [], 'maven': [], 'python': []}
+        failed_epv_list = {'npm': [], 'maven': [], 'python': []}
+
+        epv_data = ingestion_data['EPV_INGESTION_DATA']
+        epv_data = json.loads(epv_data)
+        for data in epv_data:
+            all_deps_count['all'] = all_deps_count['all'] + 1
+            if data[0] == 'maven':
+                all_deps_count['maven'] = all_deps_count['maven'] + 1
+                all_epv_list['maven'].append(data[1] + '::' + data[2])
+            elif data[0] == 'npm':
+                all_deps_count['npm'] = all_deps_count['npm'] + 1
+                all_epv_list['npm'].append(data[1] + '::' + data[2])
+            elif data[0] == 'python':
+                all_deps_count['python'] = all_deps_count['python'] + 1
+                all_epv_list['python'].append(data[1] + '::' + data[2])
+
+        failed_epv_data = ingestion_data['EPV_GRAPH_FAILED_DATA']
+        failed_epv_data = json.loads(failed_epv_data)
+        for data in failed_epv_data:
+            failed_deps_count['all'] = failed_deps_count['all'] + 1
+            if data[0] == 'maven':
+                failed_deps_count['maven'] = failed_deps_count['maven'] + 1
+                failed_epv_list['maven'].append(data[1] + '::' + data[2])
+            elif data[0] == 'npm':
+                failed_deps_count['npm'] = failed_deps_count['npm'] + 1
+                failed_epv_list['npm'].append(data[1] + '::' + data[2])
+            elif data[0] == 'python':
+                failed_deps_count['python'] = failed_deps_count['python'] + 1
+                failed_epv_list['python'].append(data[1] + '::' + data[2])
+
+        for epv_data in all_epv_list:
+            ingestion_info_template = {
+                'ecosystem': '',
+                'ingested_epvs': [],
+                'failed_epvs': []
+            }
+            ingestion_info_template['ecosystem'] = epv_data
+            ingestion_info_template['ingested_epvs'].append(all_epv_list[epv_data])
+            template['ingestion_details'].append(ingestion_info_template)
+
+        for data in template['ingestion_details']:
+            if data['ecosystem'] == 'maven':
+                data['failed_epvs'] = failed_epv_list['maven']
+            elif data['ecosystem'] == 'npm':
+                data['failed_epvs'] = failed_epv_list['npm']
+            elif data['ecosystem'] == 'python':
+                data['failed_epvs'] = failed_epv_list['python']
+
+        template['ingestion_summary'] = {
+            'total_epv_ingestion_count': all_deps_count['all'],
+            'npm': {
+                'epv_ingestion_count': all_deps_count['npm'],
+                'epv_successfully_ingested_count':
+                    all_deps_count['npm'] - failed_deps_count['npm'],
+                'failed_epv_ingestion_count': failed_deps_count['npm'],
+                'unknown_ingestion_triggered': True
+            },
+            'maven': {
+                'epv_ingestion_count': all_deps_count['maven'],
+                'epv_successfully_ingested_count':
+                    all_deps_count['maven'] - failed_deps_count['maven'],
+                'failed_epv_ingestion_count': failed_deps_count['maven'],
+                'unknown_ingestion_triggered': True
+            },
+            'python': {
+                'epv_ingestion_count': all_deps_count['python'],
+                'epv_successfully_ingested_count':
+                    all_deps_count['python'] - failed_deps_count['python'],
+                'failed_epv_ingestion_count': failed_deps_count['python'],
+                'unknown_ingestion_triggered': True
+            }
+        }
+
+        try:
+            obj_key = '{depl_prefix}/{type}/{report_name}.json'.format(
+                depl_prefix=self.s3.deployment_prefix, type=report_type, report_name=report_name
+            )
+            self.s3.store_json_content(content=template, obj_key=obj_key,
+                                       bucket_name=self.s3.report_bucket_name)
+        except Exception as e:
+            logger.exception('Unable to store the report on S3. Reason: %r' % e)
+        return template
+
     def get_report(self, start_date, end_date, frequency='weekly'):
         """Generate the stacks report."""
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
+        result = self.retrieve_ingestion_results(start_date, end_date)
+        epv_data = result['EPV_INGESTION_DATA']
+        epv_data = json.loads(epv_data)
+        if len(epv_data) > 0:
+            ingestion_results = True
+        else:
+            ingestion_results = False
+            logger.error('No ingestion data found from {s} to {e} to generate an aggregated report'
+                         .format(s=start_date, e=end_date))
         if len(ids) > 0:
             worker_result = self.retrieve_worker_results(
                 start_date, end_date, ids, ['stack_aggregator_v2'], frequency)
-            return worker_result
+            return worker_result, ingestion_results
         else:
             logger.error('No stack analyses found from {s} to {e} to generate an aggregated report'
                          .format(s=start_date, e=end_date))
-            return False
+            return False, ingestion_results
