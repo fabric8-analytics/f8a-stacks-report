@@ -34,7 +34,7 @@ class EPVReport:
         # source: http://initd.org/psycopg/docs/usage.html#passing-parameters-to-sql-queries
         self.pg.cursor.execute("""
                                SELECT EC.NAME, PK.NAME, VR.IDENTIFIER
-                               FROM ANALYSES AN, PACKAGES PK, ECOSYSTEMS EC
+                               FROM ANALYSES AN, PACKAGES PK, VERSIONS VR, ECOSYSTEMS EC
                                WHERE AN.STARTED_AT >= %s
                                AND WHERE AN.STARTED_AT < %s
                                AND AN.VERSION_ID = VR.ID
