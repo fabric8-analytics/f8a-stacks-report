@@ -1,13 +1,22 @@
+from enum import Enum
+
 from .report_helper import Postgres
 
 from psycopg2 import sql
+
+
+class ReportType(Enum):
+    DAILY = 1,
+    WEEKLY = 2,
+    MONTHLY = 3,
 
 
 class Report:
     """Generic report that handles a dictionary and can store it to S3."""
 
     def __init__(self):
-        self.report_dictionary = dict()
+        self.report_data = dict()
+        self.report_directory = None
         self.name = None  # TODO:
         # TODO: include the S3 helper?
 
@@ -15,11 +24,23 @@ class Report:
         pass
 
 
-class EPVReport:
+class EPVReport(Report):
 
     def __init__(self):
         """Create an empty report."""
+        super(EPVReport, self).__init__()
         self.pg = Postgres()  # TODO: error handling? There is no in the class
+
+    def generate_report(self, report_type):
+        """Generate a report for the previous day/week/month.
+
+        This method can fail in various ways, because it communicates with RDS and S3. Make sure
+        to handle exceptions.
+        """
+        from_date = None
+        till_date = None
+        self.report_directory = None
+        # TODO: ^^^--- fill in the data and call the functions ---vvv
 
     @staticmethod
     def epv_tuple_into_dict(epv):
