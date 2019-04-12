@@ -45,8 +45,8 @@ function prepare_venv() {
     fi
     if [ $? -eq 1 ]; then
         echo "Virtualenv binary can't be found, using venv module instead"
-        # still don't have virtual environment -> use python3.4 directly
-        python3.6 -m venv venv && source venv/bin/activate
+        # still don't have virtual environment -> use python3 directly
+        python3 -m venv venv && source venv/bin/activate
     else
         ${VIRTUALENV} -p python3 venv && source venv/bin/activate
     fi
