@@ -1,0 +1,13 @@
+{
+    "npm": {
+        "serve-static 1.7.1, express 1.1.1": 98,
+        "express 4.0.0,npm 6.2.0,serve-static 1.7.1": 12
+    },
+    "pypi": {
+        "flask 1.2.3, sqlalchemy 1.4.3": 10
+    },
+    "maven": {
+        "io.vertx:vertx-core 3.4.2,io.vertx:vertx-web 3.4.2": 1,
+        "io.vertx:vertx-core 3.4.1,io.vertx:vertx-web 3.4.1": 1
+    }
+}

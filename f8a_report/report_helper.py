@@ -213,10 +213,11 @@ class ReportHelper:
                                                        obj_key=collated_user_input_obj_key) or {}
 
         for eco in unique_stacks_with_recurrence_count.keys() | collated_user_input.keys():
-            result.update({eco: dict(
-                Counter(unique_stacks_with_recurrence_count.get(eco)) +
-                Counter(collated_user_input.get(eco)))
-            })
+            result.update({eco: {
+                "user_input_stack": dict(
+                            Counter(unique_stacks_with_recurrence_count.get(eco)) +
+                            Counter(collated_user_input.get(eco, {}).get('user_input_stack')))
+            }})
 
         # Store user input collated data back to S3
         self.s3.store_json_content(content=result, bucket_name=self.s3.report_bucket_name,
@@ -228,12 +229,11 @@ class ReportHelper:
         collated_big_query_data = self.s3.read_json_object(bucket_name=self.s3.report_bucket_name,
                                                            obj_key=collated_big_query_obj_key) or {}
 
-        for eco in result.keys() | collated_big_query_data.keys():
-            result.update({
-                eco: dict(Counter(result.get(eco)) +
-                          Counter(collated_big_query_data.get(eco)))
-                    })
-
+        for eco in collated_big_query_data.keys():
+            if result.get(eco):
+                result[eco]["bigquery_data"] = collated_big_query_data.get(eco)
+            else:
+                result[eco] = {"bigquery_data": collated_big_query_data.get(eco)}
         return result
 
     def invoke_emr_api(self, bucket_name, ecosystem, data_version, github_repo):
@@ -263,21 +263,25 @@ class ReportHelper:
         """Store Training Data for each ecosystem in their respective buckets."""
         model_version = dt.now().strftime('%Y-%m-%d')
 
-        for eco, stacks in result.items():
+        for eco, stack_dict in result.items():
             unique_stacks = {}
             obj_key = '{eco}/{depl_prefix}/{model_version}/data/manifest.json'.format(
                 eco=eco, depl_prefix=self.s3.deployment_prefix, model_version=model_version)
-            package_list_for_eco = []
-            for packages, reccurrence_count in stacks.items():
-                package_list = [x.strip().split(' ')[0] for x in packages.split(',')]
+            package_dict_for_eco = {
+                "user_input_stack": [],
+                "bigquery_data": []
+            }
+            for stack_type, stacks in stack_dict.items():
+                package_list = [x.strip().split(' ')[0] for package in stacks
+                                for x in package.split(',')]
                 stack_str = "".join(package_list)
                 if stack_str not in unique_stacks:
                     unique_stacks[stack_str] = 1
-                    package_list_for_eco.append(package_list)
+                    package_dict_for_eco.get(stack_type).append(package_list)
 
             training_data = {
                 'ecosystem': eco,
-                'package_list': package_list_for_eco
+                'package_dict': package_dict_for_eco
             }
 
             # Get the bucket name based on ecosystems to store user-input stacks for retraining

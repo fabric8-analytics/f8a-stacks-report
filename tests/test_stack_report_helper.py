@@ -22,6 +22,9 @@ emr_resp = {
     "JobFlowId": "j-LF2OPMVXAPQD"
 }
 
+with open('tests/data/stacks_with_recurrence_count.json', 'r') as f:
+    unique_stacks_with_recurrence_count = json.load(f)
+
 with open('tests/data/collateddata.json', 'r') as f:
     collateddata = json.load(f)
 
@@ -216,7 +219,7 @@ def test_store_training_data(_mock1):
 @mock.patch('f8a_report.report_helper.S3Helper.read_json_object', return_value=collateddata)
 def test_collate_raw_data(_mock1, _mock2):
     """Test result collation success scenario."""
-    result = r.collate_raw_data(collateddata, 'weekly')
+    result = r.collate_raw_data(unique_stacks_with_recurrence_count, 'weekly')
 
     assert result is not None
 
