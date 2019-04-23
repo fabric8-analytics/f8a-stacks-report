@@ -35,6 +35,12 @@ with open('tests/data/ingestiondata.json', 'r') as f:
     ingestiondata = f.read()
     ingestiondata = json.loads(ingestiondata)
 
+with open('tests/data/stackdict.json', 'r') as f:
+    stack_dict = json.load(f)
+
+with open('tests/data/manifest.json', 'r') as f:
+    manifest = json.load(f)
+
 
 def test_validate_and_process_date_success():
     """Test the success scenario of the function validate_and_process_date."""
@@ -213,6 +219,13 @@ def test_store_training_data(_mock1):
     resp = r.store_training_data(collateddata)
 
     assert resp is None
+
+
+def test_get_training_data_for_eco():
+    """Test the generation of training data for npm."""
+    resp = r.get_training_data_for_ecosystem(eco='npm', stack_dict=stack_dict)
+
+    assert resp == manifest
 
 
 @mock.patch('f8a_report.report_helper.S3Helper.store_json_content', return_value=True)

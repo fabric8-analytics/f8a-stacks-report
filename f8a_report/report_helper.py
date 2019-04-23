@@ -259,30 +259,37 @@ class ReportHelper:
         except Exception:
             logger.error('Failed to invoke EMR API for {eco} ecosystem'.format(eco=ecosystem))
 
-    def store_training_data(self, result):
-        """Store Training Data for each ecosystem in their respective buckets."""
-        model_version = dt.now().strftime('%Y-%m-%d')
-
-        for eco, stack_dict in result.items():
-            unique_stacks = {}
-            obj_key = '{eco}/{depl_prefix}/{model_version}/data/manifest.json'.format(
-                eco=eco, depl_prefix=self.s3.deployment_prefix, model_version=model_version)
-            package_dict_for_eco = {
-                "user_input_stack": [],
-                "bigquery_data": []
-            }
-            for stack_type, stacks in stack_dict.items():
-                package_list = [x.strip().split(' ')[0] for package in stacks
-                                for x in package.split(',')]
+    def get_training_data_for_ecosystem(self, eco, stack_dict):
+        """Get Training data for an ecosystem."""
+        unique_stacks = {}
+        package_dict_for_eco = {
+            "user_input_stack": [],
+            "bigquery_data": []
+        }
+        for stack_type, stacks in stack_dict.items():
+            for package_string in stacks:
+                package_list = [x.strip().split(' ')[0]
+                                for x in package_string.split(',')]
                 stack_str = "".join(package_list)
                 if stack_str not in unique_stacks:
                     unique_stacks[stack_str] = 1
                     package_dict_for_eco.get(stack_type).append(package_list)
 
-            training_data = {
-                'ecosystem': eco,
-                'package_dict': package_dict_for_eco
-            }
+        training_data = {
+            'ecosystem': eco,
+            'package_dict': package_dict_for_eco
+        }
+
+        return training_data
+
+    def store_training_data(self, result):
+        """Store Training Data for each ecosystem in their respective buckets."""
+        model_version = dt.now().strftime('%Y-%m-%d')
+
+        for eco, stack_dict in result.items():
+            training_data = self.get_training_data_for_ecosystem(eco, stack_dict)
+            obj_key = '{eco}/{depl_prefix}/{model_version}/data/manifest.json'.format(
+                eco=eco, depl_prefix=self.s3.deployment_prefix, model_version=model_version)
 
             # Get the bucket name based on ecosystems to store user-input stacks for retraining
             if eco == 'maven':
