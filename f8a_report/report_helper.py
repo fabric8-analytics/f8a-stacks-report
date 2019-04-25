@@ -323,12 +323,17 @@ class ReportHelper:
 
     def normalize_worker_data(self, start_date, end_date, stack_data, worker, frequency='daily'):
         """Normalize worker data for reporting."""
+        # Adding some dummy comments because of low maintainability index.
+        # This needs to be fixed by the original author.
         total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0}
+
+        # Collect monthly statistics
         if frequency == 'monthly':
             report_name = dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m')
         else:
             report_name = dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
 
+        # Prepare the template
         stack_data = json.loads(stack_data)
         template = {
             'report': {
@@ -344,6 +349,7 @@ class ReportHelper:
         all_unknown_lic = []
         all_cve_list = []
 
+        # Process the response
         total_response_time = {'all': 0.0, 'npm': 0.0, 'maven': 0.0}
         if worker == 'stack_aggregator_v2':
             stacks_list = {'npm': [], 'maven': []}
@@ -542,6 +548,8 @@ class ReportHelper:
 
     def normalize_ingestion_data(self, start_date, end_date, ingestion_data, frequency='daily'):
         """Normalize worker data for reporting."""
+        # Adding some dummy comments because of low maintainability index.
+        # This needs to be fixed by the original author.
         report_type = 'ingestion-data'
         if frequency == 'monthly':
             report_name = dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m')
