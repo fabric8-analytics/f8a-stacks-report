@@ -102,8 +102,8 @@ def test_generate_report_for_unknown_epvs(mocker):
                     "version": "2.40.1"
                 }]
     out = generate_report_for_unknown_epvs(epv_list)
-    assert out['maven@io.vertx:vertx-web@3.6.3'] == "true"
-    assert out['npm@lodash@2.40.1'] == "false"
+    assert out['maven@DELIM@io.vertx:vertx-web@DELIM@3.6.3'] == "true"
+    assert out['npm@DELIM@lodash@DELIM@2.40.1'] == "false"
 
 
 @mock.patch("f8a_report.graph_report_generator.execute_gremlin_dsl")
@@ -123,10 +123,10 @@ def test_generate_report_for_latest_version(mocker):
                     "name": "test-hooks"
                 }]
     out = generate_report_for_latest_version(epv_list)
-    assert out['maven@io.vertx:vertx-web']['known_latest_version'] == "3.6.3"
-    assert out['npm@lodash']['known_latest_version'] == "2.39.2"
-    assert out['maven@io.vertx:vertx-web']['actual_latest_version'] is not None
-    assert out['npm@lodash']['actual_latest_version'] is not None
+    assert out['maven@DELIM@io.vertx:vertx-web']['known_latest_version'] == "3.6.3"
+    assert out['npm@DELIM@lodash']['known_latest_version'] == "2.39.2"
+    assert out['maven@DELIM@io.vertx:vertx-web']['actual_latest_version'] is not None
+    assert out['npm@DELIM@lodash']['actual_latest_version'] is not None
 
 
 @mock.patch("f8a_report.graph_report_generator.execute_gremlin_dsl")
@@ -145,9 +145,12 @@ def test_generate_report_for_cves(mocker):
         }
     }
     out = generate_report_for_cves(cve_data)
-    assert out['CVE-2013-4310@org.apache.struts:struts2-core@2.0.5'] == "Found"
-    assert out['CVE-2013-4310@org.apache.struts:struts2-core@2.0.6'] == "Not Found"
-    assert out['CVE-2013-4310@org.apache.struts:struts2-core@2.0.7'] == "False Positive"
+    assert out['CVE-2013-4310@DELIM@org.apache.struts:struts2-core@DELIM@2.0.5'] == \
+        "Found"
+    assert out['CVE-2013-4310@DELIM@org.apache.struts:struts2-core@DELIM@2.0.6'] == \
+        "Not Found"
+    assert out['CVE-2013-4310@DELIM@org.apache.struts:struts2-core@DELIM@2.0.7'] == \
+        "False Positive"
 
 
 @mock.patch('requests.Session.post', side_effect="")

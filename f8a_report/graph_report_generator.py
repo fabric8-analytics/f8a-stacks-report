@@ -38,7 +38,7 @@ def generate_report_for_cves(cve_data):
         for pkg in v['packages']:
             name = pkg['name']
             for ver in pkg['versions']:
-                key = k + "@" + name + "@" + ver
+                key = k + "@DELIM@" + name + "@DELIM@" + ver
                 report_result[key] = "Not Found"
     result_data = batch_query_executor(query_str, args)
     if result_data is not None:
@@ -46,7 +46,7 @@ def generate_report_for_cves(cve_data):
             id = get_value(res['a'], 'cve_id') if 'a' in res else ""
             pkg = get_value(res['b'], 'pname') if 'b' in res else ""
             ver = get_value(res['b'], 'version') if 'b' in res else ""
-            key = id + "@" + pkg + "@" + ver
+            key = id + "@DELIM@" + pkg + "@DELIM@" + ver
             if key in report_result:
                 report_result[key] = "Found"
             else:
@@ -74,7 +74,7 @@ def generate_report_for_unknown_epvs(epv_list):
             "1": pkg,
             "2": ver
         })
-        report_result[eco + "@" + pkg + "@" + ver] = "false"
+        report_result[eco + "@DELIM@" + pkg + "@DELIM@" + ver] = "false"
 
     result_data = batch_query_executor(query_str, args)
     if result_data is not None:
@@ -82,7 +82,7 @@ def generate_report_for_unknown_epvs(epv_list):
             eco = get_value(res, 'pecosystem')
             pkg = get_value(res, 'pname')
             ver = get_value(res, 'version')
-            report_result[eco + "@" + pkg + "@" + ver] = "true"
+            report_result[eco + "@DELIM@" + pkg + "@DELIM@" + ver] = "true"
     return report_result
 
 
@@ -111,7 +111,7 @@ def generate_report_for_latest_version(epv_list):
             "known_latest_version": "",
             "actual_latest_version": latest
         }
-        report_result[eco + "@" + pkg] = tmp
+        report_result[eco + "@DELIM@" + pkg] = tmp
 
     result_data = batch_query_executor(query_str, args)
     if result_data is not None:
@@ -119,7 +119,7 @@ def generate_report_for_latest_version(epv_list):
             eco = get_value(res, 'ecosystem')
             pkg = get_value(res, 'name')
             latest_pkg_version = get_value(res, 'latest_version')
-            report_result[eco + "@" + pkg]['known_latest_version'] = latest_pkg_version
+            report_result[eco + "@DELIM@" + pkg]['known_latest_version'] = latest_pkg_version
 
     return report_result
 

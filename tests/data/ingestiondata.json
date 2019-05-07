@@ -1,3 +1,1 @@
-{"EPV_INGESTION_DATA": "[[\"npm\", \"lodash\", \"4.17.11\"],[\"npm\", \"jquery\", \"3.3.1\"]]",
-  "EPV_GRAPH_FAILED_DATA": "[[\"npm\", \"lodash\", \"4.17.11\"]]",
-  "EPV_GRAPH_SUCCESS_DATA": "[[\"npm\", \"jquery\", \"3.3.1\"]]"}
+{"EPV_DATA": "[[\"npm\", \"lodash\", \"4.17.11\"],[\"npm\", \"jquery\", \"3.3.1\"]]"}

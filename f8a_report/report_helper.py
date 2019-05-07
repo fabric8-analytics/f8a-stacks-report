@@ -529,22 +529,107 @@ class ReportHelper:
                         ' PACKAGES PK, VERSIONS VR, ECOSYSTEMS EC WHERE'
                         ' AN.STARTED_AT >= \'%s\' AND AN.STARTED_AT < \'%s\''
                         ' AND AN.VERSION_ID = VR.ID AND VR.PACKAGE_ID = PK.ID'
-                        ' AND PK.ECOSYSTEM_ID = EC.ID AND VR.SYNCED2GRAPH = \'%s\'')
+                        ' AND PK.ECOSYSTEM_ID = EC.ID')
 
-        self.cursor.execute(query.as_string(self.conn) % (start_date, end_date, 'FALSE'))
+        self.cursor.execute(query.as_string(self.conn) % (start_date, end_date))
         data = json.dumps(self.cursor.fetchall())
+        result['EPV_DATA'] = data
+        return self.normalize_ingestion_data(start_date, end_date, result, frequency)
 
-        result['EPV_GRAPH_FAILED_DATA'] = data
+    def get_package_results(self, epvs, template):
+        """Get package information from graph."""
+        graph_output = generate_report_for_latest_version(epvs)
+        template['ingestion_summary']['incorrect_latest_version'] = {}
+        count = {}
+        latest_epvs = []
+        for epv in epvs:
+            eco = epv['ecosystem']
+            pkg = epv['name']
+            if eco not in count:
+                count[eco] = {
+                    'total_incorrect_versions': 0,
+                    'total_correct_versions': 0
+                }
+            if eco not in template['ingestion_summary']['incorrect_latest_version']:
+                template['ingestion_summary']['incorrect_latest_version'][eco] = []
+            output = graph_output[eco + "@DELIM@" + pkg]
+            known_latest_ver = output['known_latest_version']
+            actual_latest_ver = output['actual_latest_version']
+            if (actual_latest_ver and not known_latest_ver) \
+                    | (actual_latest_ver != known_latest_ver):
+                tmp = {
+                    "package": pkg,
+                    "actual_latest_version": actual_latest_ver,
+                    "known_latest_version": known_latest_ver
+                }
+                template['ingestion_summary']['incorrect_latest_version'][eco].append(tmp)
+                count[eco]['total_incorrect_versions'] += 1
 
-        # No of EPV successfully ingesting into graph
+            if actual_latest_ver:
+                template['ingestion_details'][eco][pkg]['known_latest_version']\
+                    = output['known_latest_version']
+                template['ingestion_details'][eco][pkg]['actual_latest_version'] \
+                    = output['actual_latest_version']
+                latest_json = {
+                    "ecosystem": eco,
+                    "name": pkg,
+                    "version": actual_latest_ver
+                }
+                latest_epvs.append(latest_json)
+                if actual_latest_ver == known_latest_ver:
+                    count[eco]['total_correct_versions'] += 1
+            else:
+                template['ingestion_details'][eco][pkg]['private_pkg'] = "true"
+        template['ingestion_summary']['version_stats'] = count
+        return template, latest_epvs
 
-        self.cursor.execute(query.as_string(self.conn) % (start_date, end_date, 'TRUE'))
-        data = json.dumps(self.cursor.fetchall())
+    def get_unknown_results(self, epvs, template):
+        """Get version information from graph."""
+        graph_output = generate_report_for_unknown_epvs(epvs)
+        count = {}
+        template['ingestion_summary']['unknown_deps'] = {}
+        for epv in epvs:
+            eco = epv['ecosystem']
+            pkg = epv['name']
+            ver = epv['version']
+            if eco not in count:
+                count[eco] = {
+                    'ingested_in_graph': 0,
+                    'not_ingested_in_graph':  0
+                }
+            if eco not in template['ingestion_summary']['unknown_deps']:
+                template['ingestion_summary']['unknown_deps'][eco] = []
+            output = graph_output[eco + "@DELIM@" + pkg + "@DELIM@" + ver]
+            if 'private_pkg' not in template['ingestion_details'][eco][pkg]:
+                template['ingestion_details'][eco][pkg][ver]['synced_to_graph'] = output
+                if output == "false":
+                    template['ingestion_summary']['unknown_deps'][eco].append(epv)
+                    count[eco]['not_ingested_in_graph'] += 1
+                else:
+                    count[eco]['ingested_in_graph'] += 1
+        template['ingestion_summary']['ingestion_stats'] = count
+        return template
 
-        result['EPV_GRAPH_SUCCESS_DATA'] = data
-
-        self.normalize_ingestion_data(start_date, end_date, result, frequency)
-        return result
+    def check_latest_node(self, latest_epvs, template):
+        """Get if latest node is present in graph."""
+        graph_output = generate_report_for_unknown_epvs(latest_epvs)
+        missing_latest = {}
+        for epv in latest_epvs:
+            eco = epv['ecosystem']
+            pkg = epv['name']
+            ver = epv['version']
+            output = graph_output[eco + "@DELIM@" + pkg + "@DELIM@" + ver]
+            template['ingestion_details'][eco][pkg]['latest_node_in_graph'] = output
+            if output is "false":
+                if eco not in missing_latest:
+                    missing_latest[eco] = []
+                tmp = {
+                    "package": pkg,
+                    "version": ver
+                }
+                missing_latest[eco].append(tmp)
+        template['ingestion_summary']['missing_latest_node'] = missing_latest
+        return template
 
     def normalize_ingestion_data(self, start_date, end_date, ingestion_data, frequency='daily'):
         """Normalize worker data for reporting."""
@@ -563,102 +648,35 @@ class ReportHelper:
                 'generated_on': dt.now().isoformat('T')
             },
             'ingestion_summary': {},
-            'ingestion_details_v2': {}
+            'ingestion_details': {}
         }
 
-        all_deps_count = {'all': 0}
-        failed_deps_count = {'all': 0}
-        all_epv_list_v2 = {}
+        epv_data = ingestion_data['EPV_DATA']
+        epv_data = json.loads(epv_data)
 
-        # Graph Availability validation starts
-        success_epv_data = ingestion_data['EPV_GRAPH_SUCCESS_DATA']
-        success_epv_data = json.loads(success_epv_data)
-        graph_input = []
-        for data in success_epv_data:
-            all_deps_count['all'] = all_deps_count['all'] + 1
-            if all_deps_count.get(data[0]) is None:
-                all_deps_count[data[0]] = 0
-            all_deps_count[data[0]] = all_deps_count[data[0]] + 1
-            graph_template = {
-                'ecosystem': data[0],
-                'name': data[1],
-                'version': data[2]
+        epvs = []
+        ing_details = {}
+        for epv in epv_data:
+            eco = epv[0]
+            pkg = epv[1]
+            ver = epv[2]
+            epv_template = {
+                'ecosystem': eco,
+                'name': pkg,
+                'version': ver
             }
-            graph_input.append(graph_template)
+            epvs.append(epv_template)
 
-        # The below graph call determines the eistence of ingested epvs in the graph
-        graph_output = generate_report_for_unknown_epvs(graph_input)
-        for attributes, values in graph_output.items():
-            versn_template = {}
-            epv_arr = attributes.split('@')
-            if all_epv_list_v2.get(epv_arr[0]) is None:
-                all_epv_list_v2[epv_arr[0]] = {}
-            all_epv_list_v2[epv_arr[0]][epv_arr[1]] = {}
-            all_epv_list_v2[epv_arr[0]][epv_arr[1]]['package_known'] = values
-            all_epv_list_v2[epv_arr[0]][epv_arr[1]]['versions'] = []
-            versn_template['version'] = epv_arr[2]
-            versn_template['ingested_in_graph'] = values
-            if values == 'false':
-                failed_deps_count['all'] = failed_deps_count['all'] + 1
-                if failed_deps_count.get(epv_arr[0]) is None:
-                    failed_deps_count[epv_arr[0]] = 0
-                failed_deps_count[epv_arr[0]] = failed_deps_count[epv_arr[0]] + 1
-            all_epv_list_v2[epv_arr[0]][epv_arr[1]]['versions'].append(versn_template)
-
-        failed_epv_data = ingestion_data['EPV_GRAPH_FAILED_DATA']
-        failed_epv_data = json.loads(failed_epv_data)
-        for data in failed_epv_data:
-            versn_template = {}
-            all_deps_count['all'] = all_deps_count['all'] + 1
-            if all_deps_count.get(data[0]) is None:
-                all_deps_count[data[0]] = 0
-            all_deps_count[data[0]] = all_deps_count[data[0]] + 1
-            failed_deps_count['all'] = failed_deps_count['all'] + 1
-            if failed_deps_count.get(data[0]) is None:
-                failed_deps_count[data[0]] = 0
-            failed_deps_count[data[0]] = failed_deps_count[data[0]] + 1
-            if all_epv_list_v2.get(data[0]) is None:
-                all_epv_list_v2[data[0]] = {}
-            all_epv_list_v2[data[0]][data[1]] = {}
-            all_epv_list_v2[data[0]][data[1]]['versions'] = []
-            versn_template['version'] = data[2]
-            versn_template['ingested_in_graph'] = 'false'
-            all_epv_list_v2[data[0]][data[1]]['versions'].append(versn_template)
-            graph_template = {
-                'ecosystem': data[0],
-                'name': data[1],
-                'version': data[2]
-            }
-            graph_input.append(graph_template)
-
-        # The below graph call determines the latest version information for
-        # ingested epvs in the graph
-        graph_output = generate_report_for_latest_version(graph_input)
-        for attributes, values in graph_output.items():
-            epv_arr = attributes.split('@')
-            if all_epv_list_v2.get(epv_arr[0]) is None:
-                all_epv_list_v2[epv_arr[0]] = {}
-            all_epv_list_v2[epv_arr[0]][epv_arr[1]]['known_latest_version'] = \
-                values['known_latest_version']
-            all_epv_list_v2[epv_arr[0]][epv_arr[1]]['actual_latest_version'] = \
-                values['actual_latest_version']
-            if values['known_latest_version'] == '':
-                all_epv_list_v2[epv_arr[0]][epv_arr[1]]['package_known'] = 'false'
-
-        template['ingestion_details_v2'] = all_epv_list_v2
-
-        # creating the epv ingestion statistics info according to the ecosystems
-        template['ingestion_summary']['total_epv_ingestion_count'] = all_deps_count['all']
-        for data in all_deps_count:
-            if failed_deps_count.get(data) is None:
-                failed_deps_count[data] = 0
-            stats_template = {
-                'epv_ingestion_count': all_deps_count[data],
-                'epv_successfully_ingested_count':
-                    all_deps_count[data] - failed_deps_count[data],
-                'failed_epv_ingestion_count': failed_deps_count[data]
-            }
-            template['ingestion_summary'][data] = stats_template
+            if eco not in ing_details:
+                ing_details[eco] = {}
+            if pkg not in ing_details[eco]:
+                ing_details[eco][pkg] = {}
+            if ver not in ing_details[eco][pkg]:
+                ing_details[eco][pkg][ver] = {}
+        template['ingestion_details'] = ing_details
+        template, latest_epvs = self.get_package_results(epvs, template)
+        template = self.get_unknown_results(epvs, template)
+        template = self.check_latest_node(latest_epvs, template)
 
         # Saving the final report in the relevant S3 bucket
         try:
@@ -669,6 +687,8 @@ class ReportHelper:
                                        bucket_name=self.s3.report_bucket_name)
         except Exception as e:
             logger.exception('Unable to store the report on S3. Reason: %r' % e)
+        logger.info("------------Temporarily printing the ingestion report-----------")
+        logger.info(template)
         return template
 
     def get_report(self, start_date, end_date, frequency='daily'):
@@ -677,11 +697,7 @@ class ReportHelper:
         ingestion_results = False
         if frequency == 'daily':
             result = self.retrieve_ingestion_results(start_date, end_date)
-            epv_failed_data = result['EPV_GRAPH_FAILED_DATA']
-            epv_failed_data = json.loads(epv_failed_data)
-            epv_success_data = result['EPV_GRAPH_SUCCESS_DATA']
-            epv_success_data = json.loads(epv_success_data)
-            if len(epv_success_data) > 0 or len(epv_failed_data) > 0:
+            if result['ingestion_details'] != {}:
                 ingestion_results = True
             else:
                 ingestion_results = False

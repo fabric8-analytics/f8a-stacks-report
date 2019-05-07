@@ -21,6 +21,38 @@ emr_resp = {
     "JobFlowId": "j-LF2OPMVXAPQD"
 }
 
+mock_true = {
+    "ingestion_details": {
+        "a": "b"
+    }
+}
+
+mock_false = {
+    "ingestion_details": {}
+}
+
+unknown_json = {
+    "npm@DELIM@lodash@DELIM@4.17.11": "true",
+    "npm@DELIM@jquery@DELIM@3.3.1": "false",
+    "npm@DELIM@jquery@DELIM@3.6.4": "false"
+}
+
+latest_json = {
+    "npm@DELIM@jquery": {
+        "ecosystem": "npm",
+        "name": "jquery",
+        "known_latest_version": "3.6.3",
+        "actual_latest_version": "3.6.4"
+    },
+    "npm@DELIM@lodash": {
+        "ecosystem": "npm",
+        "name": "lodash",
+        "known_latest_version": "4.17.11",
+        "actual_latest_version": "4.17.11"
+    }
+
+}
+
 with open('tests/data/stacks_with_recurrence_count.json', 'r') as f:
     unique_stacks_with_recurrence_count = json.load(f)
 
@@ -318,9 +350,9 @@ def test_normalize_worker_data_no_stack_aggregator(_mock_count):
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_worker_results', return_value=True)
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_stack_analyses_ids', return_value=['1'])
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_ingestion_results',
-            return_value=ingestiondata)
+            return_value=mock_true)
 def test_get_report(_mock1, _mock2, _mock3):
-    """Test sucess Get Report."""
+    """Test success Get Report."""
     res, ing_res = r.get_report('2018-10-10', '2018-10-18')
     assert res is True
 
@@ -328,7 +360,7 @@ def test_get_report(_mock1, _mock2, _mock3):
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_worker_results', return_value=True)
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_stack_analyses_ids', return_value=[])
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_ingestion_results',
-            return_value=ingestiondata)
+            return_value=mock_false)
 def test_get_report_negative_results(_mock1, _mock2, _mock3):
     """Test failure Get Report."""
     res, ing_res = r.get_report('2018-10-10', '2018-10-18')
@@ -342,7 +374,9 @@ def test_retrieve_worker_results():
 
 
 @mock.patch('f8a_report.report_helper.S3Helper.store_json_content', return_value=True)
-def test_normalize_ingestion_data(_mock1):
+@mock.patch('f8a_report.report_helper.generate_report_for_unknown_epvs', return_value=unknown_json)
+@mock.patch('f8a_report.report_helper.generate_report_for_latest_version', return_value=latest_json)
+def test_normalize_ingestion_data(_mock1, _mock2, _mock3):
     """Test the success scenario of the function normalize_worker_data."""
     resp = r.normalize_ingestion_data('2018-10-10', '2018-10-18', ingestiondata, 'daily')
     assert resp is not None
