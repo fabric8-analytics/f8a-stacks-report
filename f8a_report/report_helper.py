@@ -620,7 +620,7 @@ class ReportHelper:
             ver = epv['version']
             output = graph_output[eco + "@DELIM@" + pkg + "@DELIM@" + ver]
             template['ingestion_details'][eco][pkg]['latest_node_in_graph'] = output
-            if output is "false":
+            if output == "false":
                 if eco not in missing_latest:
                     missing_latest[eco] = []
                 tmp = {
