@@ -595,7 +595,7 @@ class ReportHelper:
             if eco not in count:
                 count[eco] = {
                     'ingested_in_graph': 0,
-                    'not_ingested_in_graph':  0
+                    'not_ingested_in_graph': 0
                 }
             if eco not in template['ingestion_summary']['unknown_deps']:
                 template['ingestion_summary']['unknown_deps'][eco] = []
