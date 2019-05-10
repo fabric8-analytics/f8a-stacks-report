@@ -57,6 +57,15 @@ class ReportHelper:
             'PYPI_TRAINING_REPO', 'https://github.com/fabric8-analytics/f8a-pypi-insights')
 
         self.emr_api = os.getenv('EMR_API', 'http://f8a-emr-deployment:6006')
+        self.sentry_api_issues = os.getenv('SENTRY_API_ISSUES', 'https://errortracking'
+                                                                '.prod-preview.openshift'
+                                                                '.io/api/0/projects/openshift_io/'
+                                                                'fabric8-analytics-production/'
+                                                                'issues/')
+        self.sentry_api_tags = os.getenv('SENTRY_API_TAGS',
+                                         'https://errortracking.prod-preview'
+                                         '.openshift.io/api/0/issues/')
+        self.sentry_token = os.getenv('SENTRY_AUTH_TOKEN', '')
 
     def validate_and_process_date(self, some_date):
         """Validate the date format and apply the format YYYY-MM-DDTHH:MI:SSZ."""
@@ -664,6 +673,114 @@ class ReportHelper:
             logger.exception('Unable to store the report on S3. Reason: %r' % e)
         return template
 
+    def retrieve_sentry_logs(self, start_date, end_date, frequency='daily'):
+        """Retrieve results for selected worker from RDB."""
+        result = {}
+        try:
+            # Invoke Sentry API to run the error collection
+            auth = 'Bearer {token}'.format(token=self.sentry_token)
+            resp = requests.get(url=self.sentry_api_issues + '?statsPeriod=24h',
+                                headers={"Authorization": auth})
+            # Check for status code
+            # If status is not success, log it as an error
+            if resp.status_code == 200:
+                logger.info('Successfully invoked Sentry API \n {resp}'.format(resp=resp.json()))
+                # associate the retrieved data to result
+                result = self.normalize_sentry_data(start_date, end_date, resp.json())
+            else:
+                logger.error('Error received from SSentry API \n {resp}'.format(resp=resp.json()))
+        except Exception as e:
+            logger.error('Unable to invoke Sentry API. Reason: %r' % e)
+        print(json.dumps(result))
+        return result
+
+    def normalize_sentry_data(self, start_date, end_date, errorlogs):
+        """Retrieve results for selected worker from RDB."""
+        report_type = 'sentry-error-data'
+        report_name = dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
+        result = {
+            "error_report": {}
+        }
+        i = 0
+        for item in errorlogs:
+            errors = {}
+            events = self.retrieve_events(item['id'])
+            errors['id'] = item['id']
+            errors['lastSeen'] = item['lastSeen']
+            errors[events['pods_impacted']] = item['metadata']['type'] + ": " + \
+                item['metadata']['value'] if item['metadata'].get('type')\
+                else item['metadata']['title']
+            errors['stacktrace'] = events['stacktrace']
+            endpointpodname = events['pods_impacted'].split('-')
+            endpointpodname.pop(len(endpointpodname) - 1)
+            endpointpodname.pop(len(endpointpodname) - 1)
+            server_name = "-".join(endpointpodname)
+            result['error_report'][server_name] = result['error_report'][server_name] \
+                if result['error_report'].get(server_name) else {}
+            result['error_report'][server_name]['total_errors'] = \
+                result['error_report'][server_name]['total_errors'] + 1 \
+                if result['error_report'][server_name].get('total_errors') else 1
+            if not result['error_report'][server_name].get('errors'):
+                result['error_report'][server_name]['errors'] = []
+            result['error_report'][server_name]['errors'].append(errors)
+            # Saving the final report in the relevant S3 bucket
+            i = i + 1
+            if i > 6:
+                break
+
+            try:
+                obj_key = '{depl_prefix}/{type}/{report_name}.json'.format(
+                    depl_prefix=self.s3.deployment_prefix, type=report_type, report_name=report_name
+                )
+                self.s3.store_json_content(content=result, obj_key=obj_key,
+                                           bucket_name=self.s3.report_bucket_name)
+            except Exception as e:
+                logger.exception('Unable to store the report on S3. Reason: %r' % e)
+
+        return result
+
+    def retrieve_events(self, issue_id):
+        """Retrieve results for issue events."""
+        events = {'stacktrace': ''}
+
+        try:
+            # Invoke Sentry API to run the event collection
+            auth = 'Bearer {token}'.format(token=self.sentry_token)
+            resp = requests.get(url=self.sentry_api_tags + issue_id + '/events/latest/',
+                                headers={"Authorization": auth})
+            # Check for status code
+            # If status is not success, log it as an error
+            if resp.status_code == 200:
+                logger.info('Successfully invoked Sentry API \n {resp}'.format(resp=resp.json()))
+                output = resp.json()
+                # retrieving server name info
+                for item in output['tags']:
+                    if item['key'] == 'server_name':
+                        events['pods_impacted'] = item['value']
+                        break
+                # Collecting stacktrace for each frames
+                if output['entries'][1]['type'] == 'exception':
+                    for frames in output['entries'][1]['data']['values'][0]['stacktrace']['frames']:
+                        stacktrace = 'File ' + frames['filename'] + ', Line ' + \
+                                     str(frames['lineNo']) + ', Function ' + \
+                                     frames['function']
+                        # Collecting stacktrace for each line Nos
+                        for context in frames['context']:
+                            if frames['lineNo'] in context:
+                                stacktrace = stacktrace + ', Statement ' + \
+                                             context[1] + ' || '
+                                break
+                        else:
+                            stacktrace = stacktrace + ' || '
+                        events['stacktrace'] = events['stacktrace'] + stacktrace
+                else:
+                    events['stacktrace'] = 'Not Available'
+            else:
+                logger.error('Error received from Sentry API \n {resp}'.format(resp=resp.json()))
+        except Exception as e:
+            logger.error('Unable to invoke Sentry API3. Reason: %r' % e)
+        return events
+
     def get_report(self, start_date, end_date, frequency='daily'):
         """Generate the stacks report."""
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
@@ -674,6 +791,10 @@ class ReportHelper:
                 ingestion_results = True
             else:
                 ingestion_results = False
+
+            result = self.retrieve_sentry_logs(start_date, end_date)
+            if result == {}:
+                logger.error('No Sentry Error Logs found in last 24 hours')
 
         if len(ids) > 0:
             worker_result = self.retrieve_worker_results(

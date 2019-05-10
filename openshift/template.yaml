@@ -68,8 +68,13 @@ objects:
                     secretKeyRef:
                       key: username
                       name: coreapi-postgres
+                - name: SENTRY_AUTH_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: worker
+                      key: sentry-auth-token
                 - name: REPORT_BUCKET_NAME
-                  value: developer-analytics-audit-report
+                  value: animukhe-developer-analytics-audit-report
                 - name: NPM_MODEL_BUCKET
                   value: ${NPM_MODEL_BUCKET}
                 - name: MAVEN_MODEL_BUCKET
