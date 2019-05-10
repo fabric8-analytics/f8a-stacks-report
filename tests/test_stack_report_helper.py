@@ -351,7 +351,8 @@ def test_normalize_worker_data_no_stack_aggregator(_mock_count):
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_stack_analyses_ids', return_value=['1'])
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_ingestion_results',
             return_value=mock_true)
-def test_get_report(_mock1, _mock2, _mock3):
+@mock.patch('f8a_report.report_helper.ReportHelper.retrieve_sentry_logs', return_value={})
+def test_get_report(_mock1, _mock2, _mock3, _mock4):
     """Test success Get Report."""
     res, ing_res = r.get_report('2018-10-10', '2018-10-18')
     assert res is True
@@ -361,7 +362,8 @@ def test_get_report(_mock1, _mock2, _mock3):
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_stack_analyses_ids', return_value=[])
 @mock.patch('f8a_report.report_helper.ReportHelper.retrieve_ingestion_results',
             return_value=mock_false)
-def test_get_report_negative_results(_mock1, _mock2, _mock3):
+@mock.patch('f8a_report.report_helper.ReportHelper.retrieve_sentry_logs', return_value={})
+def test_get_report_negative_results(_mock1, _mock2, _mock3, _mock4):
     """Test failure Get Report."""
     res, ing_res = r.get_report('2018-10-10', '2018-10-18')
     assert res is False
