@@ -724,10 +724,6 @@ class ReportHelper:
                 result['error_report'][server_name]['errors'] = []
             result['error_report'][server_name]['errors'].append(errors)
             # Saving the final report in the relevant S3 bucket
-            i = i + 1
-            if i > 6:
-                break
-
             try:
                 obj_key = '{depl_prefix}/{type}/{report_name}.json'.format(
                     depl_prefix=self.s3.deployment_prefix, type=report_type, report_name=report_name
