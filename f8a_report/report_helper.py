@@ -38,10 +38,10 @@ class ReportHelper:
 
     def __init__(self):
         """Init method for the Report helper class."""
+        self.s3 = S3Helper()
         # self.pg = Postgres()
         # self.conn = self.pg.conn
         # self.cursor = self.pg.cursor
-        self.cursor = self.pg.cursor
         self.npm_model_bucket = os.getenv('NPM_MODEL_BUCKET', 'cvae-insights')
         self.maven_model_bucket = os.getenv('MAVEN_MODEL_BUCKET', 'hpf-insights')
         self.pypi_model_bucket = os.getenv('PYPI_MODEL_BUCKET', 'hpf-insights')
