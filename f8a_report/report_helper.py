@@ -38,9 +38,9 @@ class ReportHelper:
 
     def __init__(self):
         """Init method for the Report helper class."""
-        self.s3 = S3Helper()
-        self.pg = Postgres()
-        self.conn = self.pg.conn
+        # self.pg = Postgres()
+        # self.conn = self.pg.conn
+        # self.cursor = self.pg.cursor
         self.cursor = self.pg.cursor
         self.npm_model_bucket = os.getenv('NPM_MODEL_BUCKET', 'cvae-insights')
         self.maven_model_bucket = os.getenv('MAVEN_MODEL_BUCKET', 'hpf-insights')
@@ -783,14 +783,15 @@ class ReportHelper:
 
     def get_report(self, start_date, end_date, frequency='daily'):
         """Generate the stacks report."""
-        ids = self.retrieve_stack_analyses_ids(start_date, end_date)
+        # ids = self.retrieve_stack_analyses_ids(start_date, end_date)
+        ids = []
         ingestion_results = False
         if frequency == 'daily':
-            result = self.retrieve_ingestion_results(start_date, end_date)
-            if result['ingestion_details'] != {}:
-                ingestion_results = True
-            else:
-                ingestion_results = False
+            # result = self.retrieve_ingestion_results(start_date, end_date)
+            # if result['ingestion_details'] != {}:
+            #     ingestion_results = True
+            # else:
+            #     ingestion_results = False
 
             result = self.retrieve_sentry_logs(start_date, end_date)
             if result == {}:
@@ -803,4 +804,4 @@ class ReportHelper:
         else:
             logger.error('No stack analyses found from {s} to {e} to generate an aggregated report'
                          .format(s=start_date, e=end_date))
-            return False, ingestion_results
+            return False, ingestion_results 
