@@ -396,8 +396,8 @@ class ReportHelper:
             }
 
             today = dt.today()
-            # Invoke this every Monday. In Python, Monday is 0 and Sunday is 6
-            if today.weekday() == 0:
+            # Invoke this every Wednesday. In Python, Monday is 0 and Sunday is 6
+            if today.weekday() == 2:
                 # Collate Data from Previous Month for Model Retraining
                 collated_data = self.collate_raw_data(unique_stacks_with_recurrence_count,
                                                       'weekly')
