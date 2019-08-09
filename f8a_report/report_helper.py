@@ -255,8 +255,8 @@ class ReportHelper:
                     # This EMR invocation happens for all ecosystems almost at the same time.
                     # TODO - find an alternative if there is a need
                     self.invoke_emr_api(bucket_name, eco, model_version, github_repo)
-                except Exception:
-                    continue
+                except Exception as e:
+                    logger.exception('Unable to invoke EMR API. Reason: %r' % e)
 
     def get_trending(self, mydict, top_trending_count=3):
         """Generate the top trending items list."""
