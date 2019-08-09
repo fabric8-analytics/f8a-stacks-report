@@ -48,7 +48,8 @@ latest_json = {
         "ecosystem": "npm",
         "name": "jquery",
         "known_latest_version": "3.6.3",
-        "actual_latest_version": "3.6.4"
+        "actual_latest_version": "3.6.4",
+        "latest_non_cve_version": "3.6.4"
     },
     "npm@DELIM@lodash": {
         "ecosystem": "npm",
@@ -60,7 +61,8 @@ latest_json = {
         "ecosystem": "pypi",
         "name": "dep2",
         "known_latest_version": "3.3.1",
-        "actual_latest_version": "3.3.2"
+        "actual_latest_version": "3.3.2",
+        "latest_non_cve_version": "3.3.2"
     },
     "pypi@DELIM@dep1": {
         "ecosystem": "pypi",

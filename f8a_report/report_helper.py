@@ -397,7 +397,8 @@ class ReportHelper:
 
             today = dt.today()
             # Invoke this every Monday. In Python, Monday is 0 and Sunday is 6
-            if today.weekday() == 0:
+            # temp fix for retraining bug
+            if today.weekday() >= 0:
                 # Collate Data from Previous Month for Model Retraining
                 collated_data = self.collate_raw_data(unique_stacks_with_recurrence_count,
                                                       'weekly')
@@ -557,6 +558,10 @@ class ReportHelper:
                     = known_latest_ver
                 template['ingestion_details'][eco][pkg]['actual_latest_version'] \
                     = actual_latest_ver
+                non_cve_version = pkg_data.get('non_cve_version', '')
+                if non_cve_version:
+                    template['ingestion_details'][eco][pkg]['non_cve_version'] \
+                        = non_cve_version
                 latest_json = {
                     "ecosystem": eco,
                     "name": pkg,

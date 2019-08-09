@@ -7,7 +7,6 @@ import requests
 import traceback
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from requests_futures.sessions import FuturesSession
 
 _logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -24,7 +23,6 @@ _SYNC_ENDPOINT = "api/v1/sync_latest_version"
 _SYNC_API_URL = "http://{host}:{port}/{endpoint}".format(host=_SERVICE_HOST,
                                                          port=_SERVICE_PORT,
                                                          endpoint=_SYNC_ENDPOINT)
-_session = FuturesSession(max_workers=3)
 
 
 def rectify_latest_version(incorrect_list, eco, stack_flow=False):
@@ -48,7 +46,9 @@ def rectify_latest_version(incorrect_list, eco, stack_flow=False):
 
     try:
         _logger.info("Calling sync_latest_version API for the ecosystem {}".format(eco))
-        _session.post(_SYNC_API_URL, json=deps)
+        resp = requests.post(_SYNC_API_URL, json=deps, timeout=1800)
+        _logger.info("Response for the sync_latest_version API call.........")
+        _logger.info(resp.json())
         return "Success"
     except Exception:
         _logger.error(traceback.format_exc())
@@ -178,7 +178,8 @@ def generate_report_for_latest_version(epv_list):
             "ecosystem": eco,
             "name": pkg,
             "known_latest_version": "",
-            "actual_latest_version": latest
+            "actual_latest_version": latest,
+            "non_cve_version": ""
         }
         report_result[eco + "@DELIM@" + pkg] = tmp
 
@@ -188,7 +189,9 @@ def generate_report_for_latest_version(epv_list):
             eco = get_value(res, 'ecosystem')
             pkg = get_value(res, 'name')
             latest_pkg_version = get_value(res, 'latest_version')
+            non_cve_version = get_value(res, 'latest_non_cve_version')
             report_result[eco + "@DELIM@" + pkg]['known_latest_version'] = latest_pkg_version
+            report_result[eco + "@DELIM@" + pkg]['non_cve_version'] = non_cve_version
 
     return report_result
 

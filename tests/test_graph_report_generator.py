@@ -6,6 +6,24 @@ from f8a_report.graph_report_generator import execute_gremlin_dsl, \
 from unittest import mock
 
 
+def mock_post_with_payload_check(*_args, **kwargs):
+    """Mock the call to the Gremlin service."""
+    class MockResponse:
+        """Mock response object."""
+
+        def __init__(self, json_data, status_code):
+            """Create a mock json response."""
+            self.json_data = json_data
+            self.status_code = status_code
+
+        def json(self):
+            """Get the mock json response."""
+            return self.json_data
+    # return the empty payload send to the mocked service
+    resp = kwargs["json"]
+    return MockResponse(resp, 200)
+
+
 def mock_response():
     """Generate data for mock response."""
     x = {
@@ -206,8 +224,10 @@ def test_find_ingested_epv(mocker):
     assert out['report']['serve-static 1.7.1'] == 'Ingested'
 
 
-def test_rectify_latest_version():
+@mock.patch('requests.post', side_effect=mock_post_with_payload_check)
+def test_rectify_latest_version(mocker):
     """Test the function rectify_latest_version."""
+    mocker.return_value = ""
     lst = [
         {
             "package": "io.vertx:vertx-web",
@@ -218,8 +238,10 @@ def test_rectify_latest_version():
     assert resp == "Success"
 
 
-def test_rectify_latest_version2():
+@mock.patch('requests.post', side_effect=mock_post_with_payload_check)
+def test_rectify_latest_version2(mocker):
     """Test the function rectify_latest_version."""
+    mocker.return_value = ""
     lst = {'express 4.0.0': 2, 'npm 6.2.0': 2, 'serve-static 1.7.1': 2}
     resp = rectify_latest_version(lst, "npm", True)
     assert resp == "Success"
