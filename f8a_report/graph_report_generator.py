@@ -7,6 +7,7 @@ import requests
 import traceback
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -155,7 +156,7 @@ def find_ingested_epv(ecosystem, pvlist):
             'report': report_result}
 
 
-def generate_report_for_latest_version(epv_list):
+def generate_report_for_latest_version(epv_list, day):
     """Generate a report for the latest version.
 
     :param epv_list: list, list of EPVs
@@ -173,23 +174,32 @@ def generate_report_for_latest_version(epv_list):
             "0": eco,
             "1": pkg
         })
-        latest = get_latest_versions_for_ep(eco, pkg)
         tmp = {
             "ecosystem": eco,
             "name": pkg,
             "known_latest_version": "",
-            "actual_latest_version": latest,
+            "actual_latest_version": "",
             "non_cve_version": ""
         }
         report_result[eco + "@DELIM@" + pkg] = tmp
 
     result_data = batch_query_executor(query_str, args)
+    today = day.strftime('%Y%m%d')
+    yesterday = (day - timedelta(days=1)).strftime('%Y%m%d')
     if result_data is not None:
         for res in result_data:
             eco = get_value(res, 'ecosystem')
             pkg = get_value(res, 'name')
             latest_pkg_version = get_value(res, 'latest_version')
             non_cve_version = get_value(res, 'latest_non_cve_version')
+            last_updated_date = get_value(res, 'latest_version_last_updated')
+            if last_updated_date == today or last_updated_date == yesterday:
+                report_result[eco + "@DELIM@" + pkg]['actual_latest_version'] = latest_pkg_version
+            else:
+                _logger.info("Dates don't match. Will pick the version from upstream for {e} {p}"
+                             .format(e=eco, p=pkg))
+                latest = get_latest_versions_for_ep(eco, pkg)
+                report_result[eco + "@DELIM@" + pkg]['actual_latest_version'] = latest
             report_result[eco + "@DELIM@" + pkg]['known_latest_version'] = latest_pkg_version
             report_result[eco + "@DELIM@" + pkg]['non_cve_version'] = non_cve_version
 

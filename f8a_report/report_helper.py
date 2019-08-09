@@ -689,7 +689,8 @@ class ReportHelper:
         template, epvs = self.populate_default_information(epv_data, template)
 
         logger.info("Fetching details of the latest version for the epvs")
-        pkg_output = generate_report_for_latest_version(epvs)
+        today = dt.today()
+        pkg_output = generate_report_for_latest_version(epvs, today)
         logger.info("Fetching details of the unknown packages for the epvs")
         ver_output = generate_report_for_unknown_epvs(epvs)
 

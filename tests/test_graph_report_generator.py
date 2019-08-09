@@ -4,6 +4,7 @@ from f8a_report.graph_report_generator import execute_gremlin_dsl, \
     generate_report_for_unknown_epvs, generate_report_for_latest_version, \
     generate_report_for_cves, find_ingested_epv, rectify_latest_version
 from unittest import mock
+from datetime import date
 
 
 def mock_post_with_payload_check(*_args, **kwargs):
@@ -49,12 +50,19 @@ def mock_response1():
                 {
                     "ecosystem": ["maven"],
                     "name": ["io.vertx:vertx-web"],
-                    "latest_version": ["3.6.3"]
+                    "latest_version": ["3.6.3"],
+                    "latest_version_last_updated": ["19470815"]
                 },
                 {
                     "ecosystem": ["npm"],
                     "name": ["lodash"],
                     "latest_version": ["2.39.2"]
+                },
+                {
+                    "ecosystem": ["npm"],
+                    "name": ["test-hooks"],
+                    "latest_version": ["1.1.1"],
+                    "latest_version_last_updated": ["19470814"]
                 }
             ]
         }
@@ -157,11 +165,13 @@ def test_generate_report_for_latest_version(mocker):
                     "ecosystem": "npm",
                     "name": "test-hooks"
                 }]
-    out = generate_report_for_latest_version(epv_list)
+    out = generate_report_for_latest_version(epv_list, date(1947, 8, 15))
     assert out['maven@DELIM@io.vertx:vertx-web']['known_latest_version'] == "3.6.3"
     assert out['npm@DELIM@lodash']['known_latest_version'] == "2.39.2"
-    assert out['maven@DELIM@io.vertx:vertx-web']['actual_latest_version'] is not None
+    assert out['maven@DELIM@io.vertx:vertx-web']['actual_latest_version'] == "3.6.3"
     assert out['npm@DELIM@lodash']['actual_latest_version'] is not None
+    assert out['npm@DELIM@lodash']['actual_latest_version'] != "2.39.2"
+    assert out['npm@DELIM@test-hooks']['actual_latest_version'] == "1.1.1"
 
 
 @mock.patch("f8a_report.graph_report_generator.execute_gremlin_dsl")
