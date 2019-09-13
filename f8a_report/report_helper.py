@@ -64,6 +64,16 @@ class ReportHelper:
             'PYPI_TRAINING_REPO', 'https://github.com/fabric8-analytics/f8a-pypi-insights')
 
         self.emr_api = os.getenv('EMR_API', 'http://f8a-emr-deployment:6006')
+        self.maven_hyperparams = {
+                                    "lower_limit": 13,
+                                    "upper_limit": 15,
+                                    "latent_factor": 300
+                                }
+        self.pypi_hyperparams = {
+                                    "lower_limit": 1,
+                                    "upper_limit": 415,
+                                    "latent_factor": 40
+                                }
 
     def validate_and_process_date(self, some_date):
         """Validate the date format and apply the format YYYY-MM-DDTHH:MI:SSZ."""
@@ -174,19 +184,20 @@ class ReportHelper:
                 result[eco] = {"bigquery_data": collated_big_query_data.get(eco)}
         return result
 
-    def invoke_emr_api(self, bucket_name, ecosystem, data_version, github_repo):
+    def invoke_emr_api(self, bucket_name, ecosystem, data_version, github_repo, hyperparams):
         """Invoke EMR Retraining API to start the retraining process."""
         payload = {
             'bucket_name': bucket_name,
             'github_repo': github_repo,
             'ecosystem': ecosystem,
-            'data_version': data_version
+            'data_version': data_version,
+            'hyperparams': hyperparams
         }
 
         logger.info('bucket_name for {eco}: {buck}'.format(eco=ecosystem, buck=bucket_name))
         logger.info('github_repo for {eco}: {git}'.format(eco=ecosystem, git=github_repo))
         logger.info('data_version for {eco}: {data}'.format(eco=ecosystem, data=data_version))
-
+        logger.info('Hyperparametrs for {eco}: {data}'.format(eco=ecosystem, data=hyperparams))
         try:
             # Invoke EMR API to run the retraining
             resp = requests.post(url=self.emr_api + '/api/v1/runjob', json=payload)
@@ -237,10 +248,12 @@ class ReportHelper:
             if eco == 'maven':
                 bucket_name = self.maven_model_bucket
                 github_repo = self.maven_training_repo
+                hyperparams = self.maven_hyperparams
                 logger.info('maven bucket name is: {bucket}'.format(bucket=bucket_name))
             elif eco == 'pypi':
                 bucket_name = self.pypi_model_bucket
                 github_repo = self.pypi_training_repo
+                hyperparams = self.pypi_hyperparams
                 logger.info('pypi bucket name is: {bucket}'.format(bucket=bucket_name))
             elif eco == 'go':
                 bucket_name = self.golang_model_bucket
@@ -263,7 +276,7 @@ class ReportHelper:
                     # Invoke the EMR API to kickstart retraining process
                     # This EMR invocation happens for all ecosystems almost at the same time.
                     # TODO - find an alternative if there is a need
-                    self.invoke_emr_api(bucket_name, eco, model_version, github_repo)
+                    self.invoke_emr_api(bucket_name, eco, model_version, github_repo, hyperparams)
                 except Exception as e:
                     logger.error('Unable to invoke EMR API. Reason: %r' % e)
 
