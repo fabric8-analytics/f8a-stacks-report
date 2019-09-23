@@ -19,12 +19,14 @@ class GetReport:
 
     def __init__(self):
         """Init method for the Report helper class."""
+        logger.info('Get Report Initialised')
         self.s3 = S3Helper()
         self.curr_dir = os.path.join(
             os.path.abspath(os.curdir), "f8a_report", "manifests")
 
     def generate_manifest_for_pypi(self, stack_report):
         """Generate manifest file for pypi."""
+        logger.info('Generating Manifest for Pypi executed')
         file_name = "requirements.txt"
         file_path = os.path.join(self.curr_dir, file_name)
         write_to_file = ''
@@ -36,6 +38,7 @@ class GetReport:
 
     def generate_manifest_for_npm(self, stack_report):
         """Generate manifest file for npm."""
+        logger.info('Generating manifest for NPM executed')
         file_name = "package.json"
         file_path = os.path.join(self.curr_dir, file_name)
         data = {"dependencies": {f"{dependency[0]}": f"{dependency[1]}"
@@ -46,6 +49,7 @@ class GetReport:
 
     def generate_manifest_for_maven(self, stack_report):
         """Generate manifest file for maven."""
+        logger.info('Generate Manifest for Maven executed')
         file_name = "pom.xml"
         file_path = os.path.join(self.curr_dir, file_name)
         tree = et.ElementTree(self.remove_namespace())
@@ -79,6 +83,7 @@ class GetReport:
 
     def save_manifest_to_s3(self, file_path, file_name):
         """Save Generated manifest file to S3."""
+        logger.info('Saving New Manifest in S3 executed')
         manifest_file_key = f'dynamic_manifests/{file_name}'
         self.s3.store_file_object(file_path=file_path,
                                   bucket_name=self.s3.report_bucket_name,
@@ -87,6 +92,7 @@ class GetReport:
     @staticmethod
     def remove_namespace():
         """Remove default namespace added by fromstring method."""
+        logger.info('Namespace removal executed')
         it = et.iterparse(StringIO(pom_temp))
         for _, el in it:
             if '}' in el.tag:
@@ -108,6 +114,7 @@ class FilterStacks:
 
     def filter_stacks_on_ecosystem(self, stack_report, stack_size=1):
         """Filter Stack Report on ecosystem."""
+        logger.info('Filtering Stacks on ecosystem executed')
         if stack_report['pypi']:
             pypi_stack_data = stack_report['pypi']['user_input_stack']
             pypi_stack_data = self.filter_stacks_on_size(pypi_stack_data, stack_size)
@@ -126,6 +133,7 @@ class FilterStacks:
     @staticmethod
     def filter_stacks_on_size(stack_report, stack_size):
         """Filter Stack Report on size."""
+        logger.info('Filtering Stacks on size Executed')
         try:
             sampled_stack_report = random.sample(stack_report.keys(), stack_size)
         except ValueError:
@@ -139,6 +147,7 @@ class FilterStacks:
 
 def manifest_interface(stack_report, stack_size):
     """Initialize function, executed first."""
+    logger.info('Manifest Generation Executed')
     FilterStacks().filter_stacks_on_ecosystem(
         stack_report=stack_report, stack_size=stack_size)
 
