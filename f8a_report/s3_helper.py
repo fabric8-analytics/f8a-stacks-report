@@ -123,3 +123,12 @@ class S3Helper:
                 logger.exception('%r' % e)
 
         return res
+
+    def store_file_object(self, file_path, bucket_name, file_name):
+        """Store the manifest file to the S3 storage."""
+        s3 = self.s3_client(bucket_name)
+        try:
+            logger.info('Storing the manifest into the S3 file %s' % file_name)
+            s3.meta.client.upload_file(file_path, bucket_name, file_name)
+        except Exception as e:
+            logger.exception('%r' % e)
