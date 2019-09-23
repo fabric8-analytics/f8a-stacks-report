@@ -19,6 +19,7 @@ from s3_helper import S3Helper
 from unknown_deps_report_helper import UnknownDepsReportHelper
 from sentry_report_helper import SentryReportHelper
 from cve_helper import CVE
+from manifest_helper import manifest_interface
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(level=logging.INFO)
@@ -183,6 +184,9 @@ class ReportHelper:
         collated_big_query_obj_key = 'big-query-data/collated.json'
         collated_big_query_data = self.s3.read_json_object(bucket_name=self.s3.report_bucket_name,
                                                            obj_key=collated_big_query_obj_key) or {}
+        if len(result) and isinstance(result, dict):
+            # Saving Filtered Stack_report as Manifest file for E2E
+            manifest_interface(stack_report=result, stack_size=1)
 
         for eco in collated_big_query_data.keys():
             if result.get(eco):
