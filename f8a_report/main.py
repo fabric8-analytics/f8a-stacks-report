@@ -27,6 +27,12 @@ def main():
     logger.debug(json.dumps(response, indent=2))
     logger.debug(json.dumps(ingestion_results, indent=2))
 
+    # weekly re-training of models
+    if today.weekday() == 0:
+        start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
+        end_date_wk = today.strftime('%Y-%m-%d')
+        r.retrain(start_date_wk, end_date_wk, 'weekly')
+
     if time_to_generate_monthly_report(today):
         last_day_of_prev_month = date(today.year, today.month, 1) - timedelta(days=1)
         last_month_first_date = last_day_of_prev_month.strftime('%Y-%m-01')
