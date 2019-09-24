@@ -312,7 +312,7 @@ class ReportHelper:
         else:
             return dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
 
-    def normalize_worker_data(self, start_date, end_date, stack_data, worker, frequency='daily'):
+    def normalize_worker_data(self, start_date, end_date, stack_data, worker, frequency='daily', retrain='F'):
         """Normalize worker data for reporting."""
         total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0}
 
@@ -405,7 +405,7 @@ class ReportHelper:
             }
 
             # Invokes weekly re-training of all ecosystems
-            if frequency == 'weekly':
+            if retrain == 'T':
                 # Appends last week's data to 'collated-weekly'; returns 'BQ+collated' data
                 collated_data = self.collate_raw_data(unique_stacks_with_recurrence_count,
                                                       'weekly')
@@ -482,7 +482,7 @@ class ReportHelper:
             return None
 
     def retrieve_worker_results(self, start_date, end_date, id_list=[], worker_list=[],
-                                frequency='daily'):
+                                frequency='daily', retrain='F'):
         """Retrieve results for selected worker from RDB."""
         result = {}
         # convert the elements of the id_list to sql.Literal
@@ -501,7 +501,7 @@ class ReportHelper:
 
             # associate the retrieved data to the worker name
             result[worker] = self.normalize_worker_data(start_date, end_date, data, worker,
-                                                        frequency)
+                                                        frequency, retrain)
         return result
 
     def retrieve_ingestion_results(self, start_date, end_date, frequency='daily'):
@@ -720,7 +720,7 @@ class ReportHelper:
             logger.exception('Unable to store the report on S3. Reason: %r' % e)
         return template
 
-    def get_report(self, start_date, end_date, frequency='daily'):
+    def get_report(self, start_date, end_date, frequency='daily', retrain='F'):
         """Generate the stacks report."""
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
         ingestion_results = False
@@ -742,20 +742,20 @@ class ReportHelper:
 
         if len(ids) > 0:
             worker_result = self.retrieve_worker_results(
-                start_date, end_date, ids, ['stack_aggregator_v2'], frequency)
+                start_date, end_date, ids, ['stack_aggregator_v2'], frequency, retrain)
             return worker_result, ingestion_results
         else:
             logger.error('No stack analyses found from {s} to {e} to generate an aggregated report'
                          .format(s=start_date, e=end_date))
             return False, ingestion_results
 
-    def retrain(self, start_date, end_date, frequency='weekly'):
-        """Re-trains models for all ecosystems"""
+    def retrain(self, start_date, end_date, frequency='weekly', retrain='T'):
+        """Re-trains models for all ecosystems."""
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
 
         if len(ids) > 0:
             self.retrieve_worker_results(
-                start_date, end_date, ids, ['stack_aggregator_v2'], frequency)
+                start_date, end_date, ids, ['stack_aggregator_v2'], frequency, retrain)
         else:
             logger.error('No stack analyses found from {s} to {e} to re-train models'
                          .format(s=start_date, e=end_date))
