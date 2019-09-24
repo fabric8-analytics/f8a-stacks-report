@@ -28,7 +28,7 @@ def main():
     logger.debug(json.dumps(ingestion_results, indent=2))
 
     # weekly re-training of models
-    if today.weekday() == 1:
+    if today.weekday() == 0:
         start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
         end_date_wk = today.strftime('%Y-%m-%d')
         r.retrain(start_date_wk, end_date_wk, 'weekly', retrain='T')
