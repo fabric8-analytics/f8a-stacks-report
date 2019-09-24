@@ -22,10 +22,16 @@ def main():
 
     start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = today.strftime('%Y-%m-%d')
-    response, ingestion_results = r.get_report(start_date, end_date, 'daily')
+    response, ingestion_results = r.get_report(start_date, end_date, 'daily', retrain='F')
     logger.debug('Daily report data from {s} to {e}'.format(s=start_date, e=end_date))
     logger.debug(json.dumps(response, indent=2))
     logger.debug(json.dumps(ingestion_results, indent=2))
+
+    # weekly re-training of models
+    if today.weekday() == 1:
+        start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
+        end_date_wk = today.strftime('%Y-%m-%d')
+        r.retrain(start_date_wk, end_date_wk, 'weekly', retrain='T')
 
     if time_to_generate_monthly_report(today):
         last_day_of_prev_month = date(today.year, today.month, 1) - timedelta(days=1)
@@ -33,7 +39,7 @@ def main():
         last_month_end_date = last_day_of_prev_month.strftime('%Y-%m-%d')
         response, ingestion_results = r.get_report(last_month_first_date,
                                                    last_month_end_date,
-                                                   'monthly')
+                                                   'monthly', retrain='F')
         logger.debug('Monthly report data from {s} to {e}'.format(s=start_date, e=end_date))
         logger.debug(json.dumps(response, indent=2))
 

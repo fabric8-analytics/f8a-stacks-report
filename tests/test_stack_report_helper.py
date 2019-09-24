@@ -353,7 +353,7 @@ def test_invoke_emr_api_failure(_mock):
 def test_normalize_worker_data(_mock1, _mock2, _mock3, _mock4):
     """Test the success scenario of the function normalize_worker_data."""
     resp = r.normalize_worker_data('2018-10-10', '2018-10-18',
-                                   stackdata, 'stack_aggregator_v2', 'weekly')
+                                   stackdata, 'stack_aggregator_v2', 'weekly', 'F')
 
     assert resp is not None
     # Test whether summary for two stacks are reported
@@ -373,7 +373,7 @@ def test_normalize_worker_data_no_stack_aggregator(_mock_count, _mock2):
     """Test the success scenario of the function normalize_worker_data."""
     resp = r.normalize_worker_data('2018-10-10', '2018-10-18',
                                    stackdata, 'something_different_from_stack_aggregator',
-                                   'weekly')
+                                   'weekly', 'F')
 
     assert resp is None
 
