@@ -312,7 +312,7 @@ class ReportHelper:
         else:
             return dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
 
-    def normalize_worker_data(self, start_date, end_date, stack_data, worker, frequency='daily', retrain='F'):
+    def normalize_worker_data(self, start_date, end_date, stack_data, worker, frequency, retrain):
         """Normalize worker data for reporting."""
         total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0}
 
