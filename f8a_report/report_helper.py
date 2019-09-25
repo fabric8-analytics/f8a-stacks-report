@@ -316,8 +316,80 @@ class ReportHelper:
         else:
             return dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
 
+    def collate_and_retrain(self, unique_stacks, frequency='weekly'):
+        """Appends stacks to 'collated-weekly' and re-trains models."""
+        # Appends last week's data to 'collated-weekly'; returns 'BQ+collated' data
+        collated_data = self.collate_raw_data(unique_stacks, frequency)
+        # Stores ecosystem specific manifest.json and re-trains models
+        self.store_training_data(collated_data)
+
+    def create_venus_report(self, start_date, frequency, report_name, template,
+                            unique_stacks_with_recurrence_count, all_deps, total_response_time,
+                            all_unknown_lic, all_cve_list, all_unknown_deps, total_stack_requests):
+        """Creates venus report."""
+        unique_stacks_with_deps_count = \
+            self.set_unique_stack_deps_count(unique_stacks_with_recurrence_count)
+
+        avg_response_time = {}
+        if total_stack_requests['npm'] > 0:
+            avg_response_time['npm'] = total_response_time['npm'] / total_stack_requests['npm']
+        else:
+            avg_response_time['npm'] = 0
+
+        if total_stack_requests['maven'] > 0:
+            avg_response_time['maven'] = \
+                total_response_time['maven'] / total_stack_requests['maven']
+        else:
+            avg_response_time['maven'] = 0
+
+        if total_stack_requests['pypi'] > 0:
+            avg_response_time['pypi'] = \
+                total_response_time['pypi'] / total_stack_requests['pypi']
+        else:
+            avg_response_time['pypi'] = 0
+
+        # Get a list of unknown licenses
+        unknown_licenses = []
+        for lic_dict in self.flatten_list(all_unknown_lic):
+            if 'license' in lic_dict:
+                unknown_licenses.append(lic_dict['license'])
+
+        unknown_deps_ingestion_report = self.unknown_deps_helper.get_current_ingestion_status()
+
+        # generate aggregated data section
+        template['stacks_summary'] = {
+            'total_stack_requests_count': total_stack_requests['all'],
+            'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
+                                              all_unknown_deps,
+                                              unique_stacks_with_recurrence_count,
+                                              unique_stacks_with_deps_count,
+                                              avg_response_time,
+                                              unknown_deps_ingestion_report),
+            'maven': self.get_ecosystem_summary('maven', total_stack_requests, all_deps,
+                                                all_unknown_deps,
+                                                unique_stacks_with_recurrence_count,
+                                                unique_stacks_with_deps_count,
+                                                avg_response_time,
+                                                unknown_deps_ingestion_report),
+            'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
+                                               all_unknown_deps,
+                                               unique_stacks_with_recurrence_count,
+                                               unique_stacks_with_deps_count,
+                                               avg_response_time,
+                                               unknown_deps_ingestion_report),
+            'unique_unknown_licenses_with_frequency':
+                self.populate_key_count(unknown_licenses),
+            'unique_cves':
+                self.populate_key_count(all_cve_list),
+            'total_average_response_time':
+                '{} ms'.format(total_response_time['all'] / len(template['stacks_details'])),
+            'cve_report': CVE().generate_cve_report(updated_on=start_date)
+        }
+        self.save_result(frequency, report_name, template)
+        return template
+
     def normalize_worker_data(self, start_date, end_date, stack_data, worker,
-                              frequency='daily', retrain='F'):
+                              frequency='daily', retrain=False):
         """Normalize worker data for reporting."""
         total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0}
 
@@ -409,84 +481,26 @@ class ReportHelper:
                 'pypi': self.populate_key_count(stacks_list['pypi'])
             }
 
-            if retrain == 'T':
-                # Appends last week's data to 'collated-weekly'; returns 'BQ+collated' data
-                collated_data = self.collate_raw_data(unique_stacks_with_recurrence_count,
-                                                      'weekly')
-                # Stores ecosystem specific manifest.json and re-trains models
-                self.store_training_data(collated_data)
-                return
-
             # Monthly data collection on the 1st of every month
             if frequency == 'monthly':
                 self.collate_raw_data(unique_stacks_with_recurrence_count, 'monthly')
 
-            unique_stacks_with_deps_count =\
-                self.set_unique_stack_deps_count(unique_stacks_with_recurrence_count)
-
-            avg_response_time = {}
-            if total_stack_requests['npm'] > 0:
-                avg_response_time['npm'] = total_response_time['npm'] / total_stack_requests['npm']
+            # re-train models or generate venus report
+            if retrain is True:
+                self.collate_and_retrain(unique_stacks_with_recurrence_count, 'weekly')
             else:
-                avg_response_time['npm'] = 0
-
-            if total_stack_requests['maven'] > 0:
-                avg_response_time['maven'] = \
-                    total_response_time['maven'] / total_stack_requests['maven']
-            else:
-                avg_response_time['maven'] = 0
-
-            if total_stack_requests['pypi'] > 0:
-                avg_response_time['pypi'] = \
-                    total_response_time['pypi'] / total_stack_requests['pypi']
-            else:
-                avg_response_time['pypi'] = 0
-
-            # Get a list of unknown licenses
-            unknown_licenses = []
-            for lic_dict in self.flatten_list(all_unknown_lic):
-                if 'license' in lic_dict:
-                    unknown_licenses.append(lic_dict['license'])
-
-            unknown_deps_ingestion_report = self.unknown_deps_helper.get_current_ingestion_status()
-
-            # generate aggregated data section
-            template['stacks_summary'] = {
-                'total_stack_requests_count': total_stack_requests['all'],
-                'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
-                                                  all_unknown_deps,
-                                                  unique_stacks_with_recurrence_count,
-                                                  unique_stacks_with_deps_count,
-                                                  avg_response_time,
-                                                  unknown_deps_ingestion_report),
-                'maven': self.get_ecosystem_summary('maven', total_stack_requests, all_deps,
-                                                    all_unknown_deps,
-                                                    unique_stacks_with_recurrence_count,
-                                                    unique_stacks_with_deps_count,
-                                                    avg_response_time,
-                                                    unknown_deps_ingestion_report),
-                'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
-                                                   all_unknown_deps,
-                                                   unique_stacks_with_recurrence_count,
-                                                   unique_stacks_with_deps_count,
-                                                   avg_response_time,
-                                                   unknown_deps_ingestion_report),
-                'unique_unknown_licenses_with_frequency':
-                    self.populate_key_count(unknown_licenses),
-                'unique_cves':
-                    self.populate_key_count(all_cve_list),
-                'total_average_response_time':
-                    '{} ms'.format(total_response_time['all'] / len(template['stacks_details'])),
-                'cve_report': CVE().generate_cve_report(updated_on=start_date)
-            }
-            self.save_result(frequency, report_name, template)
-            return template
+                template_final = \
+                    self.create_venus_report(start_date, frequency, report_name, template,
+                                             unique_stacks_with_recurrence_count, all_deps,
+                                             total_response_time, all_unknown_lic, all_cve_list,
+                                             all_unknown_deps, total_stack_requests)
+                return template_final
         else:
             # todo: user feedback aggregation based on the recommendation task results
             return None
 
     def retrieve_worker_results(self, start_date, end_date, id_list=[], worker_list=[],
-                                frequency='daily', retrain='F'):
+                                frequency='daily', retrain=False):
         """Retrieve results for selected worker from RDB."""
         result = {}
         # convert the elements of the id_list to sql.Literal
@@ -724,7 +738,7 @@ class ReportHelper:
             logger.exception('Unable to store the report on S3. Reason: %r' % e)
         return template
 
-    def get_report(self, start_date, end_date, frequency='daily', retrain='F'):
+    def get_report(self, start_date, end_date, frequency='daily', retrain=False):
         """Generate the stacks report."""
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
         ingestion_results = False
@@ -753,7 +767,7 @@ class ReportHelper:
                          .format(s=start_date, e=end_date))
             return False, ingestion_results
 
-    def retrain(self, start_date, end_date, frequency='weekly', retrain='T'):
+    def re_train(self, start_date, end_date, frequency='weekly', retrain=True):
         """Re-trains models for all ecosystems."""
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
 

@@ -423,3 +423,11 @@ def test_get_trending():
     res = r.get_trending(test_dict, 2)
     expected_output = {'d': 100, 'a': 20}
     assert (res == expected_output)
+
+
+@mock.patch('f8a_report.report_helper.ReportHelper.retrieve_stack_analyses_ids', return_value=['1'])
+@mock.patch('f8a_report.report_helper.ReportHelper.retrieve_worker_results', return_value=True)
+def test_re_train(_mock1, _mock2):
+    """Test success retrain."""
+    resp = r.re_train('2018-10-10', '2018-10-18')
+    assert resp is None

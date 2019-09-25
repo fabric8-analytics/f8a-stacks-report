@@ -22,7 +22,7 @@ def test_time_to_generate_monthly_report():
 
 
 @mock.patch('f8a_report.main.ReportHelper.get_report', return_value=[{}, True])
-@mock.patch('f8a_report.main.ReportHelper.retrain', return_value=True)
+@mock.patch('f8a_report.main.ReportHelper.re_train', return_value=True)
 def test_main(_mock1, _mock2):
     """Test the function main."""
     resp = main()
