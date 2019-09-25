@@ -487,7 +487,7 @@ class ReportHelper:
 
             # re-train models or generate venus report
             if retrain is True:
-                self.collate_and_retrain(unique_stacks_with_recurrence_count, 'weekly')
+                return unique_stacks_with_recurrence_count
             else:
                 template_final = \
                     self.create_venus_report(start_date, frequency, report_name, template,
@@ -517,10 +517,15 @@ class ReportHelper:
             self.cursor.execute(query.as_string(self.conn) % (ids, worker))
             data = json.dumps(self.cursor.fetchall())
 
-            # associate the retrieved data to the worker name
-            result[worker] = self.normalize_worker_data(start_date, end_date, data, worker,
-                                                        frequency, retrain)
-        return result
+            if retrain is True:
+                unique_stacks = self.normalize_worker_data(start_date, end_date,
+                                                           data, worker, frequency, retrain)
+                return unique_stacks
+            else:
+                # associate the retrieved data to the worker name
+                result[worker] = self.normalize_worker_data(start_date, end_date, data, worker,
+                                                            frequency, retrain)
+                return result
 
     def retrieve_ingestion_results(self, start_date, end_date, frequency='daily'):
         """Retrieve results for selected worker from RDB."""
@@ -772,8 +777,11 @@ class ReportHelper:
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
 
         if len(ids) > 0:
-            self.retrieve_worker_results(
+            unique_stacks = self.retrieve_worker_results(
                 start_date, end_date, ids, ['stack_aggregator_v2'], frequency, retrain)
+
+            self.collate_and_retrain(unique_stacks, frequency)
+
         else:
             logger.error('No stack analyses found from {s} to {e} to re-train models'
                          .format(s=start_date, e=end_date))
