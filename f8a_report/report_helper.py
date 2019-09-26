@@ -326,76 +326,10 @@ class ReportHelper:
     def create_venus_report(self, venus_input):
         """Creates venus report."""
         # retrieve input variables
-        start_date = venus_input[0]
-        frequency = venus_input[1]
-        report_name = venus_input[2]
-        template = venus_input[3]
-        unique_stacks_with_recurrence_count = venus_input[4]
-        all_deps = venus_input[5]
-        total_response_time = venus_input[6]
-        all_unknown_lic = venus_input[7]
-        all_cve_list = venus_input[8]
-        all_unknown_deps = venus_input[9]
-        total_stack_requests = venus_input[10]
+        frequency = venus_input[0]
+        report_name = venus_input[1]
+        template = venus_input[2]
 
-        unique_stacks_with_deps_count = \
-            self.set_unique_stack_deps_count(unique_stacks_with_recurrence_count)
-
-        avg_response_time = {}
-        if total_stack_requests['npm'] > 0:
-            avg_response_time['npm'] = total_response_time['npm'] / total_stack_requests['npm']
-        else:
-            avg_response_time['npm'] = 0
-
-        if total_stack_requests['maven'] > 0:
-            avg_response_time['maven'] = \
-                total_response_time['maven'] / total_stack_requests['maven']
-        else:
-            avg_response_time['maven'] = 0
-
-        if total_stack_requests['pypi'] > 0:
-            avg_response_time['pypi'] = \
-                total_response_time['pypi'] / total_stack_requests['pypi']
-        else:
-            avg_response_time['pypi'] = 0
-
-        # Get a list of unknown licenses
-        unknown_licenses = []
-        for lic_dict in self.flatten_list(all_unknown_lic):
-            if 'license' in lic_dict:
-                unknown_licenses.append(lic_dict['license'])
-
-        unknown_deps_ingestion_report = self.unknown_deps_helper.get_current_ingestion_status()
-
-        # generate aggregated data section
-        template['stacks_summary'] = {
-            'total_stack_requests_count': total_stack_requests['all'],
-            'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
-                                              all_unknown_deps,
-                                              unique_stacks_with_recurrence_count,
-                                              unique_stacks_with_deps_count,
-                                              avg_response_time,
-                                              unknown_deps_ingestion_report),
-            'maven': self.get_ecosystem_summary('maven', total_stack_requests, all_deps,
-                                                all_unknown_deps,
-                                                unique_stacks_with_recurrence_count,
-                                                unique_stacks_with_deps_count,
-                                                avg_response_time,
-                                                unknown_deps_ingestion_report),
-            'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
-                                               all_unknown_deps,
-                                               unique_stacks_with_recurrence_count,
-                                               unique_stacks_with_deps_count,
-                                               avg_response_time,
-                                               unknown_deps_ingestion_report),
-            'unique_unknown_licenses_with_frequency':
-                self.populate_key_count(unknown_licenses),
-            'unique_cves':
-                self.populate_key_count(all_cve_list),
-            'total_average_response_time':
-                '{} ms'.format(total_response_time['all'] / len(template['stacks_details'])),
-            'cve_report': CVE().generate_cve_report(updated_on=start_date)
-        }
         self.save_result(frequency, report_name, template)
         return template
 
@@ -492,18 +426,74 @@ class ReportHelper:
                 'pypi': self.populate_key_count(stacks_list['pypi'])
             }
 
+            unique_stacks_with_deps_count = \
+                self.set_unique_stack_deps_count(unique_stacks_with_recurrence_count)
+
+            avg_response_time = {}
+            if total_stack_requests['npm'] > 0:
+                avg_response_time['npm'] = total_response_time['npm'] / total_stack_requests['npm']
+            else:
+                avg_response_time['npm'] = 0
+
+            if total_stack_requests['maven'] > 0:
+                avg_response_time['maven'] = \
+                    total_response_time['maven'] / total_stack_requests['maven']
+            else:
+                avg_response_time['maven'] = 0
+
+            if total_stack_requests['pypi'] > 0:
+                avg_response_time['pypi'] = \
+                    total_response_time['pypi'] / total_stack_requests['pypi']
+            else:
+                avg_response_time['pypi'] = 0
+
+            # Get a list of unknown licenses
+            unknown_licenses = []
+            for lic_dict in self.flatten_list(all_unknown_lic):
+                if 'license' in lic_dict:
+                    unknown_licenses.append(lic_dict['license'])
+
+            unknown_deps_ingestion_report = self.unknown_deps_helper.get_current_ingestion_status()
+
+            # generate aggregated data section
+            template['stacks_summary'] = {
+                'total_stack_requests_count': total_stack_requests['all'],
+                'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
+                                                  all_unknown_deps,
+                                                  unique_stacks_with_recurrence_count,
+                                                  unique_stacks_with_deps_count,
+                                                  avg_response_time,
+                                                  unknown_deps_ingestion_report),
+                'maven': self.get_ecosystem_summary('maven', total_stack_requests, all_deps,
+                                                    all_unknown_deps,
+                                                    unique_stacks_with_recurrence_count,
+                                                    unique_stacks_with_deps_count,
+                                                    avg_response_time,
+                                                    unknown_deps_ingestion_report),
+                'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
+                                                   all_unknown_deps,
+                                                   unique_stacks_with_recurrence_count,
+                                                   unique_stacks_with_deps_count,
+                                                   avg_response_time,
+                                                   unknown_deps_ingestion_report),
+                'unique_unknown_licenses_with_frequency':
+                    self.populate_key_count(unknown_licenses),
+                'unique_cves':
+                    self.populate_key_count(all_cve_list),
+                'total_average_response_time':
+                    '{} ms'.format(total_response_time['all'] / len(template['stacks_details'])),
+                'cve_report': CVE().generate_cve_report(updated_on=start_date)
+            }
+
             # Monthly data collection on the 1st of every month
             if frequency == 'monthly':
                 self.collate_raw_data(unique_stacks_with_recurrence_count, 'monthly')
 
-            # re-train models or generate venus report
+            # return data to re-train models or generate venus report
             if retrain is True:
                 return unique_stacks_with_recurrence_count
             else:
-                venus_input = [start_date, frequency, report_name, template,
-                               unique_stacks_with_recurrence_count, all_deps,
-                               total_response_time, all_unknown_lic, all_cve_list,
-                               all_unknown_deps, total_stack_requests]
+                venus_input = [frequency, report_name, template]
                 return venus_input
         else:
             # todo: user feedback aggregation based on the recommendation task results
