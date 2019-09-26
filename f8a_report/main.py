@@ -12,7 +12,7 @@ logger = logging.getLogger(__file__)
 def time_to_generate_monthly_report(today):
     """Check whether it is the right time to generate monthly report."""
     # We will make three attempts to generate the monthly report every month
-    return today.day in (1, 2, 3, 25)
+    return today.day in (1, 2, 3, 26)
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     r = ReportHelper()
     today = dt.today()
 
-    start_date = (today - timedelta(days=2)).strftime('%Y-%m-%d')
+    start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = today.strftime('%Y-%m-%d')
     response, ingestion_results = r.get_report(start_date, end_date, 'daily', retrain=False)
     logger.debug('Daily report data from {s} to {e}'.format(s=start_date, e=end_date))
@@ -28,7 +28,7 @@ def main():
     logger.debug(json.dumps(ingestion_results, indent=2))
 
     # weekly re-training of models
-    if today.weekday() == 2:
+    if today.weekday() >= 0:
         start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
         end_date_wk = today.strftime('%Y-%m-%d')
         r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
