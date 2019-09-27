@@ -523,8 +523,9 @@ class ReportHelper:
                 return unique_stacks
             else:
                 # associate the retrieved data to the worker name
-                result_interim[worker] = self.normalize_worker_data(start_date, end_date, data, worker,
-                                                           frequency, retrain)
+                result_interim[worker] = \
+                    self.normalize_worker_data(start_date, end_date, data,
+                                               worker, frequency, retrain)
         return result_interim
 
     def retrieve_ingestion_results(self, start_date, end_date, frequency='daily'):
