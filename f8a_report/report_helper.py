@@ -317,15 +317,15 @@ class ReportHelper:
             return dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
 
     def collate_and_retrain(self, unique_stacks, frequency='weekly'):
-        """Appends stacks to 'collated-weekly' and re-trains models."""
-        # Appends last week's data to 'collated-weekly'; returns 'BQ+collated' data
+        """Append stacks to 'collated-weekly' and re-train models."""
+        # Append last week's data to 'collated-weekly'; returns 'BQ+collated' data
         collated_data = self.collate_raw_data(unique_stacks, frequency)
-        # Stores ecosystem specific manifest.json and re-trains models
+        # Store ecosystem specific manifest.json and re-trains models
         self.store_training_data(collated_data)
 
     def create_venus_report(self, venus_input):
-        """Creates venus report."""
-        # retrieve input variables
+        """Create venus report."""
+        # Retrieve input variables
         frequency = venus_input[0]
         report_name = venus_input[1]
         template = venus_input[2]
@@ -485,7 +485,7 @@ class ReportHelper:
                 'cve_report': CVE().generate_cve_report(updated_on=start_date)
             }
 
-            # Monthly data collection on the 1st of every month
+            # monthly data collection on the 1st of every month
             if frequency == 'monthly':
                 self.collate_raw_data(unique_stacks_with_recurrence_count, 'monthly')
 
@@ -502,7 +502,7 @@ class ReportHelper:
     def retrieve_worker_results(self, start_date, end_date, id_list=[], worker_list=[],
                                 frequency='daily', retrain=False):
         """Retrieve results for selected worker from RDB."""
-        input = {}
+        result_interim = {}
         # convert the elements of the id_list to sql.Literal
         # so that the SQL query statement contains the IDs within quotes
         id_list = list(map(sql.Literal, id_list))
@@ -523,9 +523,9 @@ class ReportHelper:
                 return unique_stacks
             else:
                 # associate the retrieved data to the worker name
-                input[worker] = self.normalize_worker_data(start_date, end_date, data, worker,
+                result_interim[worker] = self.normalize_worker_data(start_date, end_date, data, worker,
                                                            frequency, retrain)
-        return input
+        return result_interim
 
     def retrieve_ingestion_results(self, start_date, end_date, frequency='daily'):
         """Retrieve results for selected worker from RDB."""
@@ -766,14 +766,14 @@ class ReportHelper:
                 logger.error('No Sentry Error Logs found in last 24 hours')
 
         if len(ids) > 0:
-            input = self.retrieve_worker_results(
+            result_interim = self.retrieve_worker_results(
                 start_date, end_date, ids, worker_list, frequency, retrain)
 
             # generate result for each worker
             worker_result = {}
             for worker in worker_list:
                 if worker == 'stack_aggregator_v2':
-                    worker_result[worker] = self.create_venus_report(input[worker])
+                    worker_result[worker] = self.create_venus_report(result_interim[worker])
                 # can add results for more workers later
 
             return worker_result, ingestion_results
