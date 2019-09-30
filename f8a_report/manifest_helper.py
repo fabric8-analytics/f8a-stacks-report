@@ -25,13 +25,17 @@ class GetReport:
 
     def generate_manifest_for_pypi(self, stack_report):
         """Generate manifest file for pypi."""
-        file_name = "requirements.txt"
+        logger.info('Generating Manifest for Pypi executed')
+        file_name = "pylist.json"
         file_path = os.path.join(self.curr_dir, file_name)
-        write_to_file = ''
-        for dependency, version in stack_report:
-            write_to_file += f"{dependency}=={version}\n"
+        data = []
+        for package_name, version in stack_report:
+            data.append({"package": package_name,
+                    "version": version,
+                    "deps":[]})
+
         with open(file_path, 'w') as manifest:
-            manifest.write(write_to_file)
+            json.dump(data, manifest)
         return self.save_manifest_to_s3(file_path=file_path, file_name=file_name)
 
     def generate_manifest_for_npm(self, stack_report):
