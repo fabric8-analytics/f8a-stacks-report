@@ -31,8 +31,8 @@ class GetReport:
         data = []
         for package_name, version in stack_report:
             data.append({"package": package_name,
-                    "version": version,
-                    "deps":[]})
+                         "version": version,
+                         "deps": []})
 
         with open(file_path, 'w') as manifest:
             json.dump(data, manifest)
