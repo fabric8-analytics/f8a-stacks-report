@@ -4,6 +4,7 @@ import logging
 import json
 from datetime import datetime as dt, timedelta, date
 from report_helper import ReportHelper
+from manifest_helper import manifest_interface
 
 
 logger = logging.getLogger(__file__)
@@ -38,6 +39,8 @@ def main():
         r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
 
     # Generate a monthly venus report
+        stacks = r.retrieve_stack_analyses_content(start_date, end_date)
+        manifest_interface(stacks, 2)
     if time_to_generate_monthly_report(today):
         last_day_of_prev_month = date(today.year, today.month, 1) - timedelta(days=1)
         last_month_first_date = last_day_of_prev_month.strftime('%Y-%m-01')
