@@ -27,7 +27,7 @@ check_python_version() {
 
 gc() {
   retval=$?
-  docker-compose -f docker-compose.yml down -v || :
+  docker-compose -f ${SCRIPT_DIR}/../docker-compose.yml down -v || :
   rm -rf venv/
   exit $retval
 }
