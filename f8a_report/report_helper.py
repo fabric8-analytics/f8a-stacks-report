@@ -97,6 +97,20 @@ class ReportHelper:
 
         return id_list
 
+    def retrieve_stack_analyses_content(self, start_date, end_date):
+        """Retrieve results for stack analyses requests."""
+        try:
+            start_date = self.validate_and_process_date('2019-01-01')
+            end_date = self.validate_and_process_date(end_date)
+        except ValueError:
+            raise ValueError("Invalid date format")
+        query = sql.SQL('SELECT {} FROM {} WHERE {} BETWEEN \'%s\' AND \'%s\'').format(
+            sql.Identifier('requestJson'), sql.Identifier('stack_analyses_request'),
+            sql.Identifier('submitTime')
+        )
+        self.cursor.execute(query.as_string(self.conn) % (start_date, end_date))
+        return self.cursor.fetchall()
+
     def flatten_list(self, alist):
         """Convert a list of lists to a single list."""
         return list(itertools.chain.from_iterable(alist))
