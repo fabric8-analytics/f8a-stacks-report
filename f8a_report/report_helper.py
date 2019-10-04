@@ -66,6 +66,18 @@ class ReportHelper:
 
         self.emr_api = os.getenv('EMR_API', 'http://f8a-emr-deployment:6006')
 
+    def cleanup_db_tables(self):
+        """Cleanup meta data tables on a periodic basis."""
+        num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '7')
+        query = sql.SQL('DELETE FROM celery_taskmeta WHERE DATE_DONE <= NOW() - interval \'%s day\';')
+        try:
+            logger.info('Starting to clean up database tables')
+            self.cursor.execute(query.as_string(self.conn) % (num_days))
+            logger.info('%r' % self.cursor.statusmessage)
+            logger.info('Cleanup of database tables complete')
+        except Error as e:
+            logger.error('CleanupDatabaseError: %r' % e)
+
     def validate_and_process_date(self, some_date):
         """Validate the date format and apply the format YYYY-MM-DDTHH:MI:SSZ."""
         try:
