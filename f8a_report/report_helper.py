@@ -68,12 +68,16 @@ class ReportHelper:
 
     def cleanup_db_tables(self):
         """Cleanup meta data tables on a periodic basis."""
+        # Number of days to retain the data
         num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '7')
+        # query to delete the rest of the data
         query = sql.SQL('DELETE FROM celery_taskmeta '
                         'WHERE DATE_DONE <= NOW() - interval \'%s day\';')
         try:
             logger.info('Starting to clean up database tables')
+            # Execute the query
             self.cursor.execute(query.as_string(self.conn) % (num_days))
+            # Log the message returned from db cursor
             logger.info('%r' % self.cursor.statusmessage)
             logger.info('Cleanup of database tables complete')
         except Exception as e:
@@ -194,9 +198,6 @@ class ReportHelper:
         collated_big_query_obj_key = 'big-query-data/collated.json'
         collated_big_query_data = self.s3.read_json_object(bucket_name=self.s3.report_bucket_name,
                                                            obj_key=collated_big_query_obj_key) or {}
-        if len(result) and isinstance(result, dict):
-            # Saving Filtered Stack_report as Manifest file for E2E
-            manifest_interface(stack_report=result, stack_size=1)
 
         for eco in collated_big_query_data.keys():
             if result.get(eco):
