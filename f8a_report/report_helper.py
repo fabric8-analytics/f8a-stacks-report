@@ -102,8 +102,8 @@ class ReportHelper:
             # checks Invalid date format
             raise ValueError("Invalid date format")
         # Query to fetch Stack Analysis Ids from start_date to end_date
-        query = sql.SQL('SELECT {},{} FROM {} WHERE {} BETWEEN \'%s\' AND \'%s\'').format(
-            sql.Identifier('id'), sql.Identifier('requestJson'),
+        query = sql.SQL('SELECT {} FROM {} WHERE {} BETWEEN \'%s\' AND \'%s\'').format(
+            sql.Identifier('id'),
             sql.Identifier('stack_analyses_request'),
             sql.Identifier('submitTime')
         )
@@ -111,8 +111,6 @@ class ReportHelper:
         self.cursor.execute(query.as_string(self.conn) % (start_date, end_date))
         # Fetching all results
         rows = self.cursor.fetchall()
-        if self.get_time_delta(start_date, end_date) >= datetime.timedelta(7):
-            self.stacks_data = rows
         # Appending all the stack-ids in a list
         id_list = []
         for row in rows:
@@ -136,10 +134,6 @@ class ReportHelper:
         except ValueError:
             # checks Invalid date format
             raise ValueError("Invalid date format")
-
-        # If stacks data exists
-        if self.stacks_data:
-            return self.stacks_data
 
         # Query to fetch Stack Analysis manifests data from start_date to end_date
         query = sql.SQL('SELECT {} FROM {} WHERE {} BETWEEN \'%s\' AND \'%s\'').format(
