@@ -64,7 +64,6 @@ class ReportHelper:
             'PYPI_TRAINING_REPO', 'https://github.com/fabric8-analytics/f8a-pypi-insights')
 
         self.emr_api = os.getenv('EMR_API', 'http://f8a-emr-deployment:6006')
-        self.stacks_data = None
 
     def cleanup_db_tables(self):
         """Cleanup meta data tables on a periodic basis."""
