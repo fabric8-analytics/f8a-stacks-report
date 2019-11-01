@@ -136,6 +136,25 @@ def test_validate_and_process_date_failure():
         assert str(e.value) == 'Incorrect data format, should be YYYY-MM-DD'
 
 
+class MockPostgres:
+    """Mock response object."""
+
+    def execute(self, *args):
+        """Get the mock json response."""
+        return None
+
+    def fetchall(self):
+        """Get the mock json response."""
+        return stackdata
+
+
+def test_retrieve_stack_analyses_ids():
+    """Test retrieve stack data function."""
+    r.cursor = MockPostgres()
+    ids = ''.join(r.retrieve_stack_analyses_ids('2018-10-09', '2018-10-09'))
+    assert ids is not None
+
+
 def test_retrieve_stack_analyses_ids_wrong_dates():
     """Test the failure scenario of the function retrieve_stack_analyses_ids."""
     # both dates are incorrect
