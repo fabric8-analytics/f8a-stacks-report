@@ -139,9 +139,9 @@ def test_validate_and_process_date_failure():
 class MockPostgres:
     """Mock response object."""
 
-    def execute(self, *args):
+    def execute(self, query):
         """Get the mock json response."""
-        return None
+        return query
 
     def fetchall(self):
         """Get the mock json response."""
