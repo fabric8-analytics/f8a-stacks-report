@@ -18,7 +18,7 @@ class GetReport:
         """Init method for the Report helper class."""
         self.s3 = S3Helper()
         self.curr_dir = os.path.join(
-            os.path.abspath(os.curdir), "f8a_report", "manifests")
+            os.path.abspath('/tmp'), "f8a_report", "manifests")
         if not os.path.exists(self.curr_dir):
             os.makedirs(self.curr_dir)
 
