@@ -125,6 +125,7 @@ class ReportHelper:
 
     def retrieve_stack_analyses_content(self, start_date, end_date):
         """Retrieve results for stack analyses requests."""
+        logger.info('retrieving stack analyses content.')
         try:
             # start_date from which data is to be fetched
             start_date = self.validate_and_process_date(start_date)

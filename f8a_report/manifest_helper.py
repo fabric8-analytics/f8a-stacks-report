@@ -107,5 +107,6 @@ class FilterStacks:
 
 def manifest_interface(stack_report, stack_size=5):
     """Initialize function, executed first."""
+    logger.info('manifest interface executed.')
     return FilterStacks().filter_stacks_on_ecosystem(
         stack_report=stack_report, stack_size=stack_size)

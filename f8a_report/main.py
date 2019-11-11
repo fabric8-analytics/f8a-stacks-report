@@ -32,7 +32,9 @@ def main():
     # Regular Cleaning up of celery_taskmeta tables
     r.cleanup_db_tables()
     # Weekly re-training of models
-    if today.weekday() == 0:
+    # if today.weekday() == 0:
+    #TODO: for debugging only. will be reverted
+    if True:
         start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
         end_date_wk = today.strftime('%Y-%m-%d')
         r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
