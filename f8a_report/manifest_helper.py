@@ -6,7 +6,7 @@ from s3_helper import S3Helper
 import logging
 import os
 import re
-from pathlib import Path
+from json import JSONDecodeError
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(level=logging.INFO)
@@ -19,7 +19,7 @@ class GetReport:
         """Init method for the Report helper class."""
         self.s3 = S3Helper()
         self.curr_dir = os.path.join(
-            os.path.abspath(str(Path.home())), "f8a_report", "manifests")
+            '/tmp', "dynamic_manifests")
         if not os.path.exists(self.curr_dir):
             os.makedirs(self.curr_dir)
 
@@ -101,8 +101,12 @@ class FilterStacks:
     @staticmethod
     def clean_stacks(sampled_stack_reports):
         """Remove Spaces and Tabs from Json Data."""
-        return [json.loads(re.sub(r'\s+', ' ', stack_report['content']))
-                for stack_report in sampled_stack_reports]
+        try:
+            return [json.loads(re.sub(r'\s+', ' ', stack_report['content']))
+                    for stack_report in sampled_stack_reports]
+        except JSONDecodeError:
+            return [re.sub(r'\s+', ' ', stack_report['content'])
+                    for stack_report in sampled_stack_reports]
 
 
 def manifest_interface(stack_report, stack_size=5):

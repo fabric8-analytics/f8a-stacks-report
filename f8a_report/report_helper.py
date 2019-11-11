@@ -574,6 +574,7 @@ class ReportHelper:
 
     def retrieve_ingestion_results(self, start_date, end_date, frequency='daily'):
         """Retrieve results for selected worker from RDB."""
+        logger.info('Retrieve ingestion results.')
         result = {}
 
         # Query to fetch the EPVs that were ingested on a particular day
@@ -790,6 +791,7 @@ class ReportHelper:
 
     def get_report(self, start_date, end_date, frequency='daily', retrain=False):
         """Generate the stacks report."""
+        logger.info("Get Report Executed.")
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
         worker_list = ['stack_aggregator_v2']
         ingestion_results = False
@@ -810,6 +812,7 @@ class ReportHelper:
             if not result:
                 logger.error('No Sentry Error Logs found in last 24 hours')
         if len(ids) > 0:
+            logger.info('stack analyses data exists.')
             result_interim = self.retrieve_worker_results(
                 start_date, end_date, ids, worker_list, frequency, retrain)
 
@@ -828,6 +831,7 @@ class ReportHelper:
 
     def re_train(self, start_date, end_date, frequency='weekly', retrain=True):
         """Re-trains models for all ecosystems."""
+        logger.info('retraining triggered.')
         ids = self.retrieve_stack_analyses_ids(start_date, end_date)
         if len(ids) > 0:
             unique_stacks = self.retrieve_worker_results(
