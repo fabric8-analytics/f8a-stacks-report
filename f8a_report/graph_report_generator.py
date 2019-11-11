@@ -162,6 +162,7 @@ def generate_report_for_latest_version(epv_list, day):
     :param epv_list: list, list of EPVs
     :return json, list of version information
     """
+    _logger.info("generating report for latest version.")
     query_str = "g.V().has('ecosystem', '{arg0}')." \
                 "has('name', '{arg1}')" \
                 ".valueMap().dedup().fill(epv);"
