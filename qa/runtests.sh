@@ -77,6 +77,7 @@ export POSTGRESQL_DATABASE='coreapi'
 export PGBOUNCER_SERVICE_HOST='0.0.0.0'
 export PGPORT="5432"
 export REPORT_BUCKET_NAME="not-set"
+export MANIFESTS_BUCKET="not-set"
 export AWS_S3_ACCESS_KEY_ID="not-set"
 export AWS_S3_SECRET_ACCESS_KEY="not-set"
 export AWS_S3_REGION="not-set"

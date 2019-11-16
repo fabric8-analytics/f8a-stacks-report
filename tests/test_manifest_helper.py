@@ -5,10 +5,11 @@ import boto3
 from f8a_report.manifest_helper import GetReport, FilterStacks, manifest_interface
 from unittest import mock
 import json
+import os
 
-BUCKET = 'test_bucket'
-AWS_KEY = 'fake_key'
-AWS_SECRET = 'fake_secret'
+BUCKET = os.environ.get('MANIFESTS_BUCKET')
+AWS_KEY = os.environ.get('AWS_S3_ACCESS_KEY_ID')
+AWS_SECRET = os.environ.get('AWS_S3_SECRET_ACCESS_KEY')
 get_report = GetReport()
 
 with open("tests/data/manifests.json") as myfile:
@@ -50,7 +51,7 @@ def test_save_manifest_to_s3(_mock1):
     """Test to validate the save manifests to s3 method."""
     s3 = boto3.resource('s3')
     s3.create_bucket(Bucket=BUCKET)
-    get_report.s3.report_bucket_name = BUCKET
+    get_report.s3.manifests_bucket = BUCKET
     save_obj = get_report.save_manifest_to_s3(
         file_name='data.json', file_path='tests/data/dev/weekly/data.json')
     assert save_obj is None

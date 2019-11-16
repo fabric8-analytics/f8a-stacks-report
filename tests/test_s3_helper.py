@@ -3,10 +3,11 @@
 from f8a_report.s3_helper import S3Helper
 from moto import mock_s3
 import boto3
+import os
 
-BUCKET = 'test_bucket'
-AWS_KEY = 'fake_key'
-AWS_SECRET = 'fake_secret'
+BUCKET = os.environ.get('MANIFESTS_BUCKET')
+AWS_KEY = os.environ.get('AWS_S3_ACCESS_KEY_ID')
+AWS_SECRET = os.environ.get('AWS_S3_SECRET_ACCESS_KEY')
 
 
 def test_s3_helper():
