@@ -41,6 +41,7 @@ class S3Helper:
             os.environ.get('AWS_S3_SECRET_ACCESS_KEY_GOLANG_BUCKET')
         self.deployment_prefix = os.environ.get('DEPLOYMENT_PREFIX') or 'dev'
         self.report_bucket_name = os.environ.get('REPORT_BUCKET_NAME')
+        self.manifests_bucket = os.environ.get('MANIFESTS_BUCKET')
         if self.aws_s3_secret_access_key is None or self.aws_s3_access_key is None or\
                 self.region_name is None or self.deployment_prefix is None:
             raise ValueError("AWS credentials or S3 configuration was "
@@ -126,9 +127,11 @@ class S3Helper:
 
     def store_file_object(self, file_path, bucket_name, file_name):
         """Store the manifest file to the S3 storage."""
+        if bucket_name is None:
+            raise ("Please set environment variable {} with valid bucket name.".format("MANIFESTS_BUCKET"))
         s3 = self.s3_client(bucket_name)
         try:
-            logger.info('Storing the manifest into the S3 file %s' % file_name)
+            logger.info('Storing the manifest file {0} into the S3 bucket {1}.'.format(file_name, bucket_name))
             s3.meta.client.upload_file(file_path, bucket_name, file_name)
         except ClientError as e:
             logger.exception('%r' % e)

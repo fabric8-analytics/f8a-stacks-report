@@ -153,6 +153,11 @@ objects:
                     secretKeyRef:
                       name: golang-insights-s3
                       key: bucket
+                - name: MANIFESTS_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: dynamic-manifests
+                      key: bucket
                 - name: GOLANG_TRAINING_REPO
                   value: ${GOLANG_TRAINING_REPO}
                 - name: MAVEN_TRAINING_REPO

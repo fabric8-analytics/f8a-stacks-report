@@ -55,7 +55,7 @@ class GetReport:
         """Save Generated manifest file to S3."""
         manifest_file_key = f'dynamic_manifests/{file_name}'
         self.s3.store_file_object(file_path=file_path,
-                                  bucket_name=self.s3.report_bucket_name,
+                                  bucket_name=self.s3.manifests_bucket,
                                   file_name=manifest_file_key)
 
 
