@@ -5,6 +5,7 @@ import os
 import logging
 import boto3
 from botocore.exceptions import ClientError
+from werkzeug.exceptions import BadRequest
 
 logger = logging.getLogger(__file__)
 
@@ -128,10 +129,14 @@ class S3Helper:
     def store_file_object(self, file_path, bucket_name, file_name):
         """Store the manifest file to the S3 storage."""
         if bucket_name is None:
-            raise ("Please set environment variable {} with valid bucket name.".format("MANIFESTS_BUCKET"))
+            raise BadRequest(
+                "Please set environment variable {} with valid bucket name.".format(
+                    "MANIFESTS_BUCKET"))
         s3 = self.s3_client(bucket_name)
         try:
-            logger.info('Storing the manifest file {0} into the S3 bucket {1}.'.format(file_name, bucket_name))
+            logger.info(
+                'Storing the manifest file {0} into the S3 bucket {1}.'.format(
+                    file_name, bucket_name))
             s3.meta.client.upload_file(file_path, bucket_name, file_name)
         except ClientError as e:
             logger.exception('%r' % e)
