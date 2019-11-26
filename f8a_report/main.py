@@ -5,6 +5,7 @@ import json
 from datetime import datetime as dt, timedelta, date
 from report_helper import ReportHelper
 from manifest_helper import manifest_interface
+import os
 
 
 logger = logging.getLogger(__file__)
@@ -37,8 +38,9 @@ def main():
         start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
         end_date_wk = today.strftime('%Y-%m-%d')
         r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
-        stacks = r.retrieve_stack_analyses_content(start_date_wk, end_date_wk)
-        manifest_interface(stacks)
+        if os.environ.get('GENERATE_MANIFESTS', 0):
+            stacks = r.retrieve_stack_analyses_content(start_date_wk, end_date_wk)
+            manifest_interface(stacks)
 
     # Generate a monthly venus report
     if time_to_generate_monthly_report(today):

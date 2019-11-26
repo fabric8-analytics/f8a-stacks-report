@@ -38,6 +38,8 @@ objects:
                   value: ${KEEP_DB_META_NUM_DAYS}
                 - name: KEEP_WORKER_RESULT_NUM_DAYS
                   value: ${KEEP_WORKER_RESULT_NUM_DAYS}
+                - name: GENERATE_MANIFESTS
+                  value: ${GENERATE_MANIFESTS}
                 - name: AWS_S3_SECRET_ACCESS_KEY
                   valueFrom:
                     secretKeyRef:
@@ -267,3 +269,10 @@ parameters:
   required: true
   name: GITHUB_CVE_REPO
   value: "fabric8-analytics"
+
+- description: "Trigger manifests file generation in cron job. 0: False, 1: True"
+  displayName: Generates Manifests
+  required: true
+  name: GENERATE_MANIFESTS
+  value: 0
+
