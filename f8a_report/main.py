@@ -38,7 +38,7 @@ def main():
         start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
         end_date_wk = today.strftime('%Y-%m-%d')
         r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
-        if os.environ.get('GENERATE_MANIFESTS', 0):
+        if os.environ.get('GENERATE_MANIFESTS', 'False') == 'True':
             stacks = r.retrieve_stack_analyses_content(start_date_wk, end_date_wk)
             manifest_interface(stacks)
 

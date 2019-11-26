@@ -274,5 +274,5 @@ parameters:
   displayName: Generates Manifests
   required: true
   name: GENERATE_MANIFESTS
-  value: 0
+  value: "False"
 
