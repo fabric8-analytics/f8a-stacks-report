@@ -141,3 +141,4 @@ Code coverage is reported via the codecov.io. The results can be seen on the fol
 
 [code coverage report](https://codecov.io/gh/fabric8-analytics/f8a-stacks-report)
 
+***
