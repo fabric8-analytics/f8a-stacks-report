@@ -95,10 +95,10 @@ sentry_tags_res_nostack = {
 @responses.activate
 def test_retrieve_sentry_logs_success():
     """Test retrieve sentry logs."""
-    responses.add(responses.GET, 'https://errortracking.prod-preview.openshift.io/api/0/projects/'
-                                 'openshift_io/fabric8-analytics-production/issues/'
+    responses.add(responses.GET, 'https://sentry.devshift.net/api/0/projects/'
+                                 'sentry/fabric8-analytics-production/issues/'
                                  '?statsPeriod=24h', json=sentry_issues_res, status=200)
-    responses.add(responses.GET, 'https://errortracking.prod-preview.openshift.io/api/0/issues/'
+    responses.add(responses.GET, 'https://sentry.devshift.net/api/0/issues/'
                                  '12666/events/latest/', json=sentry_tags_res, status=200)
     res = sobj.retrieve_sentry_logs('2019-05-14', '2019-05-15')
     expected_output = {"error_report": {"bayesian-data-importer":
@@ -123,11 +123,11 @@ def test_retrieve_sentry_logs_failure():
 @responses.activate
 def test_retrieve_sentry_logs_nostacktrace():
     """Test retrieve sentry logs."""
-    responses.add(responses.GET, 'https://errortracking.prod-preview.openshift.io/api/0/projects/'
-                                 'openshift_io/fabric8-analytics-production/issues/'
+    responses.add(responses.GET, 'https://sentry.devshift.net/api/0/projects/'
+                                 'sentry/fabric8-analytics-production/issues/'
                                  '?statsPeriod=24h',
                   json=sentry_issues_res, status=200)
-    responses.add(responses.GET, 'https://errortracking.prod-preview.openshift.io/api/0/issues/'
+    responses.add(responses.GET, 'https://sentry.devshift.net/api/0/issues/'
                                  '12666/events/latest/', json=sentry_tags_res_nostack, status=200)
     res = sobj.retrieve_sentry_logs('2019-05-14', '2019-05-15')
     expected_output = {"error_report": {"bayesian-data-importer":
