@@ -351,7 +351,11 @@ def mock_emr_api_fail(*_args, **_kwargs):
 @mock.patch('requests.post', side_effect=mock_emr_api)
 def test_invoke_emr_api_success(_mock):
     """Test invoke emr api function with status 200."""
-    result = r.invoke_emr_api('test-bucket', 'maven', '2019-01-03', 'http://github.com/test/test')
+    result = r.invoke_emr_api('test-bucket', 'maven', '2019-01-03', 'http://github.com/test/test', {
+                                    "lower_limit": 13,
+                                    "upper_limit": 15,
+                                    "latent_factor": 300
+                                })
 
     assert result is None
 
@@ -359,7 +363,11 @@ def test_invoke_emr_api_success(_mock):
 @mock.patch('requests.post', side_effect=mock_emr_api_fail)
 def test_invoke_emr_api_failure(_mock):
     """Test invoke emr api with status 400."""
-    result = r.invoke_emr_api('test-bucket', 'maven', '2019-01-03', 'http://github.com/test/test')
+    result = r.invoke_emr_api('test-bucket', 'maven', '2019-01-03', 'http://github.com/test/test', {
+                                    "lower_limit": 13,
+                                    "upper_limit": 15,
+                                    "latent_factor": 300
+                                })
 
     assert result is None
 
