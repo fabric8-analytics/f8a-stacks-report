@@ -3,3 +3,5 @@ datetime
 boto3
 codecov
 requests-futures
+freezegun
+moto

@@ -109,7 +109,7 @@ class FilterStacks:
                     for stack_report in sampled_stack_reports]
 
 
-def manifest_interface(stack_report, stack_size=5):
+def manifest_interface(stack_report, stack_size=3):
     """Initialize function, executed first."""
     return FilterStacks().filter_stacks_on_ecosystem(
         stack_report=stack_report, stack_size=stack_size)

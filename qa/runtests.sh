@@ -70,7 +70,7 @@ function prepare_venv() {
 }
 PYTHONPATH=$(pwd)/f8a_report/
 export PYTHONPATH
-export GENERATE_MANIFESTS="True"
+export GENERATE_MANIFESTS="true"
 
 export POSTGRESQL_USER='coreapi'
 export POSTGRESQL_PASSWORD='coreapipostgres'
