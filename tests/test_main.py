@@ -68,4 +68,4 @@ def test_environment(_mock1, _mock2):
     assert datetime.datetime.today().weekday() == 0
     assert (isinstance(resp, tuple))
     assert _mock2().retrieve_stack_analyses_content()[0] is True
-    assert os.environ.get('GENERATE_MANIFESTS') in ['true', 'false']
+    assert os.environ.get('GENERATE_MANIFESTS') in ['True', 'False']

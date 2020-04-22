@@ -33,14 +33,20 @@ def main():
     # Regular Cleaning up of celery_taskmeta tables
     r.cleanup_db_tables()
     # Weekly re-training of models
+    start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
+    end_date_wk = today.strftime('%Y-%m-%d')
     if today.weekday() == 0:
-        logger.debug('Weekly Job Triggered')
-        start_date_wk = (today - timedelta(days=7)).strftime('%Y-%m-%d')
-        end_date_wk = today.strftime('%Y-%m-%d')
-        r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
-        if os.environ.get('GENERATE_MANIFESTS', 'false') == 'true':
-            stacks = r.retrieve_stack_analyses_content(start_date_wk, end_date_wk)
-            manifest_interface(stacks)
+        logger.info('Weekly Job Triggered')
+        try:
+            r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
+        except Exception as e:
+            logger.error("Exception in Retraining", e)
+            pass
+
+    if os.environ.get('GENERATE_MANIFESTS', 'False') == 'True':
+        logger.info('Generating Manifests based on last 1 week Stack Analyses calls.')
+        stacks = r.retrieve_stack_analyses_content(start_date_wk, end_date_wk)
+        manifest_interface(stacks)
 
     # Generate a monthly venus report
     if time_to_generate_monthly_report(today):
