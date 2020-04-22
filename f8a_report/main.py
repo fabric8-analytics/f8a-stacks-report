@@ -40,7 +40,7 @@ def main():
         try:
             r.re_train(start_date_wk, end_date_wk, 'weekly', retrain=True)
         except Exception as e:
-            logger.error("Exception in Retraining", e)
+            logger.error("Exception in Retraining {}".format(e))
             pass
 
     if os.environ.get('GENERATE_MANIFESTS', 'False') == 'True':
