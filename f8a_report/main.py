@@ -42,12 +42,11 @@ def main():
         except Exception as e:
             logger.error("Exception in Retraining {}".format(e))
             pass
-
-    logger.info(os.environ.get('GENERATE_MANIFESTS', 'False'))
-    if os.environ.get('GENERATE_MANIFESTS', 'False') in ('True', 'true', '1'):
-        logger.info('Generating Manifests based on last 1 week Stack Analyses calls.')
-        stacks = r.retrieve_stack_analyses_content(start_date_wk, end_date_wk)
-        manifest_interface(stacks)
+        logger.info(os.environ.get('GENERATE_MANIFESTS', 'False'))
+        if os.environ.get('GENERATE_MANIFESTS', 'False') in ('True', 'true', '1'):
+            logger.info('Generating Manifests based on last 1 week Stack Analyses calls.')
+            stacks = r.retrieve_stack_analyses_content(start_date_wk, end_date_wk)
+            manifest_interface(stacks)
 
     # Generate a monthly venus report
     if time_to_generate_monthly_report(today):
