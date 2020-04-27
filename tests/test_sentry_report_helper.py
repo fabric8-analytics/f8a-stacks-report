@@ -4,6 +4,9 @@ from f8a_report.sentry_report_helper import SentryReportHelper
 import responses
 
 sobj = SentryReportHelper()
+sobj.sentry_api_issues = 'https://sentry.devshift.net'
+sobj.sentry_api_issues += '/api/0/projects/sentry/fabric8-analytics-production/issues/'
+sobj.sentry_api_tags = 'https://sentry.devshift.net/api/0/issues/'
 
 sentry_issues_res = [{
     "lastSeen": "2019-05-15T06:50:10Z",

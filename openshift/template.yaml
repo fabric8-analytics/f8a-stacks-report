@@ -132,6 +132,11 @@ objects:
                     secretKeyRef:
                       name: worker
                       key: sentry-auth-token
+                - name: SENTRY_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: worker
+                      key: sentry-url
                 - name: REPORT_BUCKET_NAME
                   valueFrom:
                     secretKeyRef:
