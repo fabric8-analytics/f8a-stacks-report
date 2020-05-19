@@ -417,6 +417,9 @@ class ReportHelper:
         if worker == 'stack_aggregator_v2':
             stacks_list = {'npm': [], 'maven': [], 'pypi': []}
             for data in stack_data:
+                if data[0]['_audit']['version'] != 'v1':
+                    # Skipping Other versions bcz of Format difference.
+                    continue
                 stack_info_template = {
                     'ecosystem': '',
                     'stack': [],

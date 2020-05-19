@@ -33,6 +33,7 @@ def test_get_unknown_list():
     lst = uobj.get_unknown_list(result)
     assert len(lst['npm']) == 1
 
+
 @mock.patch('f8a_report.unknown_deps_report_helper.UnknownDepsReportHelper.get_past_unknown_deps',
             return_value=past_unknown_deps)
 @mock.patch('f8a_report.graph_report_generator.find_ingested_epv',
