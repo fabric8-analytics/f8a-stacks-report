@@ -417,9 +417,6 @@ class ReportHelper:
         if worker == 'stack_aggregator_v2':
             stacks_list = {'npm': [], 'maven': [], 'pypi': []}
             for data in stack_data:
-                if data[0]['_audit']['version'] != 'v1':
-                    # Skipping Other versions bcz of Format difference.
-                    continue
                 stack_info_template = {
                     'ecosystem': '',
                     'stack': [],
@@ -568,13 +565,17 @@ class ReportHelper:
         ids = sql.SQL(', ').join(id_list).as_string(self.conn)
 
         for worker in worker_list:
-            query = sql.SQL('SELECT {} FROM {} WHERE {} IN (%s) AND {} = \'%s\'').format(
+            query = sql.SQL('SELECT {} FROM {} WHERE {} IN (%s) AND {} = \'%s\' AND '
+                            '\'_audit->version\' = \'v1\'').format(
                 sql.Identifier('task_result'), sql.Identifier('worker_results'),
                 sql.Identifier('external_request_id'), sql.Identifier('worker')
             )
 
             self.cursor.execute(query.as_string(self.conn) % (ids, worker))
             data = json.dumps(self.cursor.fetchall())
+            if not self.cursor.rowcount:
+                logger.info('No Data has been found for v1 stack analyses.')
+                return result_interim
 
             if retrain is True:
                 unique_stacks = self.normalize_worker_data(start_date, end_date,
@@ -833,6 +834,10 @@ class ReportHelper:
 
             # generate result for each worker
             worker_result = {}
+            if not result_interim:
+                logger.error('No v1 Stack Analyses found in last 1 day.')
+                return worker_result, ingestion_results
+
             for worker in worker_list:
                 if worker == 'stack_aggregator_v2':
                     worker_result[worker] = self.create_venus_report(result_interim[worker])
