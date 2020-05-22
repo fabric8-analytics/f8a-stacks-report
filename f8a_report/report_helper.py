@@ -565,13 +565,15 @@ class ReportHelper:
         ids = sql.SQL(', ').join(id_list).as_string(self.conn)
 
         for worker in worker_list:
-            query = sql.SQL('SELECT {} FROM {} WHERE {} IN (%s) AND {} = \'%s\' AND '
-                            '\'_audit->version\' = \'v1\'').format(
+            # Selecting only versions = v1
+            query = sql.SQL('SELECT {} FROM {} WHERE {} IN (%s) AND {} = \'%s\' '
+                            'AND {}->\'_audit\'->>\'version\' = \'%s\'').format(
                 sql.Identifier('task_result'), sql.Identifier('worker_results'),
-                sql.Identifier('external_request_id'), sql.Identifier('worker')
+                sql.Identifier('external_request_id'), sql.Identifier('worker'),
+                sql.Identifier('task_result')
             )
 
-            self.cursor.execute(query.as_string(self.conn) % (ids, worker))
+            self.cursor.execute(query.as_string(self.conn) % (ids, worker, 'v1'))
             data = json.dumps(self.cursor.fetchall())
             if not self.cursor.rowcount:
                 logger.info('No Data has been found for v1 stack analyses.')
