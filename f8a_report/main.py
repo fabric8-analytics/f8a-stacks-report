@@ -4,6 +4,7 @@ import logging
 import json
 from datetime import datetime as dt, timedelta, date
 from report_helper import ReportHelper
+from v2.report_generator import ReportBuilderV2
 from manifest_helper import manifest_interface
 import os
 
@@ -20,12 +21,14 @@ def time_to_generate_monthly_report(today):
 def main():
     """Generate the weekly and monthly stacks report."""
     r = ReportHelper()
+    r2 = ReportBuilderV2()
     today = dt.today()
     start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = today.strftime('%Y-%m-%d')
 
     # Generate daily venus report
     response, ingestion_results = r.get_report(start_date, end_date, 'daily', retrain=False)
+    response_v2, ingestion_results_v2 = r2.get_report(start_date, end_date, 'daily', retrain=False)
     logger.debug('Daily report data from {s} to {e}'.format(s=start_date, e=end_date))
     logger.debug(json.dumps(response, indent=2))
     logger.debug(json.dumps(ingestion_results, indent=2))
