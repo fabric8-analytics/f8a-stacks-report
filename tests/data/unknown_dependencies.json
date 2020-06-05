@@ -1,0 +1,26 @@
+{
+    "npm": {
+        "total_previously_unknown_dependencies": 0,
+        "ingested_dependencies": 0,
+        "report": {}
+    },
+    "maven": {
+        "total_previously_unknown_dependencies": 4,
+        "ingested_dependencies": 4,
+        "report": {
+            "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE": "Ingested",
+            "org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE": "Ingested",
+            "org.springframework:spring-messaging 4.3.7.RELEASE": "Ingested",
+            "org.springframework:spring-websocket 4.3.7.RELEASE": "Ingested"
+        }
+    },
+    "pypi": {
+        "total_previously_unknown_dependencies": 3,
+        "ingested_dependencies": 3,
+        "report": {
+            "requests 2.22.0": "Ingested",
+            "scipy 1.2.0": "Ingested",
+            "aniso8601 1.2.0": "Ingested"
+        }
+    }
+}

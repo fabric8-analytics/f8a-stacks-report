@@ -93,7 +93,6 @@ class ReportQueries(Postgres):
         query = self.get_stack_ids
         self.cursor.execute(query.as_string(self.conn) % (start_date, end_date))
         rows = self.cursor.fetchall()
-        # Appending all the stack-ids in a list
         id_list = [row[0] for row in rows]
         return id_list
 

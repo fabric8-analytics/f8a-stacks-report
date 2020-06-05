@@ -1,0 +1,15 @@
+{
+    "report": {
+        "from": "2020-05-20",
+        "to": "2020-06-04",
+        "generated_on": "2020-06-04T13:25:22.974549",
+        "version": "v2"
+    },
+    "ingestion_summary": {
+        "incorrect_latest_version": {},
+        "unknown_deps": {},
+        "stats": {},
+        "missing_latest_node": {}
+    },
+    "ingestion_details": {}
+}

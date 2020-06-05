@@ -54,7 +54,7 @@ class ReportBuilderV2(ReportHelper):
         self.stacks_list = {'npm': [], 'maven': [], 'pypi': []}
         self.all_unknown_lic = []
         self.avg_response_time = {}
-        self.report_template = {}
+
 
     @staticmethod
     def normalize_deps_list(dependencies) -> list:
@@ -165,10 +165,12 @@ class ReportBuilderV2(ReportHelper):
         ended_at = data.get('_audit', {}).get('ended_at')
         return started_at, ended_at
 
-    def analyse_stack(self, stacks_data) -> None:
-        """Analyse each stack and fetch reporting parameters.
+    def analyse_stack(self, stacks_data, report_template) -> dict:
+        """Analyse each stack and Build reporting parameters.
 
-        :param stacks_data: Stacks Data from DB
+        :param
+            :stacks_data: Stacks Data from DB
+            :report_template: Report Template
         :return: None
         """
         logger.info("Analysing Stack data")
@@ -218,13 +220,14 @@ class ReportBuilderV2(ReportHelper):
                 stack_info_template['response_time'] = '%f ms' % response_time
                 self.total_response_time['all'] += response_time
                 self.total_response_time[stack_info_template['ecosystem']] += response_time
-                self.report_template['stacks_details'].append(stack_info_template)
+                report_template['stacks_details'].append(stack_info_template)
             except (IndexError, KeyError, TypeError) as e:
                 logger.exception('Error: %r' % e)
                 continue
         logger.info("Stacks Analyse Completed.")
+        return report_template
 
-    def build_report_summary(self, unknown_deps_ingestion_report) -> dict:
+    def build_report_summary(self, unknown_deps_ingestion_report, report_content) -> dict:
         """Build Final Report Summary."""
         logger.info("Building Report summary.")
 
@@ -237,9 +240,7 @@ class ReportBuilderV2(ReportHelper):
         unknown_licenses = self.unknown_licenses
         all_cve_list = self.all_cve_list
         total_response_time = self.total_response_time
-        report_template = self.report_template
         start_date = self.start_date
-
         return {
             'total_stack_requests_count': total_stack_requests['all'],
             'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
@@ -265,7 +266,7 @@ class ReportBuilderV2(ReportHelper):
             'unique_cves':
                 self.populate_key_count(all_cve_list),
             'total_average_response_time':
-                '{} ms'.format(total_response_time['all'] / len(report_template['stacks_details'])),
+                '{} ms'.format(total_response_time['all'] / len(report_content['stacks_details'])),
             'cve_report': CVE().generate_cve_report(updated_on=start_date)
         }
 
@@ -290,9 +291,9 @@ class ReportBuilderV2(ReportHelper):
         logger.info("Normalising v2 Stack Data.")
         stacks_data = json.loads(stacks_data)
         report_name = self.get_report_name(frequency, self.end_date)
-        self.report_template = self.get_report_template(self.start_date, self.end_date)
+        report_template = self.get_report_template(self.start_date, self.end_date)
 
-        self.analyse_stack(stacks_data)
+        report_content = self.analyse_stack(stacks_data, report_template)
 
         self.unique_stacks_with_recurrence_count = {
             'npm': self.populate_key_count(self.stacks_list['npm']),
@@ -310,8 +311,8 @@ class ReportBuilderV2(ReportHelper):
 
         unknown_deps_ingestion_report = UnknownDepsReportHelper().get_current_ingestion_status()
 
-        self.report_template['stacks_summary'] = self.build_report_summary(
-            unknown_deps_ingestion_report)
+        report_content['stacks_summary'] = self.build_report_summary(
+            unknown_deps_ingestion_report, report_content)
 
         if frequency == 'monthly':
             # monthly data collection on the 1st of every month
@@ -320,7 +321,7 @@ class ReportBuilderV2(ReportHelper):
         if retrain:
             return self.unique_stacks_with_recurrence_count
 
-        venus_input = [frequency, report_name, self.report_template]
+        venus_input = [frequency, report_name, report_content]
         logger.info("Venus Report Successfully Generated.")
         return venus_input
 
@@ -453,7 +454,6 @@ class ReportBuilderV2(ReportHelper):
         template = self.get_ingestion_report_template(start_date, end_date)
         content, epvs = self.populate_default_information(epv_data, template)
 
-        logger.info("Fetching details of the latest version for the epvs")
         today = dt.today()
         pkg_output = generate_report_for_latest_version(epvs, today)
         logger.info("Fetching details of the unknown packages for the epvs")

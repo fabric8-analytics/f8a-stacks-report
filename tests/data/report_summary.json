@@ -1,0 +1,132 @@
+{
+    "total_stack_requests_count": 18,
+    "npm": {
+        "stack_requests_count": 0,
+        "unique_dependencies_with_frequency": {},
+        "unique_unknown_dependencies_with_frequency": {},
+        "unique_stacks_with_frequency": {},
+        "unique_stacks_with_deps_count": {},
+        "average_response_time": "0 ms",
+        "trending": {
+            "top_stacks": {},
+            "top_deps": {}
+        },
+        "previously_unknown_dependencies": {
+            "total_previously_unknown_dependencies": 0,
+            "ingested_dependencies": 0,
+            "report": {}
+        }
+    },
+    "maven": {
+        "stack_requests_count": 1,
+        "unique_dependencies_with_frequency": {
+            "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE": 1,
+            "org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE": 1,
+            "org.springframework:spring-messaging 4.3.7.RELEASE": 1,
+            "org.springframework:spring-websocket 4.3.7.RELEASE": 1
+        },
+        "unique_unknown_dependencies_with_frequency": {
+            "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE": 1,
+            "org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE": 1,
+            "org.springframework:spring-messaging 4.3.7.RELEASE": 1,
+            "org.springframework:spring-websocket 4.3.7.RELEASE": 1
+        },
+        "unique_stacks_with_frequency": {
+            "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE,org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE,org.springframework:spring-messaging 4.3.7.RELEASE,org.springframework:spring-websocket 4.3.7.RELEASE": 1
+        },
+        "unique_stacks_with_deps_count": {
+            "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE,org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE,org.springframework:spring-messaging 4.3.7.RELEASE,org.springframework:spring-websocket 4.3.7.RELEASE": 4
+        },
+        "average_response_time": "562.119 ms",
+        "trending": {
+            "top_stacks": {
+                "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE,org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE,org.springframework:spring-messaging 4.3.7.RELEASE,org.springframework:spring-websocket 4.3.7.RELEASE": 1
+            },
+            "top_deps": {
+                "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE": 1,
+                "org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE": 1,
+                "org.springframework:spring-messaging 4.3.7.RELEASE": 1,
+                "org.springframework:spring-websocket 4.3.7.RELEASE": 1
+            }
+        },
+        "previously_unknown_dependencies": {
+            "total_previously_unknown_dependencies": 4,
+            "ingested_dependencies": 4,
+            "report": {
+                "org.springframework.boot:spring-boot-starter 1.5.2.RELEASE": "Ingested",
+                "org.springframework.boot:spring-boot-starter-web 1.5.2.RELEASE": "Ingested",
+                "org.springframework:spring-messaging 4.3.7.RELEASE": "Ingested",
+                "org.springframework:spring-websocket 4.3.7.RELEASE": "Ingested"
+            }
+        }
+    },
+    "pypi": {
+        "stack_requests_count": 17,
+        "unique_dependencies_with_frequency": {
+            "requests 2.22.0": 2,
+            "scipy 1.2.0": 1,
+            "aniso8601 1.2.0": 14
+        },
+        "unique_unknown_dependencies_with_frequency": {
+            "requests 2.22.0": 2,
+            "scipy 1.2.0": 1,
+            "aniso8601 1.2.0": 14
+        },
+        "unique_stacks_with_frequency": {
+            "requests 2.22.0": 2,
+            "scipy 1.2.0": 1,
+            "aniso8601 1.2.0": 14
+        },
+        "unique_stacks_with_deps_count": {
+            "requests 2.22.0": 1,
+            "scipy 1.2.0": 1,
+            "aniso8601 1.2.0": 1
+        },
+        "average_response_time": "255.31711764705892 ms",
+        "trending": {
+            "top_stacks": {
+                "aniso8601 1.2.0": 14,
+                "requests 2.22.0": 2,
+                "scipy 1.2.0": 1
+            },
+            "top_deps": {
+                "aniso8601 1.2.0": 14,
+                "requests 2.22.0": 2,
+                "scipy 1.2.0": 1
+            }
+        },
+        "previously_unknown_dependencies": {
+            "total_previously_unknown_dependencies": 3,
+            "ingested_dependencies": 3,
+            "report": {
+                "requests 2.22.0": "Ingested",
+                "scipy 1.2.0": "Ingested",
+                "aniso8601 1.2.0": "Ingested"
+            }
+        }
+    },
+    "unique_unknown_licenses_with_frequency": {
+        "unknown": 14
+    },
+    "unique_cves": {
+        "CVE-2019-11236:4.3": 2,
+        "CVE-2018-1275:7.5": 1,
+        "CVE-2018-1257:4.0": 1
+    },
+    "total_average_response_time": "272.36166666666674 ms",
+    "cve_report": {
+        "github_stats": {
+            "open_count": {
+                "2 days": 44,
+                "7 days": 86,
+                "30 days": 216,
+                "365 days": 3089
+            },
+            "false_positives": 0
+        },
+        "ingestion": {
+            "ingested": [],
+            "missed": []
+        }
+    }
+}
