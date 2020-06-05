@@ -1,12 +1,14 @@
 """Tests Report Generator v2."""
 
 import json
-from unittest import mock, TestCase
+from unittest import TestCase
 from f8a_report.v2.report_generator import ReportBuilderV2
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 
 class TestReportBuilderV2(TestCase):
+    """Test Namespace for Report Builder v2 Class."""
+
     @classmethod
     def setUp(cls):
         """Initialise class with required params."""
@@ -17,7 +19,8 @@ class TestReportBuilderV2(TestCase):
 
     def test_normalize_deps_list(self):
         """Test Normalize deps list."""
-        dependencies = self.stack_analyses_v2[0][0].get('analyzed_dependencies')[0].get('dependencies')
+        dependencies = self.stack_analyses_v2[0][0].get(
+            'analyzed_dependencies')[0].get('dependencies')
         result = self.ReportBuilder.normalize_deps_list(dependencies)
         self.assertIsInstance(result, list)
         self.assertListEqual(['python-dateutil 2.7.3', 'six 1.12.0'], result)
@@ -100,12 +103,13 @@ class TestReportBuilderV2(TestCase):
         self.assertGreater(len('stacks_summary'), 0)
 
     @patch('f8a_report.v2.report_generator.ReportBuilderV2.build_report_summary')
-    @patch('f8a_report.v2.report_generator.ReportBuilderV2.save_result', return_value= True)
-    @patch('f8a_report.v2.report_generator.ReportBuilderV2.save_ingestion_report_in_s3', return_value= True)
+    @patch('f8a_report.v2.report_generator.ReportBuilderV2.save_result', return_value=True)
+    @patch('f8a_report.v2.report_generator.ReportBuilderV2.save_ingestion_report_in_s3')
     @patch('f8a_report.v2.report_generator.UnknownDepsReportHelper.get_current_ingestion_status')
     def test_normalize_worker_data(self, _mock1, _mock2, _mock3, _mock4):
         """Test Normalize worker data."""
         stacks_data = json.dumps(self.stack_analyses_v2)
+        _mock2.return_value = True
         self.ReportBuilder.start_date = "2020-01-01"
         self.ReportBuilder.end_date = "2020-01-02"
         with open('tests/data/unknown_dependencies.json', 'r') as f:
@@ -117,18 +121,18 @@ class TestReportBuilderV2(TestCase):
         self.assertIn('daily', result)
         self.assertIn('stacks_summary', result[2])
 
-    @patch('f8a_report.v2.report_generator.ReportBuilderV2.check_latest_node', return_value="content")
+    @patch('f8a_report.v2.report_generator.ReportBuilderV2.check_latest_node')
     @patch('f8a_report.v2.report_generator.generate_report_for_unknown_epvs')
     @patch('f8a_report.v2.report_generator.generate_report_for_latest_version')
     @patch('f8a_report.v2.report_generator.UnknownDepsReportHelper.get_current_ingestion_status')
     def test_normalize_ingestion_data(self, _mock1, _mock2, _mock3, _mock4):
         """Test Normalize Ingestion data."""
+        _mock4.return_value = "content"
         start_date = "2020-01-01"
         end_date = "2020-01-02"
         ingestion_data = {'EPV_DATA': json.dumps({})}
         result = self.ReportBuilder.normalize_ingestion_data(start_date, end_date, ingestion_data)
         self.assertEqual(result, 'content')
-
 
     @patch('f8a_report.v2.report_generator.ReportBuilderV2.save_ingestion_report_in_s3')
     @patch('f8a_report.v2.report_generator.ReportBuilderV2.save_result')
@@ -153,18 +157,11 @@ class TestReportBuilderV2(TestCase):
 
         result = self.ReportBuilder.get_report(start_date, end_date)
         self.assertIn('stack_aggregator_v2', result[0])
-        self.assertEqual(result[0]['stack_aggregator_v2']['stacks_summary']['total_stack_requests_count'], 10)
-
+        self.assertEqual(
+            result[0]['stack_aggregator_v2']['stacks_summary']['total_stack_requests_count'], 10)
 
     @patch('f8a_report.v2.report_generator.S3Helper.store_json_content')
     def test_save_result(self, _mock1):
         """Test save to s3."""
         result = self.ReportBuilder.save_result('daily', 'report_name', 'content')
         self.assertTrue(result)
-
-
-
-
-
-
-

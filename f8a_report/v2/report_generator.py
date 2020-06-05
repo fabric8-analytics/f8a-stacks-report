@@ -55,7 +55,6 @@ class ReportBuilderV2(ReportHelper):
         self.all_unknown_lic = []
         self.avg_response_time = {}
 
-
     @staticmethod
     def normalize_deps_list(dependencies) -> list:
         """Flatten the dependencies dict into a list.

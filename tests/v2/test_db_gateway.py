@@ -1,14 +1,12 @@
 """Tests DB Gateway v2."""
 
-import json
-from unittest import mock, TestCase
+from unittest import TestCase
 from f8a_report.v2.db_gateway import ReportQueries
-from unittest.mock import patch, Mock
 from tests.test_stack_report_helper import MockPostgres
 
 
 class MyMockPostgres(MockPostgres):
-    """Mocker for Postgres"""
+    """Mocker for Postgres."""
 
     @staticmethod
     def rowcount():
@@ -17,6 +15,8 @@ class MyMockPostgres(MockPostgres):
 
 
 class TestReportQueries(TestCase):
+    """Test namespace for Reporting Queries."""
+
     @classmethod
     def setUp(cls):
         """Initialise class with required params."""
@@ -26,7 +26,9 @@ class TestReportQueries(TestCase):
     def test_get_worker_results_v2_exception(self):
         """Test Worker Results Exception."""
         stack_ids = ('09aa6480a3ce477881109d9635c30257',)
-        self.assertRaises(Exception, self.ReportQueries.get_worker_results_v2, self.worker, stack_ids)
+        self.assertRaises(Exception,
+                          self.ReportQueries.get_worker_results_v2,
+                          self.worker, stack_ids)
 
     def test_get_worker_results_v2(self):
         """Test Worker Results Exception."""
@@ -44,7 +46,9 @@ class TestReportQueries(TestCase):
     def test_retrieve_stack_analyses_ids_exception(self):
         """Test Retrieve Stack Analyses."""
         self.ReportQueries.cursor = MockPostgres()
-        self.assertRaises(ValueError, self.ReportQueries.retrieve_stack_analyses_ids, '201-10-09', '18-10-09')
+        self.assertRaises(ValueError,
+                          self.ReportQueries.retrieve_stack_analyses_ids,
+                          '201-10-09', '18-10-09')
 
     def test_retrieve_ingestion_results(self):
         """Test Retrieve Ingestion Results."""
