@@ -1,0 +1,764 @@
+[
+    "daily",
+    "2020-06-05",
+    {
+        "report": {
+            "from": "2020-05-21",
+            "to": "2020-06-05",
+            "generated_on": "2020-06-05T10:10:22.316304",
+            "report_version": "v2"
+        },
+        "stacks_summary": {
+            "total_stack_requests_count": 10,
+            "npm": {
+                "stack_requests_count": 1,
+                "unique_dependencies_with_frequency": {
+                    "@aoberoi/passport-slack 1.0.5": 1,
+                    "@ngx-translate/core 11.0.1": 1,
+                    "algoliasearch 3.33.0": 1,
+                    "angular2-notifications 1.0.2": 1,
+                    "apollo-fetch 0.7.0": 1,
+                    "axios 0.19.0": 1,
+                    "babel-polyfill 6.26.0": 1,
+                    "bcryptjs-then 1.0.1": 1,
+                    "bluebird 3.5.5": 1,
+                    "body-parser 1.19.0": 1,
+                    "bootstrap 4.1.1": 1,
+                    "chalk 2.4.2": 1,
+                    "chart.js 2.7.1": 1,
+                    "cheerio 1.0.0-rc.3": 1,
+                    "clean-css 4.2.1": 1,
+                    "compression 1.7.4": 1,
+                    "connect-session-knex 1.4.0": 1,
+                    "cookie-parser 1.4.4": 1,
+                    "core-js 2.6.9": 1,
+                    "cors 2.8.5": 1,
+                    "cross-env 5.2.0": 1,
+                    "custom-error-instance 2.1.1": 1,
+                    "d3 5.4.0": 1,
+                    "diff 4.0.1": 1,
+                    "es6-promise-promise 1.0.0": 1,
+                    "express 4.17.1": 1,
+                    "express-brute 1.0.1": 1,
+                    "filesize 4.1.2": 1,
+                    "font-awesome 4.7.0": 1,
+                    "graphql-list-fields 2.0.2": 1,
+                    "graphql-rate-limit-directive 1.1.0": 1,
+                    "graphql-subscriptions 1.1.0": 1,
+                    "hammerjs 2.0.8": 1,
+                    "i18next-express-middleware 1.8.0": 1,
+                    "i18next-node-fs-backend 2.1.3": 1,
+                    "image-size 0.7.4": 1,
+                    "js-base64 2.5.1": 1,
+                    "js-binary 1.2.0": 1,
+                    "js-yaml 3.13.1": 1,
+                    "jsonwebtoken 8.5.1": 1,
+                    "lodash 4.17.15": 1,
+                    "markdown-it-abbr 1.0.4": 1,
+                    "markdown-it-emoji 1.4.0": 1,
+                    "markdown-it-external-links 0.0.6": 1,
+                    "markdown-it-imsize 2.0.1": 1,
+                    "markdown-it-mark 2.0.0": 1,
+                    "markdown-it-mathjax 2.0.0": 1,
+                    "markdown-it-sub 1.0.0": 1,
+                    "markdown-it-sup 1.0.0": 1,
+                    "markdown-it-task-lists 2.1.1": 1,
+                    "mathjax-node 2.1.1": 1,
+                    "mime-types 2.1.24": 1,
+                    "moment 2.22.1": 1,
+                    "mssql 5.1.0": 1,
+                    "multer 1.4.1": 1,
+                    "mysql2 1.6.5": 1,
+                    "nanoid 2.0.3": 1,
+                    "ng-drag-drop 4.0.1": 1,
+                    "ng2-file-upload 1.3.0": 1,
+                    "node-cache 4.2.0": 1,
+                    "nodemon 1.18.3": 1,
+                    "normalize.css 8.0.0": 1,
+                    "npm 6.1.0": 1,
+                    "objection 1.6.9": 1,
+                    "passport 0.4.0": 1,
+                    "passport-auth0 1.1.0": 1,
+                    "passport-azure-ad 4.1.0": 1,
+                    "passport-cas 0.1.1": 1,
+                    "passport-discord 0.1.3": 1,
+                    "passport-dropbox-oauth2 1.1.0": 1,
+                    "passport-facebook 3.0.0": 1,
+                    "passport-github2 0.1.11": 1,
+                    "passport-gitlab2 5.0.0": 1,
+                    "passport-google-oauth20 2.0.0": 1,
+                    "passport-jwt 4.0.0": 1,
+                    "passport-ldapauth 2.1.3": 1,
+                    "passport-local 1.0.0": 1,
+                    "passport-microsoft 0.0.5": 1,
+                    "passport-oauth2 1.5.0": 1,
+                    "passport-okta-oauth 0.0.1": 1,
+                    "react 16.8.6": 1,
+                    "react-compound-slider 2.0.0": 1,
+                    "react-date-picker 7.5.0": 1,
+                    "react-dom 16.8.6": 1,
+                    "react-json-pretty 2.1.0": 1,
+                    "react-router 4.3.1": 1,
+                    "register-service-worker 1.6.2": 1,
+                    "rxjs 6.4.0": 1,
+                    "rxjs-compat 6.2.0": 1,
+                    "serve-static 1.7.1": 1,
+                    "sjcl 1.0.8": 1,
+                    "svg.easing.js 2.0.0": 1,
+                    "svg.filter.js 2.0.2": 1,
+                    "svg.js 2.6.6": 1,
+                    "svg.pathmorphing.js 0.1.3": 1,
+                    "svg.resize.js 1.4.2": 1,
+                    "svg.select.js 2.1.2": 1,
+                    "ts-helpers 1.1.2": 1,
+                    "vue 2.6.10": 1,
+                    "vue-class-component 7.1.0": 1,
+                    "vuex 3.1.1": 1,
+                    "web-animations-js 2.3.1": 1,
+                    "zone.js 0.9.1": 1
+                },
+                "unique_unknown_dependencies_with_frequency": {
+                    "@aoberoi/passport-slack 1.0.5": 1,
+                    "@ngx-translate/core 11.0.1": 1,
+                    "algoliasearch 3.33.0": 1,
+                    "angular2-notifications 1.0.2": 1,
+                    "apollo-fetch 0.7.0": 1,
+                    "axios 0.19.0": 1,
+                    "babel-polyfill 6.26.0": 1,
+                    "bcryptjs-then 1.0.1": 1,
+                    "bluebird 3.5.5": 1,
+                    "body-parser 1.19.0": 1,
+                    "bootstrap 4.1.1": 1,
+                    "chalk 2.4.2": 1,
+                    "chart.js 2.7.1": 1,
+                    "cheerio 1.0.0-rc.3": 1,
+                    "clean-css 4.2.1": 1,
+                    "compression 1.7.4": 1,
+                    "connect-session-knex 1.4.0": 1,
+                    "cookie-parser 1.4.4": 1,
+                    "core-js 2.6.9": 1,
+                    "cors 2.8.5": 1,
+                    "cross-env 5.2.0": 1,
+                    "custom-error-instance 2.1.1": 1,
+                    "d3 5.4.0": 1,
+                    "diff 4.0.1": 1,
+                    "es6-promise-promise 1.0.0": 1,
+                    "express 4.17.1": 1,
+                    "express-brute 1.0.1": 1,
+                    "filesize 4.1.2": 1,
+                    "font-awesome 4.7.0": 1,
+                    "graphql-list-fields 2.0.2": 1,
+                    "graphql-rate-limit-directive 1.1.0": 1,
+                    "graphql-subscriptions 1.1.0": 1,
+                    "hammerjs 2.0.8": 1,
+                    "i18next-express-middleware 1.8.0": 1,
+                    "i18next-node-fs-backend 2.1.3": 1,
+                    "image-size 0.7.4": 1,
+                    "js-base64 2.5.1": 1,
+                    "js-binary 1.2.0": 1,
+                    "js-yaml 3.13.1": 1,
+                    "jsonwebtoken 8.5.1": 1,
+                    "lodash 4.17.15": 1,
+                    "markdown-it-abbr 1.0.4": 1,
+                    "markdown-it-emoji 1.4.0": 1,
+                    "markdown-it-external-links 0.0.6": 1,
+                    "markdown-it-imsize 2.0.1": 1,
+                    "markdown-it-mark 2.0.0": 1,
+                    "markdown-it-mathjax 2.0.0": 1,
+                    "markdown-it-sub 1.0.0": 1,
+                    "markdown-it-sup 1.0.0": 1,
+                    "markdown-it-task-lists 2.1.1": 1,
+                    "mathjax-node 2.1.1": 1,
+                    "mime-types 2.1.24": 1,
+                    "moment 2.22.1": 1,
+                    "mssql 5.1.0": 1,
+                    "multer 1.4.1": 1,
+                    "mysql2 1.6.5": 1,
+                    "nanoid 2.0.3": 1,
+                    "ng-drag-drop 4.0.1": 1,
+                    "ng2-file-upload 1.3.0": 1,
+                    "node-cache 4.2.0": 1,
+                    "nodemon 1.18.3": 1,
+                    "normalize.css 8.0.0": 1,
+                    "npm 6.1.0": 1,
+                    "objection 1.6.9": 1,
+                    "passport 0.4.0": 1,
+                    "passport-auth0 1.1.0": 1,
+                    "passport-azure-ad 4.1.0": 1,
+                    "passport-cas 0.1.1": 1,
+                    "passport-discord 0.1.3": 1,
+                    "passport-dropbox-oauth2 1.1.0": 1,
+                    "passport-facebook 3.0.0": 1,
+                    "passport-github2 0.1.11": 1,
+                    "passport-gitlab2 5.0.0": 1,
+                    "passport-google-oauth20 2.0.0": 1,
+                    "passport-jwt 4.0.0": 1,
+                    "passport-ldapauth 2.1.3": 1,
+                    "passport-local 1.0.0": 1,
+                    "passport-microsoft 0.0.5": 1,
+                    "passport-oauth2 1.5.0": 1,
+                    "passport-okta-oauth 0.0.1": 1,
+                    "react 16.8.6": 1,
+                    "react-compound-slider 2.0.0": 1,
+                    "react-date-picker 7.5.0": 1,
+                    "react-dom 16.8.6": 1,
+                    "react-json-pretty 2.1.0": 1,
+                    "react-router 4.3.1": 1,
+                    "register-service-worker 1.6.2": 1,
+                    "rxjs 6.4.0": 1,
+                    "rxjs-compat 6.2.0": 1,
+                    "serve-static 1.7.1": 1,
+                    "sjcl 1.0.8": 1,
+                    "svg.easing.js 2.0.0": 1,
+                    "svg.filter.js 2.0.2": 1,
+                    "svg.js 2.6.6": 1,
+                    "svg.pathmorphing.js 0.1.3": 1,
+                    "svg.resize.js 1.4.2": 1,
+                    "svg.select.js 2.1.2": 1,
+                    "ts-helpers 1.1.2": 1,
+                    "vue 2.6.10": 1,
+                    "vue-class-component 7.1.0": 1,
+                    "vuex 3.1.1": 1,
+                    "web-animations-js 2.3.1": 1,
+                    "zone.js 0.9.1": 1
+                },
+                "unique_stacks_with_frequency": {
+                    "@aoberoi/passport-slack 1.0.5,@ngx-translate/core 11.0.1,algoliasearch 3.33.0,angular2-notifications 1.0.2,apollo-fetch 0.7.0,axios 0.19.0,babel-polyfill 6.26.0,bcryptjs-then 1.0.1,bluebird 3.5.5,body-parser 1.19.0,bootstrap 4.1.1,chalk 2.4.2,chart.js 2.7.1,cheerio 1.0.0-rc.3,clean-css 4.2.1,compression 1.7.4,connect-session-knex 1.4.0,cookie-parser 1.4.4,core-js 2.6.9,cors 2.8.5,cross-env 5.2.0,custom-error-instance 2.1.1,d3 5.4.0,diff 4.0.1,es6-promise-promise 1.0.0,express 4.17.1,express-brute 1.0.1,filesize 4.1.2,font-awesome 4.7.0,graphql-list-fields 2.0.2,graphql-rate-limit-directive 1.1.0,graphql-subscriptions 1.1.0,hammerjs 2.0.8,i18next-express-middleware 1.8.0,i18next-node-fs-backend 2.1.3,image-size 0.7.4,js-base64 2.5.1,js-binary 1.2.0,js-yaml 3.13.1,jsonwebtoken 8.5.1,lodash 4.17.15,markdown-it-abbr 1.0.4,markdown-it-emoji 1.4.0,markdown-it-external-links 0.0.6,markdown-it-imsize 2.0.1,markdown-it-mark 2.0.0,markdown-it-mathjax 2.0.0,markdown-it-sub 1.0.0,markdown-it-sup 1.0.0,markdown-it-task-lists 2.1.1,mathjax-node 2.1.1,mime-types 2.1.24,moment 2.22.1,mssql 5.1.0,multer 1.4.1,mysql2 1.6.5,nanoid 2.0.3,ng-drag-drop 4.0.1,ng2-file-upload 1.3.0,node-cache 4.2.0,nodemon 1.18.3,normalize.css 8.0.0,npm 6.1.0,objection 1.6.9,passport 0.4.0,passport-auth0 1.1.0,passport-azure-ad 4.1.0,passport-cas 0.1.1,passport-discord 0.1.3,passport-dropbox-oauth2 1.1.0,passport-facebook 3.0.0,passport-github2 0.1.11,passport-gitlab2 5.0.0,passport-google-oauth20 2.0.0,passport-jwt 4.0.0,passport-ldapauth 2.1.3,passport-local 1.0.0,passport-microsoft 0.0.5,passport-oauth2 1.5.0,passport-okta-oauth 0.0.1,react 16.8.6,react-compound-slider 2.0.0,react-date-picker 7.5.0,react-dom 16.8.6,react-json-pretty 2.1.0,react-router 4.3.1,register-service-worker 1.6.2,rxjs 6.4.0,rxjs-compat 6.2.0,serve-static 1.7.1,sjcl 1.0.8,svg.easing.js 2.0.0,svg.filter.js 2.0.2,svg.js 2.6.6,svg.pathmorphing.js 0.1.3,svg.resize.js 1.4.2,svg.select.js 2.1.2,ts-helpers 1.1.2,vue 2.6.10,vue-class-component 7.1.0,vuex 3.1.1,web-animations-js 2.3.1,zone.js 0.9.1": 1
+                },
+                "unique_stacks_with_deps_count": {
+                    "@aoberoi/passport-slack 1.0.5,@ngx-translate/core 11.0.1,algoliasearch 3.33.0,angular2-notifications 1.0.2,apollo-fetch 0.7.0,axios 0.19.0,babel-polyfill 6.26.0,bcryptjs-then 1.0.1,bluebird 3.5.5,body-parser 1.19.0,bootstrap 4.1.1,chalk 2.4.2,chart.js 2.7.1,cheerio 1.0.0-rc.3,clean-css 4.2.1,compression 1.7.4,connect-session-knex 1.4.0,cookie-parser 1.4.4,core-js 2.6.9,cors 2.8.5,cross-env 5.2.0,custom-error-instance 2.1.1,d3 5.4.0,diff 4.0.1,es6-promise-promise 1.0.0,express 4.17.1,express-brute 1.0.1,filesize 4.1.2,font-awesome 4.7.0,graphql-list-fields 2.0.2,graphql-rate-limit-directive 1.1.0,graphql-subscriptions 1.1.0,hammerjs 2.0.8,i18next-express-middleware 1.8.0,i18next-node-fs-backend 2.1.3,image-size 0.7.4,js-base64 2.5.1,js-binary 1.2.0,js-yaml 3.13.1,jsonwebtoken 8.5.1,lodash 4.17.15,markdown-it-abbr 1.0.4,markdown-it-emoji 1.4.0,markdown-it-external-links 0.0.6,markdown-it-imsize 2.0.1,markdown-it-mark 2.0.0,markdown-it-mathjax 2.0.0,markdown-it-sub 1.0.0,markdown-it-sup 1.0.0,markdown-it-task-lists 2.1.1,mathjax-node 2.1.1,mime-types 2.1.24,moment 2.22.1,mssql 5.1.0,multer 1.4.1,mysql2 1.6.5,nanoid 2.0.3,ng-drag-drop 4.0.1,ng2-file-upload 1.3.0,node-cache 4.2.0,nodemon 1.18.3,normalize.css 8.0.0,npm 6.1.0,objection 1.6.9,passport 0.4.0,passport-auth0 1.1.0,passport-azure-ad 4.1.0,passport-cas 0.1.1,passport-discord 0.1.3,passport-dropbox-oauth2 1.1.0,passport-facebook 3.0.0,passport-github2 0.1.11,passport-gitlab2 5.0.0,passport-google-oauth20 2.0.0,passport-jwt 4.0.0,passport-ldapauth 2.1.3,passport-local 1.0.0,passport-microsoft 0.0.5,passport-oauth2 1.5.0,passport-okta-oauth 0.0.1,react 16.8.6,react-compound-slider 2.0.0,react-date-picker 7.5.0,react-dom 16.8.6,react-json-pretty 2.1.0,react-router 4.3.1,register-service-worker 1.6.2,rxjs 6.4.0,rxjs-compat 6.2.0,serve-static 1.7.1,sjcl 1.0.8,svg.easing.js 2.0.0,svg.filter.js 2.0.2,svg.js 2.6.6,svg.pathmorphing.js 0.1.3,svg.resize.js 1.4.2,svg.select.js 2.1.2,ts-helpers 1.1.2,vue 2.6.10,vue-class-component 7.1.0,vuex 3.1.1,web-animations-js 2.3.1,zone.js 0.9.1": 103
+                },
+                "average_response_time": "152.134 ms",
+                "trending": {
+                    "top_stacks": {
+                        "@aoberoi/passport-slack 1.0.5,@ngx-translate/core 11.0.1,algoliasearch 3.33.0,angular2-notifications 1.0.2,apollo-fetch 0.7.0,axios 0.19.0,babel-polyfill 6.26.0,bcryptjs-then 1.0.1,bluebird 3.5.5,body-parser 1.19.0,bootstrap 4.1.1,chalk 2.4.2,chart.js 2.7.1,cheerio 1.0.0-rc.3,clean-css 4.2.1,compression 1.7.4,connect-session-knex 1.4.0,cookie-parser 1.4.4,core-js 2.6.9,cors 2.8.5,cross-env 5.2.0,custom-error-instance 2.1.1,d3 5.4.0,diff 4.0.1,es6-promise-promise 1.0.0,express 4.17.1,express-brute 1.0.1,filesize 4.1.2,font-awesome 4.7.0,graphql-list-fields 2.0.2,graphql-rate-limit-directive 1.1.0,graphql-subscriptions 1.1.0,hammerjs 2.0.8,i18next-express-middleware 1.8.0,i18next-node-fs-backend 2.1.3,image-size 0.7.4,js-base64 2.5.1,js-binary 1.2.0,js-yaml 3.13.1,jsonwebtoken 8.5.1,lodash 4.17.15,markdown-it-abbr 1.0.4,markdown-it-emoji 1.4.0,markdown-it-external-links 0.0.6,markdown-it-imsize 2.0.1,markdown-it-mark 2.0.0,markdown-it-mathjax 2.0.0,markdown-it-sub 1.0.0,markdown-it-sup 1.0.0,markdown-it-task-lists 2.1.1,mathjax-node 2.1.1,mime-types 2.1.24,moment 2.22.1,mssql 5.1.0,multer 1.4.1,mysql2 1.6.5,nanoid 2.0.3,ng-drag-drop 4.0.1,ng2-file-upload 1.3.0,node-cache 4.2.0,nodemon 1.18.3,normalize.css 8.0.0,npm 6.1.0,objection 1.6.9,passport 0.4.0,passport-auth0 1.1.0,passport-azure-ad 4.1.0,passport-cas 0.1.1,passport-discord 0.1.3,passport-dropbox-oauth2 1.1.0,passport-facebook 3.0.0,passport-github2 0.1.11,passport-gitlab2 5.0.0,passport-google-oauth20 2.0.0,passport-jwt 4.0.0,passport-ldapauth 2.1.3,passport-local 1.0.0,passport-microsoft 0.0.5,passport-oauth2 1.5.0,passport-okta-oauth 0.0.1,react 16.8.6,react-compound-slider 2.0.0,react-date-picker 7.5.0,react-dom 16.8.6,react-json-pretty 2.1.0,react-router 4.3.1,register-service-worker 1.6.2,rxjs 6.4.0,rxjs-compat 6.2.0,serve-static 1.7.1,sjcl 1.0.8,svg.easing.js 2.0.0,svg.filter.js 2.0.2,svg.js 2.6.6,svg.pathmorphing.js 0.1.3,svg.resize.js 1.4.2,svg.select.js 2.1.2,ts-helpers 1.1.2,vue 2.6.10,vue-class-component 7.1.0,vuex 3.1.1,web-animations-js 2.3.1,zone.js 0.9.1": 1
+                    },
+                    "top_deps": {
+                        "@aoberoi/passport-slack 1.0.5": 1,
+                        "@ngx-translate/core 11.0.1": 1,
+                        "algoliasearch 3.33.0": 1,
+                        "angular2-notifications 1.0.2": 1,
+                        "apollo-fetch 0.7.0": 1
+                    }
+                },
+                "previously_unknown_dependencies": {
+                    "total_previously_unknown_dependencies": 0,
+                    "ingested_dependencies": 0,
+                    "report": {}
+                }
+            },
+            "maven": {
+                "stack_requests_count": 2,
+                "unique_dependencies_with_frequency": {
+                    "io.vertx:vertx-core 3.4.1": 2,
+                    "io.vertx:vertx-jdbc-client 3.4.1": 2,
+                    "io.vertx:vertx-rx-java 3.4.1": 2,
+                    "io.vertx:vertx-web 3.4.1": 2,
+                    "io.vertx:vertx-web-client 3.4.1": 2,
+                    "io.vertx:vertx-web-templ-freemarker 3.4.1": 2,
+                    "io.vertx:vertx-web-templ-handlebars 3.4.1": 2
+                },
+                "unique_unknown_dependencies_with_frequency": {
+                    "io.vertx:vertx-core 3.4.1": 2,
+                    "io.vertx:vertx-jdbc-client 3.4.1": 2,
+                    "io.vertx:vertx-rx-java 3.4.1": 2,
+                    "io.vertx:vertx-web 3.4.1": 2,
+                    "io.vertx:vertx-web-client 3.4.1": 2,
+                    "io.vertx:vertx-web-templ-freemarker 3.4.1": 2,
+                    "io.vertx:vertx-web-templ-handlebars 3.4.1": 2
+                },
+                "unique_stacks_with_frequency": {
+                    "io.vertx:vertx-core 3.4.1,io.vertx:vertx-jdbc-client 3.4.1,io.vertx:vertx-rx-java 3.4.1,io.vertx:vertx-web 3.4.1,io.vertx:vertx-web-client 3.4.1,io.vertx:vertx-web-templ-freemarker 3.4.1,io.vertx:vertx-web-templ-handlebars 3.4.1": 2
+                },
+                "unique_stacks_with_deps_count": {
+                    "io.vertx:vertx-core 3.4.1,io.vertx:vertx-jdbc-client 3.4.1,io.vertx:vertx-rx-java 3.4.1,io.vertx:vertx-web 3.4.1,io.vertx:vertx-web-client 3.4.1,io.vertx:vertx-web-templ-freemarker 3.4.1,io.vertx:vertx-web-templ-handlebars 3.4.1": 7
+                },
+                "average_response_time": "290.988 ms",
+                "trending": {
+                    "top_stacks": {
+                        "io.vertx:vertx-core 3.4.1,io.vertx:vertx-jdbc-client 3.4.1,io.vertx:vertx-rx-java 3.4.1,io.vertx:vertx-web 3.4.1,io.vertx:vertx-web-client 3.4.1,io.vertx:vertx-web-templ-freemarker 3.4.1,io.vertx:vertx-web-templ-handlebars 3.4.1": 2
+                    },
+                    "top_deps": {
+                        "io.vertx:vertx-core 3.4.1": 2,
+                        "io.vertx:vertx-jdbc-client 3.4.1": 2,
+                        "io.vertx:vertx-rx-java 3.4.1": 2,
+                        "io.vertx:vertx-web 3.4.1": 2,
+                        "io.vertx:vertx-web-client 3.4.1": 2
+                    }
+                },
+                "previously_unknown_dependencies": {
+                    "total_previously_unknown_dependencies": 0,
+                    "ingested_dependencies": 0,
+                    "report": {}
+                }
+            },
+            "pypi": {
+                "stack_requests_count": 7,
+                "unique_dependencies_with_frequency": {
+                    "aniso8601 1.2.0": 7
+                },
+                "unique_unknown_dependencies_with_frequency": {
+                    "aniso8601 1.2.0": 7
+                },
+                "unique_stacks_with_frequency": {
+                    "aniso8601 1.2.0": 7
+                },
+                "unique_stacks_with_deps_count": {
+                    "aniso8601 1.2.0": 1
+                },
+                "average_response_time": "764.0028571428571 ms",
+                "trending": {
+                    "top_stacks": {
+                        "aniso8601 1.2.0": 7
+                    },
+                    "top_deps": {
+                        "aniso8601 1.2.0": 7
+                    }
+                },
+                "previously_unknown_dependencies": {
+                    "total_previously_unknown_dependencies": 1,
+                    "ingested_dependencies": 1,
+                    "report": {
+                        "aniso8601 1.2.0": "Ingested"
+                    }
+                }
+            },
+            "unique_unknown_licenses_with_frequency": {
+                "the bsd license": 1,
+                "unknown": 7,
+                "dual license": 7,
+                "(ofl-1.1 and mit)": 1,
+                "artistic-2.0": 1,
+                "gpl-2.0-only": 1
+            },
+            "unique_cves": {},
+            "total_average_response_time": "608.213 ms",
+            "cve_report": null
+        },
+        "stacks_details": [
+            {
+                "ecosystem": "maven",
+                "stack": [
+                    "io.vertx:vertx-core 3.4.1",
+                    "io.vertx:vertx-jdbc-client 3.4.1",
+                    "io.vertx:vertx-rx-java 3.4.1",
+                    "io.vertx:vertx-web 3.4.1",
+                    "io.vertx:vertx-web-client 3.4.1",
+                    "io.vertx:vertx-web-templ-freemarker 3.4.1",
+                    "io.vertx:vertx-web-templ-handlebars 3.4.1"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "the bsd license",
+                            "package": "org.antlr:antlr4-runtime"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "22.800000 ms"
+            },
+            {
+                "ecosystem": "pypi",
+                "stack": [
+                    "aniso8601 1.2.0"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        },
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "809.759000 ms"
+            },
+            {
+                "ecosystem": "pypi",
+                "stack": [
+                    "aniso8601 1.2.0"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        },
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "786.713000 ms"
+            },
+            {
+                "ecosystem": "pypi",
+                "stack": [
+                    "aniso8601 1.2.0"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        },
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "778.276000 ms"
+            },
+            {
+                "ecosystem": "pypi",
+                "stack": [
+                    "aniso8601 1.2.0"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        },
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "795.393000 ms"
+            },
+            {
+                "ecosystem": "pypi",
+                "stack": [
+                    "aniso8601 1.2.0"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        },
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "582.759000 ms"
+            },
+            {
+                "ecosystem": "pypi",
+                "stack": [
+                    "aniso8601 1.2.0"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        },
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "806.724000 ms"
+            },
+            {
+                "ecosystem": "maven",
+                "stack": [
+                    "io.vertx:vertx-core 3.4.1",
+                    "io.vertx:vertx-jdbc-client 3.4.1",
+                    "io.vertx:vertx-rx-java 3.4.1",
+                    "io.vertx:vertx-web 3.4.1",
+                    "io.vertx:vertx-web-client 3.4.1",
+                    "io.vertx:vertx-web-templ-freemarker 3.4.1",
+                    "io.vertx:vertx-web-templ-handlebars 3.4.1"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": []
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "559.176000 ms"
+            },
+            {
+                "ecosystem": "npm",
+                "stack": [
+                    "@aoberoi/passport-slack 1.0.5",
+                    "@ngx-translate/core 11.0.1",
+                    "algoliasearch 3.33.0",
+                    "angular2-notifications 1.0.2",
+                    "apollo-fetch 0.7.0",
+                    "axios 0.19.0",
+                    "babel-polyfill 6.26.0",
+                    "bcryptjs-then 1.0.1",
+                    "bluebird 3.5.5",
+                    "body-parser 1.19.0",
+                    "bootstrap 4.1.1",
+                    "chalk 2.4.2",
+                    "chart.js 2.7.1",
+                    "cheerio 1.0.0-rc.3",
+                    "clean-css 4.2.1",
+                    "compression 1.7.4",
+                    "connect-session-knex 1.4.0",
+                    "cookie-parser 1.4.4",
+                    "core-js 2.6.9",
+                    "cors 2.8.5",
+                    "cross-env 5.2.0",
+                    "custom-error-instance 2.1.1",
+                    "d3 5.4.0",
+                    "diff 4.0.1",
+                    "es6-promise-promise 1.0.0",
+                    "express 4.17.1",
+                    "express-brute 1.0.1",
+                    "filesize 4.1.2",
+                    "font-awesome 4.7.0",
+                    "graphql-list-fields 2.0.2",
+                    "graphql-rate-limit-directive 1.1.0",
+                    "graphql-subscriptions 1.1.0",
+                    "hammerjs 2.0.8",
+                    "i18next-express-middleware 1.8.0",
+                    "i18next-node-fs-backend 2.1.3",
+                    "image-size 0.7.4",
+                    "js-base64 2.5.1",
+                    "js-binary 1.2.0",
+                    "js-yaml 3.13.1",
+                    "jsonwebtoken 8.5.1",
+                    "lodash 4.17.15",
+                    "markdown-it-abbr 1.0.4",
+                    "markdown-it-emoji 1.4.0",
+                    "markdown-it-external-links 0.0.6",
+                    "markdown-it-imsize 2.0.1",
+                    "markdown-it-mark 2.0.0",
+                    "markdown-it-mathjax 2.0.0",
+                    "markdown-it-sub 1.0.0",
+                    "markdown-it-sup 1.0.0",
+                    "markdown-it-task-lists 2.1.1",
+                    "mathjax-node 2.1.1",
+                    "mime-types 2.1.24",
+                    "moment 2.22.1",
+                    "mssql 5.1.0",
+                    "multer 1.4.1",
+                    "mysql2 1.6.5",
+                    "nanoid 2.0.3",
+                    "ng-drag-drop 4.0.1",
+                    "ng2-file-upload 1.3.0",
+                    "node-cache 4.2.0",
+                    "nodemon 1.18.3",
+                    "normalize.css 8.0.0",
+                    "npm 6.1.0",
+                    "objection 1.6.9",
+                    "passport 0.4.0",
+                    "passport-auth0 1.1.0",
+                    "passport-azure-ad 4.1.0",
+                    "passport-cas 0.1.1",
+                    "passport-discord 0.1.3",
+                    "passport-dropbox-oauth2 1.1.0",
+                    "passport-facebook 3.0.0",
+                    "passport-github2 0.1.11",
+                    "passport-gitlab2 5.0.0",
+                    "passport-google-oauth20 2.0.0",
+                    "passport-jwt 4.0.0",
+                    "passport-ldapauth 2.1.3",
+                    "passport-local 1.0.0",
+                    "passport-microsoft 0.0.5",
+                    "passport-oauth2 1.5.0",
+                    "passport-okta-oauth 0.0.1",
+                    "react 16.8.6",
+                    "react-compound-slider 2.0.0",
+                    "react-date-picker 7.5.0",
+                    "react-dom 16.8.6",
+                    "react-json-pretty 2.1.0",
+                    "react-router 4.3.1",
+                    "register-service-worker 1.6.2",
+                    "rxjs 6.4.0",
+                    "rxjs-compat 6.2.0",
+                    "serve-static 1.7.1",
+                    "sjcl 1.0.8",
+                    "svg.easing.js 2.0.0",
+                    "svg.filter.js 2.0.2",
+                    "svg.js 2.6.6",
+                    "svg.pathmorphing.js 0.1.3",
+                    "svg.resize.js 1.4.2",
+                    "svg.select.js 2.1.2",
+                    "ts-helpers 1.1.2",
+                    "vue 2.6.10",
+                    "vue-class-component 7.1.0",
+                    "vuex 3.1.1",
+                    "web-animations-js 2.3.1",
+                    "zone.js 0.9.1"
+                ],
+                "unknown_dependencies": [
+                    "null 0.19.0",
+                    "null 0.3.0",
+                    "null 0.5.26",
+                    "null 0.7.10",
+                    "null 0.8.0",
+                    "null 1.0.13",
+                    "null 1.0.3",
+                    "null 1.1.0",
+                    "null 1.1.2",
+                    "null 1.10.0",
+                    "null 1.16.2",
+                    "null 1.3.5",
+                    "null 12.0.1",
+                    "null 13.1.1",
+                    "null 14.4.2",
+                    "null 17.0.6",
+                    "null 2.0.0",
+                    "null 2.11.2",
+                    "null 2.4.1",
+                    "null 2.493.0",
+                    "null 2.6.9",
+                    "null 2.6.9",
+                    "null 3.0.0",
+                    "null 3.0.0",
+                    "null 3.0.2",
+                    "null 3.0.2",
+                    "null 3.0.4",
+                    "null 3.0.6",
+                    "null 3.0.7",
+                    "null 3.1.1",
+                    "null 3.1.5",
+                    "null 3.2.7",
+                    "null 4.0.0",
+                    "null 4.0.5",
+                    "null 4.1.1",
+                    "null 4.2.1",
+                    "null 4.2.7",
+                    "null 5.0.1",
+                    "null 5.2.4",
+                    "null 6.3.0",
+                    "null 6.3.2",
+                    "null 8.0.0",
+                    "null 8.0.2",
+                    "null 8.1.0",
+                    "null 8.2.1",
+                    "null 9.0.1",
+                    "null 9.15.8"
+                ],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "(ofl-1.1 and mit)",
+                            "package": "font-awesome"
+                        },
+                        {
+                            "license": "artistic-2.0",
+                            "package": "npm"
+                        },
+                        {
+                            "license": "gpl-2.0-only",
+                            "package": "sjcl"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "152.134000 ms"
+            },
+            {
+                "ecosystem": "pypi",
+                "stack": [
+                    "aniso8601 1.2.0"
+                ],
+                "unknown_dependencies": [],
+                "license": {
+                    "conflict": false,
+                    "unknown": [
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        },
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        }
+                    ]
+                },
+                "public_vulnerabilities": {
+                    "cve_list": []
+                },
+                "private_vulnerabilities": {
+                    "cve_list": []
+                },
+                "response_time": "788.396000 ms"
+            }
+        ]
+    }
+]
