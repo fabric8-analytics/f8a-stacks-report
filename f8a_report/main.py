@@ -1,13 +1,11 @@
 """Entry file for the main functionality."""
 
 import logging
-import json
 from datetime import datetime as dt, timedelta, date
 from report_helper import ReportHelper
 from v2.report_generator import ReportBuilderV2
 from manifest_helper import manifest_interface
 import os
-
 
 logger = logging.getLogger(__file__)
 
@@ -21,17 +19,20 @@ def time_to_generate_monthly_report(today):
 def main():
     """Generate the weekly and monthly stacks report."""
     r = ReportHelper()
-    r2 = ReportBuilderV2()
+    report_builder_v2 = ReportBuilderV2(ReportHelper)
     today = dt.today()
     start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = today.strftime('%Y-%m-%d')
 
-    # Generate daily venus report
+    # Daily Venus Report v1
+    logger.info(f'Generating Daily report v1 from {start_date} to {end_date}')
     response, ingestion_results = r.get_report(start_date, end_date, 'daily', retrain=False)
-    response_v2, ingestion_results_v2 = r2.get_report(start_date, end_date, 'daily', retrain=False)
-    logger.debug('Daily report data from {s} to {e}'.format(s=start_date, e=end_date))
-    logger.debug(json.dumps(response, indent=2))
-    logger.debug(json.dumps(ingestion_results, indent=2))
+    logger.info('Daily report v1 Generated Successfully..')
+
+    # Daily Venus Report v2
+    logger.info(f'Generating Daily report v2 from {start_date} to {end_date}')
+    report_builder_v2.get_report(start_date, end_date, 'daily')
+    logger.info('Daily report v2 Generated Successfully..')
 
     # Regular Cleaning up of celery_taskmeta tables
     r.cleanup_db_tables()
@@ -53,14 +54,20 @@ def main():
 
     # Generate a monthly venus report
     if time_to_generate_monthly_report(today):
+        logger.info('Monthly Job Triggered')
         last_day_of_prev_month = date(today.year, today.month, 1) - timedelta(days=1)
         last_month_first_date = last_day_of_prev_month.strftime('%Y-%m-01')
         last_month_end_date = last_day_of_prev_month.strftime('%Y-%m-%d')
-        response, ingestion_results = r.get_report(last_month_first_date,
-                                                   last_month_end_date,
-                                                   'monthly', retrain=False)
-        logger.debug('Monthly report data from {s} to {e}'.format(s=start_date, e=end_date))
-        logger.debug(json.dumps(response, indent=2))
+
+        # Monthly Report for v1
+        logger.info(f'Generating Monthly report v1 from '
+                    f'{last_month_first_date} to {last_month_end_date}')
+        r.get_report(last_month_first_date, last_month_end_date, 'monthly', retrain=False)
+
+        # Monthly Report for v2
+        logger.info(f'Generating Monthly report v2 from '
+                    f'{last_month_first_date} to {last_month_end_date}')
+        report_builder_v2.get_report(last_month_first_date, last_month_end_date, 'monthly')
 
     return response
 

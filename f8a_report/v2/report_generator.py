@@ -14,32 +14,29 @@
 # limitations under the License.
 # Author: Deepak Sharma <deepshar@redhat.com>
 #
-"""Daily/ Monthly Report Generator for Stack Analyses v2 API."""
+"""Daily/Monthly Report Generator for Stack Analyses v2 API."""
 
-from report_helper import ReportHelper
 import logging
 import json
 from cve_helper import CVE
 from datetime import datetime as dt
 from v2.db_gateway import ReportQueries
-from unknown_deps_report_helper import UnknownDepsReportHelper
-from sentry_report_helper import SentryReportHelper
+from unknown_deps_report_helper import UnknownDepsReportHelperV2
 from s3_helper import S3Helper
-from graph_report_generator import generate_report_for_unknown_epvs, \
-    generate_report_for_latest_version
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(level=logging.INFO)
 
 
-class ReportBuilderV2(ReportHelper):
+class ReportBuilderV2():
     """Namespace for Report Builder v2.
 
     Build and Save Report for Stack Analyses API v2.
     """
 
-    def __init__(self):
+    def __init__(self, ReportHelper):
         """Build Report for v2."""
+        self.report_helper = ReportHelper()
         self.total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0}
         self.all_deps = {'npm': [], 'maven': [], 'pypi': []}
         self.all_unknown_deps = {'npm': [], 'maven': [], 'pypi': []}
@@ -67,23 +64,12 @@ class ReportBuilderV2(ReportHelper):
             normalized_list.append(f'{dependency.get("name")} {dependency.get("version")}')
         return sorted(normalized_list)
 
-    @staticmethod
-    def get_analysed_dependencies(stack) -> list:
-        """Fetch Analyses Dependencies for Stack Data.
-
-        :param stack: Stack data from DB.
-        :return: Analysed Dependencies list
-        """
-        logger.info("Analysing Dependencies.")
-        return stack.get('analyzed_dependencies', [])
-
     def normalized_unknown_dependencies(self, stack) -> list:
         """Normalize unknown dependencies from Stack Data.
 
         :param stack: stack data from DB
         :return: Normalised Dependency list
         """
-        logger.info("Normalize Unknown Dependencies.")
         unknown_dependencies = []
         for dependency in stack.get('unknown_dependencies'):
             dependency['package'] = dependency.pop('name')
@@ -113,7 +99,6 @@ class ReportBuilderV2(ReportHelper):
     @staticmethod
     def get_stack_info_template() -> dict:
         """Build Stack Template."""
-        logger.info("Generate template.")
         stack_info_template = {
             'ecosystem': '',
             'stack': [],
@@ -139,18 +124,7 @@ class ReportBuilderV2(ReportHelper):
         :param stack: stack data from DB
         :return: List of Unknown licenses.
         """
-        logger.info("Fetching Unknown Licenses.")
         return stack.get('license_analysis', {}).get('unknown_licenses', {}).get('unknown', [])
-
-    @staticmethod
-    def get_ecosystem(stack) -> str:
-        """Fetch Ecosystem from Stack.
-
-        :param stack: stack data from DB
-        :return: ecosystem
-        """
-        logger.info("Fetching Ecosystem from stack.")
-        return stack.get('ecosystem')
 
     @staticmethod
     def get_audit_timelines(data) -> tuple:
@@ -159,7 +133,6 @@ class ReportBuilderV2(ReportHelper):
         :param data: Stack data
         :returns: started_at, ended_at
         """
-        logger.info("Building Audit timelines.")
         started_at = data.get('_audit', {}).get('started_at')
         ended_at = data.get('_audit', {}).get('ended_at')
         return started_at, ended_at
@@ -176,8 +149,8 @@ class ReportBuilderV2(ReportHelper):
         for stack in stacks_data:
             stack = stack[0]
             stack_info_template = self.get_stack_info_template()
-            ecosystem = self.get_ecosystem(stack)
-            analysed_dependencies = self.get_analysed_dependencies(stack)
+            ecosystem = stack.get('ecosystem')
+            analysed_dependencies = stack.get('analyzed_dependencies', [])
             normalised_unknown_dependencies = self.normalized_unknown_dependencies(stack)
             unknown_licenses = self.get_unknown_licenses(stack)
             try:
@@ -215,7 +188,7 @@ class ReportBuilderV2(ReportHelper):
 
                 ended_at, started_at = self.get_audit_timelines(stack)
 
-                response_time = self.datediff_in_millisecs(started_at, ended_at)
+                response_time = self.report_helper.datediff_in_millisecs(started_at, ended_at)
                 stack_info_template['response_time'] = '%f ms' % response_time
                 self.total_response_time['all'] += response_time
                 self.total_response_time[stack_info_template['ecosystem']] += response_time
@@ -242,28 +215,28 @@ class ReportBuilderV2(ReportHelper):
         start_date = self.start_date
         return {
             'total_stack_requests_count': total_stack_requests['all'],
-            'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
-                                              all_unknown_deps,
-                                              unique_stacks_with_recurrence_count,
-                                              unique_stacks_with_deps_count,
-                                              avg_response_time,
-                                              unknown_deps_ingestion_report),
-            'maven': self.get_ecosystem_summary('maven', total_stack_requests, all_deps,
-                                                all_unknown_deps,
-                                                unique_stacks_with_recurrence_count,
-                                                unique_stacks_with_deps_count,
-                                                avg_response_time,
-                                                unknown_deps_ingestion_report),
-            'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
-                                               all_unknown_deps,
-                                               unique_stacks_with_recurrence_count,
-                                               unique_stacks_with_deps_count,
-                                               avg_response_time,
-                                               unknown_deps_ingestion_report),
+            'npm': self.report_helper.get_ecosystem_summary('npm', total_stack_requests,
+                                                            all_deps, all_unknown_deps,
+                                                            unique_stacks_with_recurrence_count,
+                                                            unique_stacks_with_deps_count,
+                                                            avg_response_time,
+                                                            unknown_deps_ingestion_report),
+            'maven': self.report_helper.get_ecosystem_summary('maven', total_stack_requests,
+                                                              all_deps, all_unknown_deps,
+                                                              unique_stacks_with_recurrence_count,
+                                                              unique_stacks_with_deps_count,
+                                                              avg_response_time,
+                                                              unknown_deps_ingestion_report),
+            'pypi': self.report_helper.get_ecosystem_summary('pypi', total_stack_requests,
+                                                             all_deps, all_unknown_deps,
+                                                             unique_stacks_with_recurrence_count,
+                                                             unique_stacks_with_deps_count,
+                                                             avg_response_time,
+                                                             unknown_deps_ingestion_report),
             'unique_unknown_licenses_with_frequency':
-                self.populate_key_count(unknown_licenses),
+                self.report_helper.populate_key_count(unknown_licenses),
             'unique_cves':
-                self.populate_key_count(all_cve_list),
+                self.report_helper.populate_key_count(all_cve_list),
             'total_average_response_time':
                 '{} ms'.format(total_response_time['all'] / len(report_content['stacks_details'])),
             'cve_report': CVE().generate_cve_report(updated_on=start_date)
@@ -289,33 +262,33 @@ class ReportBuilderV2(ReportHelper):
         """
         logger.info("Normalising v2 Stack Data.")
         stacks_data = json.loads(stacks_data)
-        report_name = self.get_report_name(frequency, self.end_date)
+        report_name = self.report_helper.get_report_name(frequency, self.end_date)
         report_template = self.get_report_template(self.start_date, self.end_date)
 
         report_content = self.analyse_stack(stacks_data, report_template)
 
         self.unique_stacks_with_recurrence_count = {
-            'npm': self.populate_key_count(self.stacks_list['npm']),
-            'maven': self.populate_key_count(self.stacks_list['maven']),
-            'pypi': self.populate_key_count(self.stacks_list['pypi'])
+            'npm': self.report_helper.populate_key_count(self.stacks_list['npm']),
+            'maven': self.report_helper.populate_key_count(self.stacks_list['maven']),
+            'pypi': self.report_helper.populate_key_count(self.stacks_list['pypi'])
         }
         self.unique_stacks_with_deps_count = \
-            self.set_unique_stack_deps_count(self.unique_stacks_with_recurrence_count)
+            self.report_helper.set_unique_stack_deps_count(self.unique_stacks_with_recurrence_count)
         self.set_average_response_time()
 
         # Get a list of unknown licenses
-        for lic_dict in self.flatten_list(self.all_unknown_lic):
+        for lic_dict in self.report_helper.flatten_list(self.all_unknown_lic):
             if 'license' in lic_dict:
                 self.unknown_licenses.append(lic_dict['license'])
 
-        unknown_deps_ingestion_report = UnknownDepsReportHelper().get_current_ingestion_status()
+        unknown_deps_ingestion_report = UnknownDepsReportHelperV2().get_current_ingestion_status()
 
         report_content['stacks_summary'] = self.build_report_summary(
             unknown_deps_ingestion_report, report_content)
 
         if frequency == 'monthly':
             # monthly data collection on the 1st of every month
-            self.collate_raw_data(self.unique_stacks_with_recurrence_count, frequency)
+            self.report_helper.collate_raw_data(self.unique_stacks_with_recurrence_count, frequency)
 
         if retrain:
             return self.unique_stacks_with_recurrence_count
@@ -333,41 +306,19 @@ class ReportBuilderV2(ReportHelper):
         :param retrain: Boolean to retrain Model.
         :returns: Worker Results and Ingestion Results
         """
-        logger.info("Get Report Executed.")
+        logger.info(f"Venus Report Triggered for freq. {frequency}")
         self.start_date = start_date
         self.end_date = end_date
         rds_obj = ReportQueries()
-        s3_obj = S3Helper()
         ids = rds_obj.retrieve_stack_analyses_ids(start_date, end_date)
         worker = 'stack_aggregator_v2'
+
+        # Ingestion Reporting is in v1
         ingestion_results = False
-        ingestion_data = {}
-
-        if frequency == 'daily':
-            start = dt.now()
-
-            # Ingestion Reporting
-            ingestion_data['EPV_DATA'] = rds_obj.retrieve_ingestion_results(start_date, end_date)
-            result = self.normalize_ingestion_data(start_date, end_date, ingestion_data)
-            ingestion_report_name = self.get_ingestion_report_name(end_date, frequency)
-            # Saving the final report in the relevant S3 bucket
-            self.save_ingestion_report_in_s3(ingestion_report_name, result, s3_obj)
-
-            elapsed_seconds = (dt.now() - start).total_seconds()
-            logger.info(
-                f"It took {elapsed_seconds} seconds to generate ingestion report.")
-
-            if result['ingestion_details'] != {}:
-                ingestion_results = True
-
-            result = SentryReportHelper().retrieve_sentry_logs(start_date, end_date)
-            if not result:
-                logger.error(f'No Sentry Error Logs found from '
-                             f'{start_date} to {end_date}')
 
         if not len(ids):
-            logger.error(f'No stack analyses found from {start_date} to {end_date} '
-                         f'to generate an aggregated report')
+            logger.info(f'No stack analyses found from {start_date} to {end_date} '
+                        f'to generate an aggregated report')
             return False, ingestion_results
 
         query_data = rds_obj.get_worker_results_v2(worker=worker, stack_ids=ids)
@@ -383,9 +334,19 @@ class ReportBuilderV2(ReportHelper):
 
         return worker_result, ingestion_results
 
+    def create_venus_report(self, venus_input):
+        """Create venus report."""
+        # Retrieve input variables
+        frequency = venus_input[0]
+        report_name = venus_input[1]
+        report_content = venus_input[2]
+
+        self.save_worker_result_to_s3(frequency, report_name, report_content)
+        return report_content
+
     @staticmethod
-    def save_result(frequency, report_name, content) -> bool:
-        """Save result in S3 bucket.
+    def save_worker_result_to_s3(frequency, report_name, content) -> bool:
+        """Save worker result in S3 bucket.
 
         :param frequency: Frequency of Reporting ( daily/ monthly)
         :param report_name: Name of File/ Report.
@@ -398,91 +359,8 @@ class ReportBuilderV2(ReportHelper):
             obj_key = f'v2/{frequency}/{report_name}.json'
             s3.store_json_content(content=content, obj_key=obj_key,
                                   bucket_name=s3.report_bucket_name)
-            logger.info("Successfully saved.")
+            logger.info(f"Successfully saved report in {obj_key}.")
             return True
         except Exception as e:
             logger.exception(f'Unable to store the report on S3. Reason: {e}')
-            return False
-
-    @staticmethod
-    def get_ingestion_report_name(end_date, frequency='daily') -> str:
-        """Get ingestion Report name.
-
-        :param end_date: End_date upto which content is fetched, mostly stript execution date
-        :param frequency: daily / monthly
-        :return: name of report.
-        """
-        if frequency == 'monthly':
-            return dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m')
-        return dt.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
-
-    @staticmethod
-    def get_ingestion_report_template(start_date, end_date) -> dict:
-        """Build Ingestion Report Template.
-
-        :param start_date: start_date of reporting.
-        :param end_date: end_date of reporting.
-        :return: Ingestion Report template
-        """
-        template = {
-            'report': {
-                'from': start_date,
-                'to': end_date,
-                'generated_on': dt.now().isoformat('T'),
-                'version': 'v2',
-            },
-            'ingestion_summary': {},
-            'ingestion_details': {}
-        }
-        return template
-
-    def normalize_ingestion_data(self, start_date, end_date, ingestion_data) -> dict:
-        """Normalize Ingestion data for reporting.
-
-        :param start_date: Start Date of Reporting.
-        :param end_date: End Date of Reporting.
-        :param ingestion_data: Ingestion Data from Database.
-        :return: Normalised Ingestion Data.
-        """
-        logger.info("Normalize Ingestion Data started")
-
-        epv_data = ingestion_data['EPV_DATA']
-        epv_data = json.loads(epv_data)
-
-        # Populate the default template with EPV info
-        template = self.get_ingestion_report_template(start_date, end_date)
-        content, epvs = self.populate_default_information(epv_data, template)
-
-        today = dt.today()
-        pkg_output = generate_report_for_latest_version(epvs, today)
-        logger.info("Fetching details of the unknown packages for the epvs")
-        ver_output = generate_report_for_unknown_epvs(epvs)
-
-        # Call the function to add the package information to the template
-        content, latest_epvs = self.generate_results(epvs, content, pkg_output, ver_output)
-        logger.info("Checking if latest node exists in graph")
-        content = self.check_latest_node(latest_epvs, content)
-        return content
-
-    @staticmethod
-    def save_ingestion_report_in_s3(ingestion_report_name, content, s3_obj) -> bool:
-        """Save Ingestion Report to S3.
-
-        :param ingestion_report_name: Report Name
-        :param content: Report Content
-        :param s3_obj: S3 Object
-        :return:
-            True: Success,
-            False: Fail
-        """
-        logger.info("Saving Ingestion report in s3")
-        report_type = 'ingestion-data'
-        try:
-            obj_key = f'v2/{report_type}/epv/{ingestion_report_name}.json'
-            s3_obj.store_json_content(content=content, obj_key=obj_key,
-                                      bucket_name=s3_obj.report_bucket_name)
-            logger.info(f"Successfully Saved Ingestion report in s3 {obj_key}")
-            return True
-        except Exception as e:
-            logger.exception('Unable to store the report on S3. Reason: %r' % e)
             return False

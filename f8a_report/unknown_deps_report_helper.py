@@ -9,11 +9,20 @@ logger = logging.getLogger(__file__)
 
 
 class UnknownDepsReportHelper:
-    """Utility functions for reporting ingestion of reported unknown dependencies."""
+    """Utility functions for reporting ingestion of reported unknown dependencies.
+
+    Lists Previous Day Unknown Dependencies from Previous Day Daily Report
+    """
 
     def __init__(self):
         """Init method for UnknownDepReportHelper."""
         self.s3 = S3Helper()
+
+    @staticmethod
+    def get_obj_key(past_date):
+        """Get s3 object key."""
+        logger.info("Building key for v1.")
+        return f'daily/{past_date}.json'
 
     def get_unknown_list(self, result):
         """Create a list of unknown deps."""
@@ -36,12 +45,13 @@ class UnknownDepsReportHelper:
 
     def get_past_unknown_deps(self):
         """Retrieve the list of unknown deps."""
+        logger.info("Fetching past unknown deps.")
         # find out the previous date
         today = dt.today()
         past_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
 
         # Get the report of the previous date
-        past_obj_key = 'daily/{report_name}.json'.format(report_name=past_date)
+        past_obj_key = self.get_obj_key(past_date)
         result = self.s3.read_json_object(bucket_name=self.s3.report_bucket_name,
                                           obj_key=past_obj_key)
 
@@ -59,3 +69,13 @@ class UnknownDepsReportHelper:
             ingestion_report[eco] = find_ingested_epv(eco, deps)
         # Report the ingested repositories
         return ingestion_report
+
+
+class UnknownDepsReportHelperV2(UnknownDepsReportHelper):
+    """Unknown Dep Report Helper for v2."""
+
+    @staticmethod
+    def get_obj_key(past_date):
+        """Get s3 object key."""
+        logger.info("Building key for v2.")
+        return f'v2/daily/{past_date}.json'
