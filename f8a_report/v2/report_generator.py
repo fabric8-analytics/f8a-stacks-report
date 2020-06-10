@@ -203,32 +203,22 @@ class StackReportBuilder():
         """Build Final Report Summary."""
         logger.info("Building Report summary.")
 
-        total_stack_requests = self.total_stack_requests
-        all_deps = self.all_deps
-        all_unknown_deps = self.all_unknown_deps
-        unique_stacks_with_recurrence_count = self.unique_stacks_with_recurrence_count
-        unique_stacks_with_deps_count = self.unique_stacks_with_deps_count
-        avg_response_time = self.avg_response_time
-        unknown_licenses = self.unknown_licenses
-        all_cve_list = self.all_cve_list
-        total_response_time = self.total_response_time
-        start_date = self.start_date
         summary = {
-            'total_stack_requests_count': total_stack_requests['all'],
+            'total_stack_requests_count': self.total_stack_requests['all'],
             'unique_unknown_licenses_with_frequency':
-                self.report_helper.populate_key_count(unknown_licenses),
+                self.report_helper.populate_key_count(self.unknown_licenses),
             'unique_cves':
-                self.report_helper.populate_key_count(all_cve_list),
-            'total_average_response_time':
-                '{} ms'.format(total_response_time['all'] / len(report_content['stacks_details'])),
-            'cve_report': CVE().generate_cve_report(updated_on=start_date)
+                self.report_helper.populate_key_count(self.all_cve_list),
+            'total_average_response_time': '{} ms'.format(
+                self.total_response_time['all'] / len(report_content['stacks_details'])),
+            'cve_report': CVE().generate_cve_report(updated_on=self.start_date)
         }
         ecosystem_summary = {ecosystem: self.report_helper.get_ecosystem_summary(
-            ecosystem, total_stack_requests,
-            all_deps, all_unknown_deps,
-            unique_stacks_with_recurrence_count,
-            unique_stacks_with_deps_count,
-            avg_response_time,
+            ecosystem, self.total_stack_requests,
+            self.all_deps, self.all_unknown_deps,
+            self.unique_stacks_with_recurrence_count,
+            self.unique_stacks_with_deps_count,
+            self.avg_response_time,
             unknown_deps_ingestion_report)
             for ecosystem in ('npm', 'maven', 'pypi')}
         summary.update(ecosystem_summary)
