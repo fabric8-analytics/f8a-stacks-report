@@ -2,18 +2,18 @@
 
 import json
 from unittest import TestCase
-from f8a_report.v2.report_generator import ReportBuilderV2
+from f8a_report.v2.report_generator import StackReportBuilder
 from f8a_report.report_helper import ReportHelper
 from unittest.mock import patch
 
 
-class TestReportBuilderV2(TestCase):
+class TestStackReportBuilder(TestCase):
     """Test Namespace for Report Builder v2 Class."""
 
     @classmethod
     def setUp(cls):
         """Initialise class with required params."""
-        cls.ReportBuilder = ReportBuilderV2(ReportHelper)
+        cls.ReportBuilder = StackReportBuilder(ReportHelper)
         with open('tests/data/stack_report_v2.json', 'r') as f:
             cls.stack_analyses_v2 = json.load(f)
 
@@ -89,9 +89,9 @@ class TestReportBuilderV2(TestCase):
         self.assertGreater(len('stacks_details'), 0)
         self.assertGreater(len('stacks_summary'), 0)
 
-    @patch('f8a_report.v2.report_generator.ReportBuilderV2.create_venus_report')
-    @patch('f8a_report.v2.report_generator.ReportBuilderV2.save_worker_result_to_s3')
-    @patch('f8a_report.v2.report_generator.ReportBuilderV2.normalize_worker_data')
+    @patch('f8a_report.v2.report_generator.StackReportBuilder.create_venus_report')
+    @patch('f8a_report.v2.report_generator.StackReportBuilder.save_worker_result_to_s3')
+    @patch('f8a_report.v2.report_generator.StackReportBuilder.normalize_worker_data')
     @patch('f8a_report.v2.report_generator.ReportQueries.get_worker_results_v2')
     @patch('f8a_report.v2.report_generator.ReportQueries.retrieve_stack_analyses_ids')
     def test_get_report(self, _mock1, _mock2, _mock3, _mock4, _mock5):

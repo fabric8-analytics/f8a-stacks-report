@@ -49,7 +49,7 @@ def test_time_to_generate_monthly_report():
     assert time_to_generate_monthly_report(today) is False
 
 
-@mock.patch('f8a_report.main.ReportBuilderV2.get_report')
+@mock.patch('f8a_report.main.StackReportBuilder.get_report')
 @mock.patch('f8a_report.main.ReportHelper.get_report', return_value=[{}, True])
 @mock.patch('f8a_report.main.ReportHelper.re_train', return_value=True)
 @mock.patch('f8a_report.main.ReportHelper.retrieve_stack_analyses_content', return_value=True)
@@ -61,7 +61,7 @@ def test_main(_mock1, _mock2, _mock3, _mock4, _mock5):
     assert (isinstance(resp, dict))
 
 
-@mock.patch('f8a_report.main.ReportBuilderV2.get_report')
+@mock.patch('f8a_report.main.StackReportBuilder.get_report')
 @mock.patch('f8a_report.main.ReportHelper', return_value=MockReportHelper)
 @mock.patch('f8a_report.main.manifest_interface', return_value=True)
 @freeze_time("2020-04-06")

@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime as dt, timedelta, date
 from report_helper import ReportHelper
-from v2.report_generator import ReportBuilderV2
+from v2.report_generator import StackReportBuilder
 from manifest_helper import manifest_interface
 import os
 
@@ -19,7 +19,7 @@ def time_to_generate_monthly_report(today):
 def main():
     """Generate the weekly and monthly stacks report."""
     r = ReportHelper()
-    report_builder_v2 = ReportBuilderV2(ReportHelper)
+    report_builder_v2 = StackReportBuilder(ReportHelper)
     today = dt.today()
     start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = today.strftime('%Y-%m-%d')

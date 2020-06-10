@@ -28,7 +28,7 @@ logger = logging.getLogger(__file__)
 logging.basicConfig(level=logging.INFO)
 
 
-class ReportBuilderV2():
+class StackReportBuilder():
     """Namespace for Report Builder v2.
 
     Build and Save Report for Stack Analyses API v2.
