@@ -223,13 +223,14 @@ class StackReportBuilder():
                 '{} ms'.format(total_response_time['all'] / len(report_content['stacks_details'])),
             'cve_report': CVE().generate_cve_report(updated_on=start_date)
         }
-        ecosystem_summary = {ecosystem: self.report_helper.get_ecosystem_summary(ecosystem, total_stack_requests,
-                                                                                 all_deps, all_unknown_deps,
-                                                                                 unique_stacks_with_recurrence_count,
-                                                                                 unique_stacks_with_deps_count,
-                                                                                 avg_response_time,
-                                                                                 unknown_deps_ingestion_report)
-                             for ecosystem in ('npm', 'maven', 'pypi')}
+        ecosystem_summary = {ecosystem: self.report_helper.get_ecosystem_summary(
+            ecosystem, total_stack_requests,
+            all_deps, all_unknown_deps,
+            unique_stacks_with_recurrence_count,
+            unique_stacks_with_deps_count,
+            avg_response_time,
+            unknown_deps_ingestion_report)
+            for ecosystem in ('npm', 'maven', 'pypi')}
         summary.update(ecosystem_summary)
         return summary
 
