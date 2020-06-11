@@ -115,3 +115,20 @@ class TestStackReportBuilder(TestCase):
         """Test save to s3."""
         result = self.ReportBuilder.save_worker_result_to_s3('daily', 'report_name', 'content')
         self.assertTrue(result)
+
+    def test_collate_vulnerabilites(self):
+        """Test Collate Vulnerability method."""
+        analysed_dependencies = {
+            "public_vulnerabilities": [{'cvss': "9.8", "cve_ids": "CVE-2014-0474"}],
+            "private_vulnerabilities": [{'cvss': "8.9", "cve_ids": "CVE-2014-0475"}]
+        }
+        response = ['CVE-2014-0475:8.9', 'CVE-2014-0474:9.8']
+        template = self.ReportBuilder.get_stack_info_template()
+        result = self.ReportBuilder.collate_vulnerabilites(template, analysed_dependencies)
+        self.assertListEqual(self.ReportBuilder.all_cve_list, response)
+        self.assertListEqual(
+            result['public_vulnerabilities']['cve_list'],
+            analysed_dependencies['public_vulnerabilities'])
+        self.assertListEqual(
+            result['private_vulnerabilities']['cve_list'],
+            analysed_dependencies['private_vulnerabilities'])

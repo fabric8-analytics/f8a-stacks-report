@@ -175,19 +175,9 @@ class StackReportBuilder():
 
                 # Accumulating security information.
                 for package in analysed_dependencies:
-
-                    for cve in package.get('public_vulnerabilities'):
-                        stack_info_template['public_vulnerabilities']['cve_list'].append(cve)
-                        self.all_cve_list.append('{cve}:{cvss}'.
-                                                 format(cve=cve['CVE'], cvss=cve['CVSS']))
-
-                    for cve in package.get('private_vulnerabilities'):
-                        stack_info_template['private_vulnerabilities']['cve_list'].append(cve)
-                        self.all_cve_list.append('{cve}:{cvss}'.
-                                                 format(cve=cve['CVE'], cvss=cve['CVSS']))
+                    stack_info_template = self.collate_vulnerabilites(stack_info_template, package)
 
                 ended_at, started_at = self.get_audit_timelines(stack)
-
                 response_time = self.report_helper.datediff_in_millisecs(started_at, ended_at)
                 stack_info_template['response_time'] = '%f ms' % response_time
                 self.total_response_time['all'] += response_time
@@ -198,6 +188,24 @@ class StackReportBuilder():
                 continue
         logger.info("Stacks Analyse Completed.")
         return report_template
+
+    def collate_vulnerabilites(self, stack_info_template, package):
+        """Collate Vulnerability list of Private and Public Vulnerabilities.
+
+        :param
+            :stack_info_template: Template
+            :package: package
+            :vul_type: Type of Vulnerability
+                private_vulnerabilities / private_vulnerabilities
+        :return: Stack Data template filled with data
+        """
+        for vul_type in ('private_vulnerabilities', "public_vulnerabilities"):
+            for cve_info in package.get(vul_type):
+                stack_info_template[vul_type]['cve_list'].append(cve_info)
+                cve_id = cve_info.get('cve_ids')
+                cvss = cve_info.get('cvss')
+                self.all_cve_list.append(f'{cve_id}:{cvss}')
+        return stack_info_template
 
     def build_report_summary(self, unknown_deps_ingestion_report, report_content) -> dict:
         """Build Final Report Summary."""
