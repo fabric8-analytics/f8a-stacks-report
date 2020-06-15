@@ -189,14 +189,12 @@ class StackReportBuilder():
         logger.info("Stacks Analyse Completed.")
         return report_template
 
-    def collate_vulnerabilites(self, stack_info_template, package):
+    def collate_vulnerabilites(self, stack_info_template, package) -> dict:
         """Collate Vulnerability list of Private and Public Vulnerabilities.
 
         :param
             :stack_info_template: Template
-            :package: package
-            :vul_type: Type of Vulnerability
-                private_vulnerabilities / private_vulnerabilities
+            :package: Vulnerable package
         :return: Stack Data template filled with data
         """
         for vul_type in ('private_vulnerabilities', "public_vulnerabilities"):
