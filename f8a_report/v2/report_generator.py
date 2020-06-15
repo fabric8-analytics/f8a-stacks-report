@@ -64,18 +64,6 @@ class StackReportBuilder():
             normalized_list.append(f'{dependency.get("name")} {dependency.get("version")}')
         return sorted(normalized_list)
 
-    def normalized_unknown_dependencies(self, stack) -> list:
-        """Normalize unknown dependencies from Stack Data.
-
-        :param stack: stack data from DB
-        :return: Normalised Dependency list
-        """
-        unknown_dependencies = []
-        for dependency in stack.get('unknown_dependencies'):
-            dependency['package'] = dependency.pop('name')
-            unknown_dependencies.append(dependency)
-        return self.normalize_deps_list(unknown_dependencies)
-
     @staticmethod
     def get_report_template(start_date, end_date) -> dict:
         """Build Venus Report Template.
@@ -151,7 +139,8 @@ class StackReportBuilder():
             stack_info_template = self.get_stack_info_template()
             ecosystem = stack.get('ecosystem')
             analysed_dependencies = stack.get('analyzed_dependencies', [])
-            normalised_unknown_dependencies = self.normalized_unknown_dependencies(stack)
+            unknown_dependencies = stack.get('unknown_dependencies', [])
+            normalised_unknown_dependencies = self.normalize_deps_list(unknown_dependencies)
             unknown_licenses = self.get_unknown_licenses(stack)
             try:
                 if len(analysed_dependencies) == 0:

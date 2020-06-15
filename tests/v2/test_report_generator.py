@@ -33,12 +33,6 @@ class TestStackReportBuilder(TestCase):
         self.assertIsInstance(result, dict)
         self.assertIn("report", result)
 
-    def test_normalized_unknown_dependencies(self):
-        """Test Normalized Dependencies."""
-        result = self.ReportBuilder.normalized_unknown_dependencies(self.stack_analyses_v2[6][0])
-        self.assertIsInstance(result, list)
-        self.assertEqual(len(result), 47)
-
     def test_get_stack_info_template(self):
         """Test Stack Info Template."""
         result = self.ReportBuilder.get_stack_info_template()
