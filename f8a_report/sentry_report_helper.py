@@ -32,7 +32,7 @@ class SentryReportHelper:
             # Checking for status code
             # If status is not success, log it as an error
             if resp.status_code == 200:
-                logger.info('Successfully invoked Sentry API \n {resp}'.format(resp=resp.json()))
+                logger.info('Successfully invoked Sentry API')
                 # associate the retrieved data to result
                 result = self.normalize_sentry_data(start_date, end_date, resp.json())
             else:
