@@ -17,5 +17,6 @@ RUN pip3 install git+https://git@github.com/fabric8-analytics/fabric8-analytics-
 COPY f8a_report/ ${APP_DIR}/f8a_report
 COPY requirements.txt ${APP_DIR}
 RUN pip3 install -r requirements.txt
-CMD ["python3", "f8a_report/main.py"]
+CMD ["f8a_report/stack_report_main.py"]
+ENTRYPOINT ["python3"]
 
