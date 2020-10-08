@@ -125,7 +125,7 @@ The script `detect-common-errors.sh` can be used to detect common errors in the 
 ./detect-common-errors.sh
 ```
 
-Please note that only semantical problems are reported.
+Please note that only semantic problems are reported.
 
 List of directories containing source code, that needs to be checked, are stored in a file `directories.txt`
 
