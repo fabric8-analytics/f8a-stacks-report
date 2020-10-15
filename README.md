@@ -5,6 +5,7 @@ Source code for multiple cron jobs
 - DB CLean up Daily
 - Snyk Token Validation Daily
 - Dynamic Manifest Weekly
+- Retraining pipeline Weekly
 
 ## Unit tests
 
