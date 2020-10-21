@@ -130,6 +130,9 @@ class TokenValidationQueries(Postgres):
 
     def update_users_to_unregistered(self, unregistered_users: list):
         """Update status of unregistered users."""
+        if len(unregistered_users) == 0:
+            logger.info("No users to be moved to expired status")
+            return
         try:
             unregistered_user_sql = \
                 sql.SQL("update user_details set status=\'%s\', updated_date= NOW() "
@@ -139,6 +142,8 @@ class TokenValidationQueries(Postgres):
 
             self.cursor.execute(unregistered_user_sql.as_string(self.conn) %
                                 (UserStatus.EXPIRED.name, ids))
+
+            logger.info("Updated %d users to expired status" % len(unregistered_users))
 
             self.conn.commit()
         finally:

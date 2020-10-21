@@ -313,6 +313,10 @@ class ReportHelper:
             else:
                 continue
 
+            if eco in ("maven", "npm", "go"):
+                logger.info("Handling only pypi retraining")
+                return
+
             if bucket_name:
                 logger.info('Storing user-input stacks for ecosystem {eco} at {dir}'.format(
                     eco=eco, dir=bucket_name + obj_key))
