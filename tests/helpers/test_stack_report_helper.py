@@ -298,6 +298,13 @@ def test_store_training_data(_mock1):
     assert resp is None
 
 
+@mock.patch('f8a_report.helpers.report_helper.S3Helper.store_json_content', return_value=True)
+def test_store_training_data_loop(_mock1):
+    """Test the count of calls to store to S3."""
+    r.store_training_data(collateddata)
+    _mock1.assert_called_once()
+
+
 def test_get_training_data_for_eco():
     """Test the generation of training data for npm."""
     resp = r.get_training_data_for_ecosystem(eco='npm', stack_dict=stack_dict)

@@ -82,6 +82,10 @@ export MANIFESTS_BUCKET="not-set"
 export AWS_S3_ACCESS_KEY_ID="not-set"
 export AWS_S3_SECRET_ACCESS_KEY="not-set"
 export AWS_S3_REGION="not-set"
+export NPM_MODEL_BUCKET="npm"
+export MAVEN_MODEL_BUCKET="maven"
+export PYPI_MODEL_BUCKET="pypi"
+export GOLANG_MODEL_BUCKET="golang"
 
 prepare_venv
 pip3 install -r requirements.txt
