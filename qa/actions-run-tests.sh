@@ -37,9 +37,6 @@ export AWS_S3_SECRET_ACCESS_KEY="not-set"
 export AWS_S3_REGION="not-set"
 
 pip install -U pip;
-pip install virtualenv;
-virtualenv --version;
-virtualenv -p python3 venv && source venv/bin/activate;
 pip install -r requirements.txt
 pip install -r tests/requirements.txt
 pip install git+https://github.com/fabric8-analytics/fabric8-analytics-utils.git@${F8A_UTIL_VERSION}
