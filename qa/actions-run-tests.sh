@@ -46,6 +46,6 @@ pip install git+https://github.com/fabric8-analytics/fabric8-analytics-utils.git
 pip install git+https://git@github.com/fabric8-analytics/fabric8-analytics-version-comparator.git#egg=f8a_version_comparator
 pip install "$(pwd)/."
 
-python "$(which pytest)" -s --cov=f8a_report/ --cov-report=xml --cov-fail-under=$COVERAGE_THRESHOLD -vv test
+python "$(which pytest)" -s --cov=f8a_report/ --cov-report=xml --cov-fail-under=$COVERAGE_THRESHOLD -vv tests
 echo "------------------ CI Passed ------------------ "
 echo "----------------------------------------------- "
