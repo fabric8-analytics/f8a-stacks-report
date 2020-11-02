@@ -21,7 +21,6 @@ from helpers.sentry_report_helper import SentryReportHelper
 from helpers.cve_helper import CVE
 
 logger = logging.getLogger(__file__)
-logging.basicConfig(level=logging.INFO)
 
 
 class Postgres:
@@ -531,6 +530,12 @@ class ReportHelper:
                                                     avg_response_time,
                                                     unknown_deps_ingestion_report),
                 'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
+                                                   all_unknown_deps,
+                                                   unique_stacks_with_recurrence_count,
+                                                   unique_stacks_with_deps_count,
+                                                   avg_response_time,
+                                                   unknown_deps_ingestion_report),
+                'golang': self.get_ecosystem_summary('golang', total_stack_requests, all_deps,
                                                    all_unknown_deps,
                                                    unique_stacks_with_recurrence_count,
                                                    unique_stacks_with_deps_count,

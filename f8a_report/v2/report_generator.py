@@ -25,7 +25,6 @@ from helpers.unknown_deps_report_helper import UnknownDepsReportHelperV2
 from helpers.s3_helper import S3Helper
 
 logger = logging.getLogger(__file__)
-logging.basicConfig(level=logging.INFO)
 
 
 class StackReportBuilder():
@@ -37,18 +36,18 @@ class StackReportBuilder():
     def __init__(self, ReportHelper):
         """Build Report for v2."""
         self.report_helper = ReportHelper()
-        self.total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0}
-        self.all_deps = {'npm': [], 'maven': [], 'pypi': []}
-        self.all_unknown_deps = {'npm': [], 'maven': [], 'pypi': []}
+        self.total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0, 'golang': 0}
+        self.all_deps = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
+        self.all_unknown_deps = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
         self.unique_stacks_with_deps_count = 0
         self.unique_stacks_with_recurrence_count = 0
-        self.avg_response_time = {'npm': {}, 'maven': {}, 'pypi': {}}
+        self.avg_response_time = {'npm': {}, 'maven': {}, 'pypi': {}, 'golang': {}}
         self.unknown_licenses = []
         self.all_cve_list = []
-        self.total_response_time = {'all': 0.0, 'npm': 0.0, 'maven': 0.0, 'pypi': 0.0}
+        self.total_response_time = {'all': 0.0, 'npm': 0.0, 'maven': 0.0, 'pypi': 0.0, 'golang': 0}
         self.start_date = 'YYYY-MM-DD'
         self.end_date = 'YYYY-MM-DD'
-        self.stacks_list = {'npm': [], 'maven': [], 'pypi': []}
+        self.stacks_list = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
         self.all_unknown_lic = []
         self.avg_response_time = {}
 
@@ -215,14 +214,14 @@ class StackReportBuilder():
             self.unique_stacks_with_deps_count,
             self.avg_response_time,
             unknown_deps_ingestion_report)
-            for ecosystem in ('npm', 'maven', 'pypi')}
+            for ecosystem in ('npm', 'maven', 'pypi', 'golang')}
         summary.update(ecosystem_summary)
         return summary
 
     def set_average_response_time(self) -> None:
         """Set Average Response time in self."""
         logger.info("Calculating Average response time.")
-        for ecosytem in ('npm', 'maven', 'pypi'):
+        for ecosytem in ('npm', 'maven', 'pypi', 'golang'):
             if self.total_stack_requests[ecosytem] > 0:
                 self.avg_response_time[ecosytem] = \
                     self.total_response_time[ecosytem] / self.total_stack_requests[ecosytem]
@@ -247,7 +246,8 @@ class StackReportBuilder():
         self.unique_stacks_with_recurrence_count = {
             'npm': self.report_helper.populate_key_count(self.stacks_list['npm']),
             'maven': self.report_helper.populate_key_count(self.stacks_list['maven']),
-            'pypi': self.report_helper.populate_key_count(self.stacks_list['pypi'])
+            'pypi': self.report_helper.populate_key_count(self.stacks_list['pypi']),
+            'golang': self.report_helper.populate_key_count(self.stacks_list['golang']),
         }
         self.unique_stacks_with_deps_count = \
             self.report_helper.set_unique_stack_deps_count(self.unique_stacks_with_recurrence_count)
