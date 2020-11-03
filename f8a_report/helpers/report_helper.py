@@ -28,7 +28,7 @@ class Postgres:
 
     def __init__(self):
         """Initialize the connection to Postgres database."""
-        conn_string = "host='{host}' dbname='{dbname}' user='{user}' password='{password}'".\
+        conn_string = "host='{host}' dbname='{dbname}' user='{user}' password='{password}'". \
             format(host=os.getenv('PGBOUNCER_SERVICE_HOST', 'bayesian-pgbouncer'),
                    dbname=os.getenv('POSTGRESQL_DATABASE', 'coreapi'),
                    user=os.getenv('POSTGRESQL_USER', 'coreapi'),
@@ -213,8 +213,8 @@ class ReportHelper:
         for eco in unique_stacks_with_recurrence_count.keys() | collated_user_input.keys():
             result.update({eco: {
                 "user_input_stack": dict(
-                            Counter(unique_stacks_with_recurrence_count.get(eco)) +
-                            Counter(collated_user_input.get(eco, {}).get('user_input_stack')))
+                    Counter(unique_stacks_with_recurrence_count.get(eco)) +
+                    Counter(collated_user_input.get(eco, {}).get('user_input_stack')))
             }})
 
         # Store user input collated data back to S3
@@ -343,7 +343,7 @@ class ReportHelper:
         return {
             'stack_requests_count': total_stack_requests[ecosystem],
             'unique_dependencies_with_frequency':
-            self.populate_key_count(self.flatten_list(all_deps[ecosystem])),
+                self.populate_key_count(self.flatten_list(all_deps[ecosystem])),
             'unique_unknown_dependencies_with_frequency': unique_dep_frequency,
             'unique_stacks_with_frequency': unique_stacks_with_recurrence_count[ecosystem],
             'unique_stacks_with_deps_count': unique_stacks_with_deps_count[ecosystem],
@@ -395,7 +395,7 @@ class ReportHelper:
     def normalize_worker_data(self, start_date, end_date, stack_data, worker,
                               frequency='daily', retrain=False):
         """Normalize worker data for reporting."""
-        total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0}
+        total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0, 'golang': 0}
 
         report_name = self.get_report_name(frequency, end_date)
 
@@ -410,15 +410,15 @@ class ReportHelper:
             'stacks_summary': {},
             'stacks_details': []
         }
-        all_deps = {'npm': [], 'maven': [], 'pypi': []}
-        all_unknown_deps = {'npm': [], 'maven': [], 'pypi': []}
+        all_deps = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
+        all_unknown_deps = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
         all_unknown_lic = []
         all_cve_list = []
 
         # Process the response
-        total_response_time = {'all': 0.0, 'npm': 0.0, 'maven': 0.0, 'pypi': 0.0}
+        total_response_time = {'all': 0.0, 'npm': 0.0, 'maven': 0.0, 'pypi': 0.0, 'golang': 0.0}
         if worker == 'stack_aggregator_v2':
-            stacks_list = {'npm': [], 'maven': [], 'pypi': []}
+            stacks_list = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
             for data in stack_data:
                 stack_info_template = {
                     'ecosystem': '',
@@ -454,7 +454,7 @@ class ReportHelper:
                         unknown_dependencies.append(dep)
                     stack_info_template['unknown_dependencies'] = self.normalize_deps_list(
                         unknown_dependencies)
-                    all_unknown_deps[user_stack_info['ecosystem']].\
+                    all_unknown_deps[user_stack_info['ecosystem']]. \
                         append(stack_info_template['unknown_dependencies'])
 
                     stack_info_template['license']['unknown'] = \
@@ -482,7 +482,8 @@ class ReportHelper:
             unique_stacks_with_recurrence_count = {
                 'npm': self.populate_key_count(stacks_list['npm']),
                 'maven': self.populate_key_count(stacks_list['maven']),
-                'pypi': self.populate_key_count(stacks_list['pypi'])
+                'pypi': self.populate_key_count(stacks_list['pypi']),
+                'golang': self.populate_key_count(stacks_list['golang'])
             }
 
             unique_stacks_with_deps_count = \
@@ -505,6 +506,12 @@ class ReportHelper:
                     total_response_time['pypi'] / total_stack_requests['pypi']
             else:
                 avg_response_time['pypi'] = 0
+
+            if total_stack_requests['golang'] > 0:
+                avg_response_time['golang'] = \
+                    total_response_time['golang'] / total_stack_requests['golang']
+            else:
+                avg_response_time['golang'] = 0
 
             # Get a list of unknown licenses
             unknown_licenses = []
@@ -536,11 +543,11 @@ class ReportHelper:
                                                    avg_response_time,
                                                    unknown_deps_ingestion_report),
                 'golang': self.get_ecosystem_summary('golang', total_stack_requests, all_deps,
-                                                   all_unknown_deps,
-                                                   unique_stacks_with_recurrence_count,
-                                                   unique_stacks_with_deps_count,
-                                                   avg_response_time,
-                                                   unknown_deps_ingestion_report),
+                                                     all_unknown_deps,
+                                                     unique_stacks_with_recurrence_count,
+                                                     unique_stacks_with_deps_count,
+                                                     avg_response_time,
+                                                     unknown_deps_ingestion_report),
                 'unique_unknown_licenses_with_frequency':
                     self.populate_key_count(unknown_licenses),
                 'unique_cves':

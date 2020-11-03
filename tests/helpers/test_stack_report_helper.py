@@ -376,7 +376,7 @@ def test_invoke_emr_api_failure(_mock):
 @mock.patch('f8a_report.helpers.report_helper.ReportHelper.collate_raw_data',
             return_value=collateddata)
 @mock.patch('f8a_report.helpers.report_helper.UnknownDepsReportHelper.get_current_ingestion_status',
-            return_value={'npm': {}, 'maven': {}, 'pypi': {}})
+            return_value={'npm': {}, 'maven': {}, 'pypi': {}, 'golang': {}})
 def test_normalize_worker_data(_mock1, _mock2, _mock3):
     """Test the success scenario of the function normalize_worker_data."""
     resp = r.normalize_worker_data('2018-10-10', '2018-10-18',
