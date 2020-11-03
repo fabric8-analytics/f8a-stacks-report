@@ -1,0 +1,179 @@
+[
+    "daily",
+    "2020-06-05",
+    {
+  "report": {
+    "from": "2020-10-23",
+    "to": "2020-11-02",
+    "generated_on": "2020-11-02T12:13:28.664051",
+    "report_version": "v2"
+  },
+  "stacks_summary": {
+    "total_stack_requests_count": 1,
+    "unique_unknown_licenses_with_frequency": {},
+    "unique_cves": {
+      "[]:6.6": 1,
+      "[]:7.4": 1
+    },
+    "total_average_response_time": "643.415 ms",
+    "cve_report": {
+      "github_stats": {
+        "open_count": {
+          "2 days": 0,
+          "7 days": 0,
+          "30 days": 0,
+          "365 days": 1676
+        },
+        "false_positives": 0
+      },
+      "ingestion": {
+        "ingested": [],
+        "missed": []
+      }
+    },
+    "npm": {
+      "stack_requests_count": 0,
+      "unique_dependencies_with_frequency": {},
+      "unique_unknown_dependencies_with_frequency": {},
+      "unique_stacks_with_frequency": {},
+      "unique_stacks_with_deps_count": {},
+      "average_response_time": "0 ms",
+      "trending": {
+        "top_stacks": {},
+        "top_deps": {}
+      },
+      "previously_unknown_dependencies": {
+        "total_previously_unknown_dependencies": 0,
+        "ingested_dependencies": 0,
+        "report": {}
+      }
+    },
+    "maven": {
+      "stack_requests_count": 0,
+      "unique_dependencies_with_frequency": {},
+      "unique_unknown_dependencies_with_frequency": {},
+      "unique_stacks_with_frequency": {},
+      "unique_stacks_with_deps_count": {},
+      "average_response_time": "0 ms",
+      "trending": {
+        "top_stacks": {},
+        "top_deps": {}
+      },
+      "previously_unknown_dependencies": {
+        "total_previously_unknown_dependencies": 0,
+        "ingested_dependencies": 0,
+        "report": {}
+      }
+    },
+    "pypi": {
+      "stack_requests_count": 0,
+      "unique_dependencies_with_frequency": {},
+      "unique_unknown_dependencies_with_frequency": {},
+      "unique_stacks_with_frequency": {},
+      "unique_stacks_with_deps_count": {},
+      "average_response_time": "0 ms",
+      "trending": {
+        "top_stacks": {},
+        "top_deps": {}
+      },
+      "previously_unknown_dependencies": {
+        "total_previously_unknown_dependencies": 0,
+        "ingested_dependencies": 0,
+        "report": {}
+      }
+    },
+    "golang": {
+      "stack_requests_count": 1,
+      "unique_dependencies_with_frequency": {
+        "github.com/thoughtworks/talisman 0.3.3": 1
+      },
+      "unique_unknown_dependencies_with_frequency": {
+        "github.com/thoughtworks/talisman 0.3.3": 1
+      },
+      "unique_stacks_with_frequency": {
+        "github.com/thoughtworks/talisman 0.3.3": 1
+      },
+      "unique_stacks_with_deps_count": {
+        "github.com/thoughtworks/talisman 0.3.3": 1
+      },
+      "average_response_time": "643.415 ms",
+      "trending": {
+        "top_stacks": {
+          "github.com/thoughtworks/talisman 0.3.3": 1
+        },
+        "top_deps": {
+          "github.com/thoughtworks/talisman 0.3.3": 1
+        }
+      },
+      "previously_unknown_dependencies": {
+        "total_previously_unknown_dependencies": 0,
+        "ingested_dependencies": 0,
+        "report": {}
+      }
+    }
+  },
+  "stacks_details": [
+    {
+      "ecosystem": "golang",
+      "stack": [
+        "github.com/thoughtworks/talisman 0.3.3"
+      ],
+      "unknown_dependencies": [],
+      "license": {
+        "conflict": false,
+        "unknown": []
+      },
+      "public_vulnerabilities": {
+        "cve_list": []
+      },
+      "private_vulnerabilities": {
+        "cve_list": [
+          {
+            "id": "SNYK-GOLANG-GITHUBCOMTHOUGHTWORKSTALISMAN-597480",
+            "url": "https://snyk.io/vuln/SNYK-GOLANG-GITHUBCOMTHOUGHTWORKSTALISMAN-597480",
+            "cvss": 6.6,
+            "cwes": [
+              "CWE-94"
+            ],
+            "title": "Remote Code Execution (RCE)",
+            "cve_ids": [],
+            "cvss_v3": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:H/A:H",
+            "exploit": "Not Defined",
+            "fixable": true,
+            "fixed_in": [
+              "1.4.0"
+            ],
+            "severity": "medium",
+            "malicious": false,
+            "references": null,
+            "description": "## Overview\n\nAffected versions of this package are vulnerable to Remote Code Execution (RCE).\n\n### PoC\r\n1. Create a malicious program and rename it to git.exe push commit to a repo.\r\n2. Now run talisman with `--scan` or `--githook pre-commit`\n## Remediation\nUpgrade `github.com/thoughtworks/talisman` to version 1.4.0 or higher.\n## References\n- [GitHub Issue](https://github.com/thoughtworks/talisman/issues/216#issuecomment-669717822)\n- [GitHub PR](https://github.com/thoughtworks/talisman/commit/b821169359bf96c6923e00732e68ec44e62949c1)\n",
+            "patch_exists": false
+          },
+          {
+            "id": "SNYK-GOLANG-GITHUBCOMTHOUGHTWORKSTALISMAN-598389",
+            "url": "https://snyk.io/vuln/SNYK-GOLANG-GITHUBCOMTHOUGHTWORKSTALISMAN-598389",
+            "cvss": 7.4,
+            "cwes": [
+              "CWE-400"
+            ],
+            "title": "Denial of Service (DoS)",
+            "cve_ids": [],
+            "cvss_v3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+            "exploit": "Not Defined",
+            "fixable": true,
+            "fixed_in": [
+              "1.5.0"
+            ],
+            "severity": "high",
+            "malicious": false,
+            "references": null,
+            "description": "## Overview\n\nAffected versions of this package are vulnerable to Denial of Service (DoS). Talisman follows symlinks while scanning.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\n\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\n\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\n\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\n\nTwo common types of DoS vulnerabilities:\n\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\n\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## Remediation\nUpgrade `github.com/thoughtworks/talisman` to version 1.5.0 or higher.\n## References\n- [GitHub Commit](https://github.com/thoughtworks/talisman/commit/0855689c3744d15383b8ed0aeccadff90a2a9272)\n",
+            "patch_exists": false
+          }
+        ]
+      },
+      "response_time": "643.415000 ms"
+    }
+  ]
+}
+]
