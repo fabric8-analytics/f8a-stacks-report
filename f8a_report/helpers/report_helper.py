@@ -395,7 +395,9 @@ class ReportHelper:
     def normalize_worker_data(self, start_date, end_date, stack_data, worker,
                               frequency='daily', retrain=False):
         """Normalize worker data for reporting."""
-        total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0, 'golang': 0}
+        supported_ecosystems = ['npm', 'golang', 'pypi', 'maven']
+        total_stack_requests = {eco: 0 for eco in supported_ecosystems}
+        total_stack_requests.update({'all': 0})
 
         report_name = self.get_report_name(frequency, end_date)
 
@@ -410,15 +412,16 @@ class ReportHelper:
             'stacks_summary': {},
             'stacks_details': []
         }
-        all_deps = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
-        all_unknown_deps = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
+        all_deps = {eco: [] for eco in supported_ecosystems}
+        all_unknown_deps = {eco: [] for eco in supported_ecosystems}
         all_unknown_lic = []
         all_cve_list = []
 
         # Process the response
-        total_response_time = {'all': 0.0, 'npm': 0.0, 'maven': 0.0, 'pypi': 0.0, 'golang': 0.0}
+        total_response_time = {eco: 0.0 for eco in supported_ecosystems}
+        total_response_time.update({'all': 0.0})
         if worker == 'stack_aggregator_v2':
-            stacks_list = {'npm': [], 'maven': [], 'pypi': [], 'golang': []}
+            stacks_list = {eco: [] for eco in supported_ecosystems}
             for data in stack_data:
                 stack_info_template = {
                     'ecosystem': '',
@@ -480,38 +483,12 @@ class ReportHelper:
                     continue
 
             unique_stacks_with_recurrence_count = {
-                'npm': self.populate_key_count(stacks_list['npm']),
-                'maven': self.populate_key_count(stacks_list['maven']),
-                'pypi': self.populate_key_count(stacks_list['pypi']),
-                'golang': self.populate_key_count(stacks_list['golang'])
+                ecosystem: self.populate_key_count(stacks_list[ecosystem])
+                for ecosystem in supported_ecosystems
             }
 
             unique_stacks_with_deps_count = \
                 self.set_unique_stack_deps_count(unique_stacks_with_recurrence_count)
-
-            avg_response_time = {}
-            if total_stack_requests['npm'] > 0:
-                avg_response_time['npm'] = total_response_time['npm'] / total_stack_requests['npm']
-            else:
-                avg_response_time['npm'] = 0
-
-            if total_stack_requests['maven'] > 0:
-                avg_response_time['maven'] = \
-                    total_response_time['maven'] / total_stack_requests['maven']
-            else:
-                avg_response_time['maven'] = 0
-
-            if total_stack_requests['pypi'] > 0:
-                avg_response_time['pypi'] = \
-                    total_response_time['pypi'] / total_stack_requests['pypi']
-            else:
-                avg_response_time['pypi'] = 0
-
-            if total_stack_requests['golang'] > 0:
-                avg_response_time['golang'] = \
-                    total_response_time['golang'] / total_stack_requests['golang']
-            else:
-                avg_response_time['golang'] = 0
 
             # Get a list of unknown licenses
             unknown_licenses = []
@@ -521,33 +498,25 @@ class ReportHelper:
 
             unknown_deps_ingestion_report = self.unknown_deps_helper.get_current_ingestion_status()
 
+            avg_response_time = {}
+            for ecosystem in supported_ecosystems:
+                # Calculate Average response time.
+                avg_response_time[ecosystem] = self.calc_average_response_time(
+                    total_stack_requests, total_response_time, ecosystem)
+                # Calculate Stack Summary for each ecosystem.
+                template['stacks_summary'][ecosystem] = self.get_ecosystem_summary(
+                    ecosystem,
+                    total_stack_requests,
+                    all_deps,
+                    all_unknown_deps,
+                    unique_stacks_with_recurrence_count,
+                    unique_stacks_with_deps_count,
+                    avg_response_time,
+                    unknown_deps_ingestion_report)
+
             # generate aggregated data section
-            template['stacks_summary'] = {
+            template['stacks_summary'].update({
                 'total_stack_requests_count': total_stack_requests['all'],
-                'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
-                                                  all_unknown_deps,
-                                                  unique_stacks_with_recurrence_count,
-                                                  unique_stacks_with_deps_count,
-                                                  avg_response_time,
-                                                  unknown_deps_ingestion_report),
-                'maven': self.get_ecosystem_summary('maven', total_stack_requests, all_deps,
-                                                    all_unknown_deps,
-                                                    unique_stacks_with_recurrence_count,
-                                                    unique_stacks_with_deps_count,
-                                                    avg_response_time,
-                                                    unknown_deps_ingestion_report),
-                'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
-                                                   all_unknown_deps,
-                                                   unique_stacks_with_recurrence_count,
-                                                   unique_stacks_with_deps_count,
-                                                   avg_response_time,
-                                                   unknown_deps_ingestion_report),
-                'golang': self.get_ecosystem_summary('golang', total_stack_requests, all_deps,
-                                                     all_unknown_deps,
-                                                     unique_stacks_with_recurrence_count,
-                                                     unique_stacks_with_deps_count,
-                                                     avg_response_time,
-                                                     unknown_deps_ingestion_report),
                 'unique_unknown_licenses_with_frequency':
                     self.populate_key_count(unknown_licenses),
                 'unique_cves':
@@ -555,7 +524,7 @@ class ReportHelper:
                 'total_average_response_time':
                     '{} ms'.format(total_response_time['all'] / len(template['stacks_details'])),
                 'cve_report': CVE().generate_cve_report(updated_on=start_date)
-            }
+            })
 
             # monthly data collection on the 1st of every month
             if frequency == 'monthly':
@@ -570,6 +539,13 @@ class ReportHelper:
         else:
             # todo: user feedback aggregation based on the recommendation task results
             return None
+
+    @staticmethod
+    def calc_average_response_time(total_stack_requests, total_response_time, ecosystem):
+        """Calculate Average Response time."""
+        if total_stack_requests[ecosystem]:
+            return total_response_time[ecosystem] / total_stack_requests[ecosystem]
+        return 0
 
     def retrieve_worker_results(self, start_date, end_date, id_list=[], worker_list=[],
                                 frequency='daily', retrain=False):
