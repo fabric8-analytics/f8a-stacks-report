@@ -90,6 +90,18 @@ class ReportHelper:
             # Log the message returned from db cursor
             logger.info('%r' % self.cursor.statusmessage)
             logger.info('Cleanup of Worker Result data tables complete')
+
+            # Number of days to retain the stack_analyses_request data
+            num_days_stack_analyses_request = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
+            # query to delete the stack_analyses_request data
+            query = sql.SQL('DELETE FROM stack_analyses_request '
+                            'WHERE DATE_DONE <= NOW() - interval \'%s day\';')
+            logger.info('Starting to clean up Stack Analyses tables')
+            # Execute the query
+            self.cursor.execute(query.as_string(self.conn) % (num_days_stack_analyses_request))
+            # Log the message returned from db cursor
+            logger.info('%r' % self.cursor.statusmessage)
+            logger.info('Cleanup of Stack Analyses tables complete')
         except Exception as e:
             logger.error('CleanupDatabaseError: %r' % e)
 
