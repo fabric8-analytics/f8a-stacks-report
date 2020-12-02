@@ -92,7 +92,8 @@ class ReportHelper:
             logger.info('Cleanup of Worker Result data tables complete')
 
             # Number of days to retain the stack_analyses_request data
-            num_days_stack_analyses_request = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
+            num_days_stack_analyses_request = os.environ.get
+            ('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
             # query to delete the stack_analyses_request data
             query = sql.SQL('DELETE FROM stack_analyses_request '
                             'WHERE DATE_DONE <= NOW() - interval \'%s day\';')
@@ -102,6 +103,18 @@ class ReportHelper:
             # Log the message returned from db cursor
             logger.info('%r' % self.cursor.statusmessage)
             logger.info('Cleanup of Stack Analyses tables complete')
+
+            # Number of days to retain the worker_results data
+            num_days_worker_results = os.environ.get('KEEP_WORKER_RESULTS_NUM_DAYS', '365')
+            # query to delete the stack_analyses_request data
+            query = sql.SQL('DELETE FROM worker_results '
+                            'WHERE DATE_DONE <= NOW() - interval \'%s day\';')
+            logger.info('Starting to clean up Worker results tables')
+            # Execute the query
+            self.cursor.execute(query.as_string(self.conn) % (num_days_worker_results))
+            # Log the message returned from db cursor
+            logger.info('%r' % self.cursor.statusmessage)
+            logger.info('Cleanup of Worker results tables complete')
         except Exception as e:
             logger.error('CleanupDatabaseError: %r' % e)
 
