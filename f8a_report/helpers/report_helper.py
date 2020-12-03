@@ -68,7 +68,7 @@ class ReportHelper:
         """Cleanup RDS data tables on a periodic basis."""
         try:
             # Number of days to retain the celery task_meta data
-            num_days_metadata = os.environ.get('KEEP_DB_META_NUM_DAYS', '7')
+            num_days_metadata = os.environ.get('KEEP_DB_META_NUM_DAYS', '30')
             # query to delete the celery task_meta data
             query = sql.SQL('DELETE FROM celery_taskmeta '
                             'WHERE DATE_DONE <= NOW() - interval \'%s day\';')
@@ -80,7 +80,7 @@ class ReportHelper:
             logger.info('Cleanup of Celery Meta tables complete')
 
             # Number of days to retain the celery woker_result data
-            num_days_workerdata = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '365')
+            num_days_workerdata = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
             # query to delete the worker_result data
             query = sql.SQL('DELETE FROM worker_results '
                             'WHERE ended_at <= NOW() - interval \'%s day\';')
