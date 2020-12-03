@@ -103,6 +103,18 @@ class ReportHelper:
             # Log the message returned from db cursor
             logger.info('%r' % self.cursor.statusmessage)
             logger.info('Cleanup of Stack Analyses tables complete')
+
+            # Number of days to retain the api_requests data
+            num_days_api_requests = os.environ.get('KEEP_API_REQUESTS_NUM_DAYS', '180')
+            # query to delete the api_requests data
+            query = sql.SQL('DELETE FROM api_requests '
+                            'WHERE ended_at <= NOW() - interval \'%s day\';')
+            logger.info('Starting to clean up api requests data tables')
+            # Execute the query
+            self.cursor.execute(query.as_string(self.conn) % (num_days_api_requests))
+            # Log the message returned from db cursor
+            logger.info('%r' % self.cursor.statusmessage)
+            logger.info('Cleanup of api requests data tables complete')
         except Exception as e:
             logger.error('CleanupDatabaseError: %r' % e)
 
