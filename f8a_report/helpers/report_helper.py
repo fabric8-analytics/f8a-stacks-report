@@ -91,6 +91,31 @@ class ReportHelper:
             logger.info('%r' % self.cursor.statusmessage)
             logger.info('Cleanup of Worker Result data tables complete')
 
+            # Number of days to retain the package_analyses data
+            num_days_package_analyses = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
+            # query to delete the worker_result data
+            query = sql.SQL('DELETE FROM package_analyses '
+                            'WHERE ended_at <= NOW() - interval \'%s day\';')
+            logger.info('Starting to clean up Package Analyses data tables')
+            # Execute the query
+            self.cursor.execute(query.as_string(self.conn) % (num_days_package_analyses))
+            # Log the message returned from db cursor
+            logger.info('%r' % self.cursor.statusmessage)
+            logger.info('Cleanup of Package Analyses data tables complete')
+
+            # Number of days to retain the package_worker_result data
+            num_days_package_worker_result = os.environ.get
+            ('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
+            # query to delete the worker_result data
+            query = sql.SQL('DELETE FROM package_worker_results '
+                            'WHERE ended_at <= NOW() - interval \'%s day\';')
+            logger.info('Starting to clean up Package Worker Result data tables')
+            # Execute the query
+            self.cursor.execute(query.as_string(self.conn) % (num_days_package_worker_result))
+            # Log the message returned from db cursor
+            logger.info('%r' % self.cursor.statusmessage)
+            logger.info('Cleanup of Package Worker Result data tables complete')
+
             # Number of days to retain the stack_analyses_request data
             num_days_stack_analyses_request = os.environ.get
             ('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
