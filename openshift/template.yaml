@@ -67,7 +67,7 @@ objects:
                   value: "30"
                 - name: KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS
                   value: "180"
-                 - name: KEEP_API_REQUESTS_NUM_DAYS
+                - name: KEEP_API_REQUESTS_NUM_DAYS
                   value: "180"   
                 - name: SNYK_API_TOKEN_VALIDATION_URL
                   valueFrom:
