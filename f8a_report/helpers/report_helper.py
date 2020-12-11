@@ -69,7 +69,7 @@ class ReportHelper:
         # query to delete data
         query = sql.SQL("""DELETE FROM {} WHERE DATE_DONE <= NOW() - interval '%s' day;""").format
         (sql.Identifier(table_name))
-        logger.debug('Starting to clean up ' + table_name + 'tables')
+        logger.debug('Starting to clean up "%s" table', table_name)
         self.cursor.execute(query, num_days)
         self.conn.commit()
         # Log the message returned from db cursor
@@ -80,22 +80,22 @@ class ReportHelper:
         """Cleanup RDS data tables on a periodic basis."""
         try:
             num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '30')
-            self.cleanup_tables('celery_taskmeta ', num_days)
+            self.cleanup_tables('celery_taskmeta', num_days)
 
             num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
-            self.cleanup_tables('worker_results ', num_days)
+            self.cleanup_tables('worker_results', num_days)
 
             num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
-            self.cleanup_tables('package_analyses ', num_days)
+            self.cleanup_tables('package_analyses', num_days)
 
             num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
-            self.cleanup_tables('package_worker_results ', num_days)
+            self.cleanup_tables('package_worker_results', num_days)
 
             num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
-            self.cleanup_tables('stack_analyses_request ', num_days)
+            self.cleanup_tables('stack_analyses_request', num_days)
 
             num_days = os.environ.get('KEEP_API_REQUESTS_NUM_DAYS', '180')
-            self.cleanup_tables('api_requests ', num_days)
+            self.cleanup_tables('api_requests', num_days)
         except Exception as e:
             logger.error('CleanupDatabaseError: %r' % e)
 
