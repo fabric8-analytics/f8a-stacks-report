@@ -66,15 +66,15 @@ class ReportHelper:
 
     def cleanup_tables(self, table_name, env_var, num_days):
         """Cleanup tables on a periodic basis."""
-        # Number of days to retain the celery task_meta data
-        num_days_metadata = os.environ.get(env_var, num_days)
+        # Number of days to retain the  data
+        num_days_data = os.environ.get(env_var, num_days)
         # Create query string
         delete_str = 'DELETE FROM ' + table_name + 'WHERE DATE_DONE <= NOW() - interval \'%s day\';'
         # query to delete data
         query = sql.SQL(delete_str)
         logger.debug('Starting to clean up ' + table_name + 'tables')
         # Execute the query
-        self.cursor.execute(query.as_string(self.conn) % (num_days_metadata))
+        self.cursor.execute(query.as_string(self.conn) % (num_days_data))
         # Save (commit) the changes
         self.conn.commit()
         # Log the message returned from db cursor
