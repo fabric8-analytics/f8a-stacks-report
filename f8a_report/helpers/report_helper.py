@@ -64,34 +64,38 @@ class ReportHelper:
 
         self.emr_api = os.getenv('EMR_API', 'http://f8a-emr-deployment:6006')
 
-    def cleanup_tables(self, table_name, env_var, num_days):
+    def cleanup_tables(self, table_name, num_days):
         """Cleanup tables on a periodic basis."""
-        # Number of days to retain the  data
-        num_days_data = os.environ.get(env_var, num_days)
-        # Create query string
-        delete_str = 'DELETE FROM ' + table_name + 'WHERE DATE_DONE <= NOW() - interval \'%s day\';'
         # query to delete data
-        query = sql.SQL(delete_str)
+        query = sql.SQL("""DELETE FROM {} WHERE DATE_DONE <= NOW() - interval '%s' day;""").format
+        (sql.Identifier(table_name))
         logger.debug('Starting to clean up ' + table_name + 'tables')
-        # Execute the query
-        self.cursor.execute(query.as_string(self.conn) % (num_days_data))
-        # Save (commit) the changes
+        self.cursor.execute(query, num_days)
         self.conn.commit()
         # Log the message returned from db cursor
-        logger.debug('%r' % self.cursor.statusmessage)
-        logger.info('Cleanup of ' + table_name + 'tables complete')
+        logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
+                    self.cursor.statusmessage)
 
     def cleanup_db_tables(self):
         """Cleanup RDS data tables on a periodic basis."""
         try:
-            self.cleanup_tables('celery_taskmeta ', 'KEEP_DB_META_NUM_DAYS', '30')
-            self.cleanup_tables('worker_results ', 'KEEP_WORKER_RESULT_NUM_DAYS', '30')
-            self.cleanup_tables('package_analyses ', 'KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
-            self.cleanup_tables
-            ('package_worker_results ', 'KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
-            self.cleanup_tables
-            ('stack_analyses_request ', 'KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
-            self.cleanup_tables('api_requests ', 'KEEP_API_REQUESTS_NUM_DAYS', '180')
+            num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '30')
+            self.cleanup_tables('celery_taskmeta ', num_days)
+
+            num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
+            self.cleanup_tables('worker_results ', num_days)
+
+            num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
+            self.cleanup_tables('package_analyses ', num_days)
+
+            num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
+            self.cleanup_tables('package_worker_results ', num_days)
+
+            num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
+            self.cleanup_tables('stack_analyses_request ', num_days)
+
+            num_days = os.environ.get('KEEP_API_REQUESTS_NUM_DAYS', '180')
+            self.cleanup_tables('api_requests ', num_days)
         except Exception as e:
             logger.error('CleanupDatabaseError: %r' % e)
 
