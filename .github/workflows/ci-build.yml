@@ -46,7 +46,7 @@ jobs:
     - name: validate openshift yaml
       uses: instrumenta/kubeval-action@master
       with:
-          files: openshift/template.yml
+          files: openshift/template.yaml
           openshift: true
           
           
