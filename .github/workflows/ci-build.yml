@@ -49,3 +49,4 @@ jobs:
           files: .openshift/template.yml
           openshift: true
           token: ${{ secrets.GITHUB_TOKEN }}
+          comment: False
