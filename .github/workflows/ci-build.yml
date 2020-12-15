@@ -48,5 +48,6 @@ jobs:
       with:
           files: openshift/template.yaml
           openshift: true
+          strict: false
           
           
