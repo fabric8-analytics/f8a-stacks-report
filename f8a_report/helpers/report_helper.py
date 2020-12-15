@@ -88,10 +88,10 @@ class ReportHelper:
             self.cleanup_tables('worker_results', 'ended_at', num_days)
 
             num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
-            #self.cleanup_tables('package_analyses', 'finished_at', num_days)
+            self.cleanup_tables('package_analyses', 'finished_at', num_days)
 
             num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
-            #self.cleanup_tables('package_worker_results','ended_at', num_days)
+            self.cleanup_tables('package_worker_results','ended_at', num_days)
 
             num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
             self.cleanup_tables('stack_analyses_request','submitTime', num_days)
