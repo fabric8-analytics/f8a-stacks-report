@@ -67,12 +67,12 @@ class ReportHelper:
     def cleanup_tables(self, table_name, column_name, num_days):
         """Cleanup tables on a periodic basis."""
         # Query to delete data
-        query = sql.SQL('DELETE FROM {0} WHERE {1} <= NOW() - interval \'%s day\';').format(
+        query = sql.SQL("DELETE FROM {0} WHERE {1} <= NOW() - interval %s day;").format(
             sql.Identifier(table_name),
             sql.Identifier(column_name)
         )
         logger.debug('Starting to clean up "%s" table', table_name)
-        self.cursor.execute(query.as_string(self.conn) % (num_days))
+        self.cursor.execute(query, (num_days,))
         self.conn.commit()
         # Log the message returned from db cursor
         logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
