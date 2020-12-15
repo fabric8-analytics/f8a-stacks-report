@@ -47,4 +47,5 @@ jobs:
       uses: makocchi-git/actions-k8s-manifests-validate-kubeval@v1.0.1
       with:
           files: openshift
+          openshift: true
           token: ${{ secrets.GITHUB_TOKEN }}
