@@ -43,3 +43,9 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
+    - name: validate openshift yaml
+      uses: makocchi-git/actions-k8s-manifests-validate-kubeval@1.0.0
+      with:
+          files: openshift
+          token: ${{ secrets.GITHUB_TOKEN }}
+
