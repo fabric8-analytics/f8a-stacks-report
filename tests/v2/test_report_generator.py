@@ -126,3 +126,30 @@ class TestStackReportBuilder(TestCase):
         self.assertListEqual(
             result['private_vulnerabilities']['cve_list'],
             analysed_dependencies['private_vulnerabilities'])
+
+    @patch('f8a_report.v2.report_generator.StackReportBuilder.create_venus_report')
+    @patch('f8a_report.v2.report_generator.StackReportBuilder.save_worker_result_to_s3')
+    @patch('f8a_report.v2.report_generator.StackReportBuilder.normalize_worker_data')
+    @patch('f8a_report.v2.report_generator.ReportQueries.get_worker_results_v2')
+    @patch('f8a_report.v2.report_generator.ReportQueries.retrieve_stack_analyses_ids')
+    def test_get_report_for_golang(self, _mock1, _mock2, _mock3, _mock4, _mock5):
+        """Test Entrypoint for Venus Reporting v2 Golang."""
+        _mock1.return_value = ('09aa6480a3ce477881109d9635c30257',)
+        _mock4.return_value = {}
+        start_date = "2020-01-01"
+        end_date = "2020-01-02"
+        with open('tests/data/normalised_worker_data_with_golang.json', 'r') as f:
+            generated_report = json.load(f)
+            _mock3.return_value = generated_report
+            _mock5.return_value = generated_report[2]
+        result = self.ReportBuilder.get_report(start_date, end_date)
+        self.assertIn('stack_aggregator_v2', result[0])
+        self.assertEqual(
+                result[0]['stack_aggregator_v2']['stacks_summary']
+                ['total_stack_requests_count'], 1)
+        self.assertEqual(
+            result[0]['stack_aggregator_v2']['stacks_summary']['golang']
+            ['stack_requests_count'], 1)
+        self.assertEqual(
+            result[0]['stack_aggregator_v2']['stacks_details']
+            [0]['stack'][0], "github.com/thoughtworks/talisman 0.3.3")
