@@ -48,7 +48,7 @@ jobs:
       with:
         version: '4.6'
     - name: Run oc process
-      run: oc process --local --validate -f openshift/template.yaml -o yaml > blueprint.yaml
+      run: oc process --local -f openshift/template.yaml -o yaml > blueprint.yaml
     - name: validate openshift yaml
       uses: instrumenta/kubeval-action@master
       with:
