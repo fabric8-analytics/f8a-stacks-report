@@ -43,11 +43,15 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
+    - name: Install oc
+      uses: redhat-actions/oc-installer@v1
+      with:
+        version: '4.6'
+    - name: Run oc process
+      run: oc oc process --local --validate -f openshift/template.yaml -o yaml > blueprint.yaml
     - name: validate openshift yaml
       uses: instrumenta/kubeval-action@master
       with:
-          files: openshift/template.yaml
-          openshift: true
-          strict: false
+          files: blueprint.yaml
           
           
