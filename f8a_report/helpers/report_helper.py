@@ -64,32 +64,47 @@ class ReportHelper:
 
         self.emr_api = os.getenv('EMR_API', 'http://f8a-emr-deployment:6006')
 
+    def cleanup_tables(self, table_name, column_name, num_days):
+        """Cleanup tables on a periodic basis."""
+        # Query to delete data
+        query = sql.SQL("DELETE FROM {0} WHERE {1} <= NOW() - interval %s day;").format(
+            sql.Identifier(table_name),
+            sql.Identifier(column_name)
+        )
+        logger.debug('Starting to clean up "%s" table', table_name)
+        # Executing query
+        self.cursor.execute(query, (num_days,))
+        self.conn.commit()
+        # Log the message returned from db cursor
+        logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
+                    self.cursor.statusmessage)
+
     def cleanup_db_tables(self):
         """Cleanup RDS data tables on a periodic basis."""
         try:
             # Number of days to retain the celery task_meta data
-            num_days_metadata = os.environ.get('KEEP_DB_META_NUM_DAYS', '7')
-            # query to delete the celery task_meta data
-            query = sql.SQL('DELETE FROM celery_taskmeta '
-                            'WHERE DATE_DONE <= NOW() - interval \'%s day\';')
-            logger.info('Starting to clean up Celery Meta tables')
-            # Execute the query
-            self.cursor.execute(query.as_string(self.conn) % (num_days_metadata))
-            # Log the message returned from db cursor
-            logger.info('%r' % self.cursor.statusmessage)
-            logger.info('Cleanup of Celery Meta tables complete')
+            num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '30')
+            self.cleanup_tables('celery_taskmeta', 'date_done', num_days)
 
-            # Number of days to retain the celery woker_result data
-            num_days_workerdata = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '60')
-            # query to delete the worker_result data
-            query = sql.SQL('DELETE FROM worker_results '
-                            'WHERE ended_at <= NOW() - interval \'%s day\';')
-            logger.info('Starting to clean up Worker Result data tables')
-            # Execute the query
-            self.cursor.execute(query.as_string(self.conn) % (num_days_workerdata))
-            # Log the message returned from db cursor
-            logger.info('%r' % self.cursor.statusmessage)
-            logger.info('Cleanup of Worker Result data tables complete')
+            # Number of days to retain the worker results data
+            num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
+            self.cleanup_tables('worker_results', 'ended_at', num_days)
+
+            # Number of days to retain the package analyses data
+            num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
+            self.cleanup_tables('package_analyses', 'finished_at', num_days)
+
+            # Number of days to retain the package worker results data
+            num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
+            self.cleanup_tables('package_worker_results', 'ended_at', num_days)
+
+            # Number of days to retain the stack analyses request data
+            num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
+            self.cleanup_tables('stack_analyses_request', 'submitTime', num_days)
+
+            # Number of days to retain the api requests data
+            num_days = os.environ.get('KEEP_API_REQUESTS_NUM_DAYS', '180')
+            self.cleanup_tables('api_requests', 'submit_time', num_days)
         except Exception as e:
             logger.error('CleanupDatabaseError: %r' % e)
 

@@ -35,10 +35,6 @@ objects:
                   value: "8182"
                 - name: GITHUB_CVE_REPO
                   value: ${GITHUB_CVE_REPO}
-                - name: KEEP_DB_META_NUM_DAYS
-                  value: ${KEEP_DB_META_NUM_DAYS}
-                - name: KEEP_WORKER_RESULT_NUM_DAYS
-                  value: ${KEEP_WORKER_RESULT_NUM_DAYS}
                 - name: GENERATE_MANIFESTS
                   value: ${GENERATE_MANIFESTS}
                 - name: SENTRY_API_ISSUES
@@ -57,6 +53,18 @@ objects:
                   value: "25"
                 - name: PGBOUNCER_SERVICE_HOST
                   value: bayesian-pgbouncer
+                - name: KEEP_DB_META_NUM_DAYS
+                  value: "30"
+                - name: KEEP_WORKER_RESULT_NUM_DAYS
+                  value: "30"
+                - name: KEEP_PACKAGE_ANALYSES_NUM_DAYS
+                  value: "30"
+                - name: KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS
+                  value: "30"
+                - name: KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS
+                  value: "180"
+                - name: KEEP_API_REQUESTS_NUM_DAYS
+                  value: "180"   
                 - name: SNYK_API_TOKEN_VALIDATION_URL
                   valueFrom:
                     configMapKeyRef:
