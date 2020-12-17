@@ -43,6 +43,10 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
+  openshift-yaml-validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Install oc
       uses: redhat-actions/oc-installer@v1
       with:
@@ -53,5 +57,12 @@ jobs:
       uses: instrumenta/kubeval-action@master
       with:
           files: blueprint.yaml
+  Build-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Docker Build
+      run: docker build --no-cache -t tests-image -f Dockerfile .
+
           
           
