@@ -90,13 +90,13 @@ class ReportHelper:
             num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
             self.cleanup_tables('worker_results', 'ended_at', num_days)
 
-            # Number of days to retain the package analyses data
-            num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
-            self.cleanup_tables('package_analyses', 'finished_at', num_days)
-
             # Number of days to retain the package worker results data
             num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
             self.cleanup_tables('package_worker_results', 'ended_at', num_days)
+
+            # Number of days to retain the package analyses data
+            num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
+            self.cleanup_tables('package_analyses', 'finished_at', num_days)
 
             # Number of days to retain the stack analyses request data
             num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
