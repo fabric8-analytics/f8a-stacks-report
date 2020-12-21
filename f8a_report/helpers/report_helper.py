@@ -21,7 +21,6 @@ from helpers.sentry_report_helper import SentryReportHelper
 from helpers.cve_helper import CVE
 
 logger = logging.getLogger(__file__)
-logging.basicConfig(level=logging.INFO)
 
 
 class Postgres:
@@ -29,7 +28,7 @@ class Postgres:
 
     def __init__(self):
         """Initialize the connection to Postgres database."""
-        conn_string = "host='{host}' dbname='{dbname}' user='{user}' password='{password}'".\
+        conn_string = "host='{host}' dbname='{dbname}' user='{user}' password='{password}'". \
             format(host=os.getenv('PGBOUNCER_SERVICE_HOST', 'bayesian-pgbouncer'),
                    dbname=os.getenv('POSTGRESQL_DATABASE', 'coreapi'),
                    user=os.getenv('POSTGRESQL_USER', 'coreapi'),
@@ -65,32 +64,47 @@ class ReportHelper:
 
         self.emr_api = os.getenv('EMR_API', 'http://f8a-emr-deployment:6006')
 
+    def cleanup_tables(self, table_name, column_name, num_days):
+        """Cleanup tables on a periodic basis."""
+        # Query to delete data
+        query = sql.SQL("DELETE FROM {0} WHERE {1} <= NOW() - interval %s day;").format(
+            sql.Identifier(table_name),
+            sql.Identifier(column_name)
+        )
+        logger.debug('Starting to clean up "%s" table', table_name)
+        # Executing query
+        self.cursor.execute(query, (num_days,))
+        self.conn.commit()
+        # Log the message returned from db cursor
+        logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
+                    self.cursor.statusmessage)
+
     def cleanup_db_tables(self):
         """Cleanup RDS data tables on a periodic basis."""
         try:
             # Number of days to retain the celery task_meta data
-            num_days_metadata = os.environ.get('KEEP_DB_META_NUM_DAYS', '7')
-            # query to delete the celery task_meta data
-            query = sql.SQL('DELETE FROM celery_taskmeta '
-                            'WHERE DATE_DONE <= NOW() - interval \'%s day\';')
-            logger.info('Starting to clean up Celery Meta tables')
-            # Execute the query
-            self.cursor.execute(query.as_string(self.conn) % (num_days_metadata))
-            # Log the message returned from db cursor
-            logger.info('%r' % self.cursor.statusmessage)
-            logger.info('Cleanup of Celery Meta tables complete')
+            num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '30')
+            self.cleanup_tables('celery_taskmeta', 'date_done', num_days)
 
-            # Number of days to retain the celery woker_result data
-            num_days_workerdata = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '60')
-            # query to delete the worker_result data
-            query = sql.SQL('DELETE FROM worker_results '
-                            'WHERE ended_at <= NOW() - interval \'%s day\';')
-            logger.info('Starting to clean up Worker Result data tables')
-            # Execute the query
-            self.cursor.execute(query.as_string(self.conn) % (num_days_workerdata))
-            # Log the message returned from db cursor
-            logger.info('%r' % self.cursor.statusmessage)
-            logger.info('Cleanup of Worker Result data tables complete')
+            # Number of days to retain the worker results data
+            num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
+            self.cleanup_tables('worker_results', 'ended_at', num_days)
+
+            # Number of days to retain the package worker results data
+            num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
+            self.cleanup_tables('package_worker_results', 'ended_at', num_days)
+
+            # Number of days to retain the package analyses data
+            num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
+            self.cleanup_tables('package_analyses', 'finished_at', num_days)
+
+            # Number of days to retain the stack analyses request data
+            num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
+            self.cleanup_tables('stack_analyses_request', 'submitTime', num_days)
+
+            # Number of days to retain the api requests data
+            num_days = os.environ.get('KEEP_API_REQUESTS_NUM_DAYS', '180')
+            self.cleanup_tables('api_requests', 'submit_time', num_days)
         except Exception as e:
             logger.error('CleanupDatabaseError: %r' % e)
 
@@ -214,8 +228,8 @@ class ReportHelper:
         for eco in unique_stacks_with_recurrence_count.keys() | collated_user_input.keys():
             result.update({eco: {
                 "user_input_stack": dict(
-                            Counter(unique_stacks_with_recurrence_count.get(eco)) +
-                            Counter(collated_user_input.get(eco, {}).get('user_input_stack')))
+                    Counter(unique_stacks_with_recurrence_count.get(eco)) +
+                    Counter(collated_user_input.get(eco, {}).get('user_input_stack')))
             }})
 
         # Store user input collated data back to S3
@@ -344,7 +358,7 @@ class ReportHelper:
         return {
             'stack_requests_count': total_stack_requests[ecosystem],
             'unique_dependencies_with_frequency':
-            self.populate_key_count(self.flatten_list(all_deps[ecosystem])),
+                self.populate_key_count(self.flatten_list(all_deps[ecosystem])),
             'unique_unknown_dependencies_with_frequency': unique_dep_frequency,
             'unique_stacks_with_frequency': unique_stacks_with_recurrence_count[ecosystem],
             'unique_stacks_with_deps_count': unique_stacks_with_deps_count[ecosystem],
@@ -396,7 +410,9 @@ class ReportHelper:
     def normalize_worker_data(self, start_date, end_date, stack_data, worker,
                               frequency='daily', retrain=False):
         """Normalize worker data for reporting."""
-        total_stack_requests = {'all': 0, 'npm': 0, 'maven': 0, 'pypi': 0}
+        supported_ecosystems = ['npm', 'golang', 'pypi', 'maven']
+        total_stack_requests = {eco: 0 for eco in supported_ecosystems}
+        total_stack_requests.update({'all': 0})
 
         report_name = self.get_report_name(frequency, end_date)
 
@@ -411,15 +427,16 @@ class ReportHelper:
             'stacks_summary': {},
             'stacks_details': []
         }
-        all_deps = {'npm': [], 'maven': [], 'pypi': []}
-        all_unknown_deps = {'npm': [], 'maven': [], 'pypi': []}
+        all_deps = {eco: [] for eco in supported_ecosystems}
+        all_unknown_deps = {eco: [] for eco in supported_ecosystems}
         all_unknown_lic = []
         all_cve_list = []
 
         # Process the response
-        total_response_time = {'all': 0.0, 'npm': 0.0, 'maven': 0.0, 'pypi': 0.0}
+        total_response_time = {eco: 0.0 for eco in supported_ecosystems}
+        total_response_time.update({'all': 0.0})
         if worker == 'stack_aggregator_v2':
-            stacks_list = {'npm': [], 'maven': [], 'pypi': []}
+            stacks_list = {eco: [] for eco in supported_ecosystems}
             for data in stack_data:
                 stack_info_template = {
                     'ecosystem': '',
@@ -455,7 +472,7 @@ class ReportHelper:
                         unknown_dependencies.append(dep)
                     stack_info_template['unknown_dependencies'] = self.normalize_deps_list(
                         unknown_dependencies)
-                    all_unknown_deps[user_stack_info['ecosystem']].\
+                    all_unknown_deps[user_stack_info['ecosystem']]. \
                         append(stack_info_template['unknown_dependencies'])
 
                     stack_info_template['license']['unknown'] = \
@@ -481,31 +498,12 @@ class ReportHelper:
                     continue
 
             unique_stacks_with_recurrence_count = {
-                'npm': self.populate_key_count(stacks_list['npm']),
-                'maven': self.populate_key_count(stacks_list['maven']),
-                'pypi': self.populate_key_count(stacks_list['pypi'])
+                ecosystem: self.populate_key_count(stacks_list[ecosystem])
+                for ecosystem in supported_ecosystems
             }
 
             unique_stacks_with_deps_count = \
                 self.set_unique_stack_deps_count(unique_stacks_with_recurrence_count)
-
-            avg_response_time = {}
-            if total_stack_requests['npm'] > 0:
-                avg_response_time['npm'] = total_response_time['npm'] / total_stack_requests['npm']
-            else:
-                avg_response_time['npm'] = 0
-
-            if total_stack_requests['maven'] > 0:
-                avg_response_time['maven'] = \
-                    total_response_time['maven'] / total_stack_requests['maven']
-            else:
-                avg_response_time['maven'] = 0
-
-            if total_stack_requests['pypi'] > 0:
-                avg_response_time['pypi'] = \
-                    total_response_time['pypi'] / total_stack_requests['pypi']
-            else:
-                avg_response_time['pypi'] = 0
 
             # Get a list of unknown licenses
             unknown_licenses = []
@@ -515,27 +513,25 @@ class ReportHelper:
 
             unknown_deps_ingestion_report = self.unknown_deps_helper.get_current_ingestion_status()
 
+            avg_response_time = {}
+            for ecosystem in supported_ecosystems:
+                # Calculate Average response time.
+                avg_response_time[ecosystem] = self.calc_average_response_time(
+                    total_stack_requests, total_response_time, ecosystem)
+                # Calculate Stack Summary for each ecosystem.
+                template['stacks_summary'][ecosystem] = self.get_ecosystem_summary(
+                    ecosystem,
+                    total_stack_requests,
+                    all_deps,
+                    all_unknown_deps,
+                    unique_stacks_with_recurrence_count,
+                    unique_stacks_with_deps_count,
+                    avg_response_time,
+                    unknown_deps_ingestion_report)
+
             # generate aggregated data section
-            template['stacks_summary'] = {
+            template['stacks_summary'].update({
                 'total_stack_requests_count': total_stack_requests['all'],
-                'npm': self.get_ecosystem_summary('npm', total_stack_requests, all_deps,
-                                                  all_unknown_deps,
-                                                  unique_stacks_with_recurrence_count,
-                                                  unique_stacks_with_deps_count,
-                                                  avg_response_time,
-                                                  unknown_deps_ingestion_report),
-                'maven': self.get_ecosystem_summary('maven', total_stack_requests, all_deps,
-                                                    all_unknown_deps,
-                                                    unique_stacks_with_recurrence_count,
-                                                    unique_stacks_with_deps_count,
-                                                    avg_response_time,
-                                                    unknown_deps_ingestion_report),
-                'pypi': self.get_ecosystem_summary('pypi', total_stack_requests, all_deps,
-                                                   all_unknown_deps,
-                                                   unique_stacks_with_recurrence_count,
-                                                   unique_stacks_with_deps_count,
-                                                   avg_response_time,
-                                                   unknown_deps_ingestion_report),
                 'unique_unknown_licenses_with_frequency':
                     self.populate_key_count(unknown_licenses),
                 'unique_cves':
@@ -543,7 +539,7 @@ class ReportHelper:
                 'total_average_response_time':
                     '{} ms'.format(total_response_time['all'] / len(template['stacks_details'])),
                 'cve_report': CVE().generate_cve_report(updated_on=start_date)
-            }
+            })
 
             # monthly data collection on the 1st of every month
             if frequency == 'monthly':
@@ -558,6 +554,13 @@ class ReportHelper:
         else:
             # todo: user feedback aggregation based on the recommendation task results
             return None
+
+    @staticmethod
+    def calc_average_response_time(total_stack_requests, total_response_time, ecosystem):
+        """Calculate Average Response time."""
+        if total_stack_requests[ecosystem]:
+            return total_response_time[ecosystem] / total_stack_requests[ecosystem]
+        return 0
 
     def retrieve_worker_results(self, start_date, end_date, id_list=[], worker_list=[],
                                 frequency='daily', retrain=False):

@@ -26,7 +26,7 @@ class UnknownDepsReportHelper:
 
     def get_unknown_list(self, result):
         """Create a list of unknown deps."""
-        ecosystem_list = ['npm', 'maven', 'pypi']
+        ecosystem_list = ['npm', 'maven', 'pypi', 'golang']
         unknown_deps_list = {}
         for eco in ecosystem_list:
             deps = []
