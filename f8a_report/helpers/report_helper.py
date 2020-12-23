@@ -162,7 +162,7 @@ class ReportHelper:
 
         # Query to fetch Stack Analysis manifests data from start_date to end_date
         query = sql.SQL('SELECT {} FROM {} WHERE {} BETWEEN \'%s\' AND \'%s\'').format(
-            sql.Identifier('requestJson'), sql.Identifier('stack_analyses_request'),
+            sql.Identifier('dep_snapshot'), sql.Identifier('stack_analyses_request'),
             sql.Identifier('submitTime')
         )
         # Executing Query
