@@ -1,4 +1,8 @@
 # f8a-stacks-report
+
+[![codecov](https://codecov.io/gh/fabric8-analytics/f8a-stacks-report/branch/master/graph/badge.svg?token=YqIw8eMoAI)](https://codecov.io/gh/fabric8-analytics/f8a-stacks-report)
+![CI](https://github.com/fabric8-analytics/f8a-stacks-report/workflows/CI/badge.svg?branch=master)
+
 Source code for multiple cron jobs
 - Stacks Report Daily
 - Stacks Report Monthly
