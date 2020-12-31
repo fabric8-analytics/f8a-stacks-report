@@ -110,8 +110,8 @@ class ReportHelper:
 
             # Number of days to retain recommendation feedback data data
             num_days = os.environ.get('KEEP_RECOMMENDATION_FEEDBACK_NUM_DAYS', '180')
-            self.cleanup_feedback('recommendation_feedback', 'stack_id', 'id', 'stack_analyses_request',
-                                  'submitTime', num_days)
+            self.cleanup_feedback('recommendation_feedback', 'stack_id', 'id',
+                                  'stack_analyses_request', 'submitTime', num_days)
 
             # Number of days to retain the stack analyses request data
             num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '181')
