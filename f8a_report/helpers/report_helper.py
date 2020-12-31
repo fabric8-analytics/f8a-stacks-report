@@ -79,6 +79,24 @@ class ReportHelper:
         logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
                     self.cursor.statusmessage)
 
+    def cleanup_feedback(self, table_name, foreign_key, key, ftable_name, column_name, num_days):
+        """Cleanup recommendation feedback table ona periodic basis."""
+        # Query to delete data
+        query = sql.SQL("""DELETE FROM {0} WHERE {1} in
+                        (SELECT {2} FROM {3} WHERE {4} <= NOW() - interval %s day)""").format(
+                            sql.Identifier(table_name),
+                            sql.Identifier(foreign_key),
+                            sql.Identifier(key),
+                            sql.Identifier(ftable_name),
+                            sql.Identifier(column_name)
+        )
+        logger.debug('Starting to clean up recommendation feedback table')
+        # Executing query
+        self.cursor.execute(query, (num_days,))
+        self.conn.commit()
+        logger.info('Cleanup of  recommendation_feedback table has completed with status %r',
+                    self.cursor.statusmessage)
+
     def cleanup_db_tables(self):
         """Cleanup RDS data tables on a periodic basis."""
         try:
@@ -90,8 +108,13 @@ class ReportHelper:
             num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
             self.cleanup_tables('worker_results', 'ended_at', num_days)
 
+            # Number of days to retain recommendation feedback data data
+            num_days = os.environ.get('KEEP_RECOMMENDATION_FEEDBACK_NUM_DAYS', '180')
+            self.cleanup_feedback('recommendation_feedback', 'stack_id', 'id', 'stack_analyses_request',
+                                  'submitTime', num_days)
+
             # Number of days to retain the stack analyses request data
-            num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '180')
+            num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '181')
             self.cleanup_tables('stack_analyses_request', 'submitTime', num_days)
 
             # Number of days to retain the api requests data
