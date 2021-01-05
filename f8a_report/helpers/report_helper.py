@@ -103,28 +103,46 @@ class ReportHelper:
             # Number of days to retain the celery task_meta data
             num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '30')
             self.cleanup_tables('celery_taskmeta', 'date_done', num_days)
+        except Exception as e:
+            logger.error('CleanupDatabaseError: %r' % e)
 
+        try:
             # Number of days to retain the worker results data
             num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
             self.cleanup_tables('worker_results', 'ended_at', num_days)
+        except Exception as e:
+            logger.error('CleanupDatabaseError: %r' % e)
 
+        try:
             # Number of days to retain recommendation feedback data data
             num_days = os.environ.get('KEEP_RECOMMENDATION_FEEDBACK_NUM_DAYS', '180')
             self.cleanup_feedback('recommendation_feedback', 'stack_id', 'id',
                                   'stack_analyses_request', 'submitTime', num_days)
+        except Exception as e:
+            logger.error('CleanupDatabaseError: %r' % e)
 
+        try:
             # Number of days to retain the stack analyses request data
             num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '181')
             self.cleanup_tables('stack_analyses_request', 'submitTime', num_days)
+        except Exception as e:
+            logger.error('CleanupDatabaseError: %r' % e)
 
+        try:
             # Number of days to retain the api requests data
             num_days = os.environ.get('KEEP_API_REQUESTS_NUM_DAYS', '180')
             self.cleanup_tables('api_requests', 'submit_time', num_days)
+        except Exception as e:
+            logger.error('CleanupDatabaseError: %r' % e)
 
+        try:
             # Number of days to retain the package worker results data
             num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
             self.cleanup_tables('package_worker_results', 'ended_at', num_days)
+        except Exception as e:
+            logger.error('CleanupDatabaseError: %r' % e)
 
+        try:
             # Number of days to retain the package analyses data
             num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '31')
             self.cleanup_tables('package_analyses', 'finished_at', num_days)
