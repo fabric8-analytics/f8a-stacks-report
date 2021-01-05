@@ -62,7 +62,7 @@ objects:
                 - name: KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS
                   value: "30"
                 - name: KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS
-                  value: "180"
+                  value: "181"
                 - name: KEEP_RECOMMENDATION_FEEDBACK_NUM_DAYS
                   value: "180"
                 - name: KEEP_API_REQUESTS_NUM_DAYS
