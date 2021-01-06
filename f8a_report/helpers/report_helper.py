@@ -74,6 +74,7 @@ class ReportHelper:
         logger.debug('Starting to clean up "%s" table', table_name)
         # Executing query
         self.cursor.execute(query, (num_days,))
+        # Commiting
         self.conn.commit()
         # Log the message returned from db cursor
         logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
@@ -93,6 +94,7 @@ class ReportHelper:
         logger.debug('Starting to clean up recommendation feedback table')
         # Executing query
         self.cursor.execute(query, (num_days,))
+        # Commiting
         self.conn.commit()
         logger.info('Cleanup of  recommendation_feedback table has completed with status %r',
                     self.cursor.statusmessage)
@@ -135,11 +137,13 @@ class ReportHelper:
             num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '31')
             self.cleanup_tables('package_analyses', 'finished_at', num_days)
 
+        # Storing all the cleanup function objects in a variable
         clean_tables = [clean_celery_taskmeta, clean_worker_results, clean_recommendation_feedback,
                         clean_stack_analyses_request, clean_api_requests,
                         clean_package_worker_result, clean_package_analyses]
 
         for clean in clean_tables:
+            # Cleanup tables and log errors
             try:
                 clean()
             except Exception as e:
