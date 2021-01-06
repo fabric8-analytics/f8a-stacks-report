@@ -19,6 +19,7 @@ from helpers.s3_helper import S3Helper
 from helpers.unknown_deps_report_helper import UnknownDepsReportHelper
 from helpers.sentry_report_helper import SentryReportHelper
 from helpers.cve_helper import CVE
+from sqlalchemy import exc
 
 logger = logging.getLogger(__file__)
 
@@ -146,8 +147,8 @@ class ReportHelper:
             # Cleanup tables and log errors
             try:
                 clean()
-            except Exception as e:
-                logger.error('CleanupDatabaseError: %r' % e)
+            except exc.SQLAlchemyError as e:
+                logger.error("cleanup failed with exception %r", e)
 
     def validate_and_process_date(self, some_date):
         """Validate the date format and apply the format YYYY-MM-DDTHH:MI:SSZ."""
