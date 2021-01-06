@@ -75,10 +75,11 @@ class ReportHelper:
         try:
             # Executing query
             self.cursor.execute(query, (num_days,))
-            # Commiting
-            self.conn.commit()
         except Exception as e:
             logger.error("cleanup failed with exception %r", e)
+
+        # Commiting
+        self.conn.commit()
         # Log the message returned from db cursor
         logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
                     self.cursor.statusmessage)
