@@ -99,55 +99,51 @@ class ReportHelper:
 
     def cleanup_db_tables(self):
         """Cleanup RDS data tables on a periodic basis."""
-        try:
+        def clean_celery_taskmeta():
             # Number of days to retain the celery task_meta data
             num_days = os.environ.get('KEEP_DB_META_NUM_DAYS', '30')
             self.cleanup_tables('celery_taskmeta', 'date_done', num_days)
-        except Exception as e:
-            logger.error('CleanupDatabaseError: %r' % e)
 
-        try:
+        def clean_worker_results():
             # Number of days to retain the worker results data
             num_days = os.environ.get('KEEP_WORKER_RESULT_NUM_DAYS', '30')
             self.cleanup_tables('worker_results', 'ended_at', num_days)
-        except Exception as e:
-            logger.error('CleanupDatabaseError: %r' % e)
 
-        try:
+        def clean_recommendation_feedback():
             # Number of days to retain recommendation feedback data data
             num_days = os.environ.get('KEEP_RECOMMENDATION_FEEDBACK_NUM_DAYS', '180')
             self.cleanup_feedback('recommendation_feedback', 'stack_id', 'id',
                                   'stack_analyses_request', 'submitTime', num_days)
-        except Exception as e:
-            logger.error('CleanupDatabaseError: %r' % e)
 
-        try:
+        def clean_stack_analyses_request():
             # Number of days to retain the stack analyses request data
             num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '181')
             self.cleanup_tables('stack_analyses_request', 'submitTime', num_days)
-        except Exception as e:
-            logger.error('CleanupDatabaseError: %r' % e)
 
-        try:
+        def clean_api_requests():
             # Number of days to retain the api requests data
             num_days = os.environ.get('KEEP_API_REQUESTS_NUM_DAYS', '180')
             self.cleanup_tables('api_requests', 'submit_time', num_days)
-        except Exception as e:
-            logger.error('CleanupDatabaseError: %r' % e)
 
-        try:
+        def clean_package_worker_result():
             # Number of days to retain the package worker results data
             num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
             self.cleanup_tables('package_worker_results', 'ended_at', num_days)
-        except Exception as e:
-            logger.error('CleanupDatabaseError: %r' % e)
 
-        try:
+        def clean_package_analyses():
             # Number of days to retain the package analyses data
             num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '31')
             self.cleanup_tables('package_analyses', 'finished_at', num_days)
-        except Exception as e:
-            logger.error('CleanupDatabaseError: %r' % e)
+
+        clean_tables = [clean_celery_taskmeta, clean_worker_results, clean_recommendation_feedback,
+                        clean_stack_analyses_request, clean_api_requests,
+                        clean_package_worker_result, clean_package_analyses]
+
+        for clean in clean_tables:
+            try:
+                clean()
+            except Exception as e:
+                logger.error('CleanupDatabaseError: %r' % e)
 
     def validate_and_process_date(self, some_date):
         """Validate the date format and apply the format YYYY-MM-DDTHH:MI:SSZ."""
