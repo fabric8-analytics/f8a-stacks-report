@@ -77,6 +77,7 @@ class ReportHelper:
             self.cursor.execute(query, (num_days,))
         except Exception as e:
             logger.error("cleanup failed with exception %r", e)
+            self.conn.rollback()
             return
 
         # Commiting
@@ -102,6 +103,7 @@ class ReportHelper:
             self.cursor.execute(query, (num_days,))
         except Exception as e:
             logger.error("cleanup failed with exception %r", e)
+            self.conn.rollback()
             return
 
         # Commiting
