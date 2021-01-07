@@ -26,8 +26,7 @@ git+https://github.com/fabric8-analytics/fabric8-analytics-version-comparator.gi
 freezegun==1.0.0          # via -r requirements.in
 future==0.18.2            # via aws-xray-sdk
 idna==2.8                 # via moto, requests
-importlib-metadata==2.0.0  # via importlib-resources, jsonpickle, jsonschema
-importlib-resources==1.5.0  # via cfn-lint
+importlib-metadata==2.0.0  # via jsonpickle
 jinja2==2.11.2            # via moto
 jmespath==0.10.0          # via boto3, botocore
 jsondiff==1.1.2           # via moto
@@ -36,7 +35,7 @@ jsonpickle==1.4.1         # via aws-xray-sdk
 jsonpointer==2.0          # via jsonpatch
 jsonschema==3.2.0         # via aws-sam-translator, cfn-lint
 junit-xml==1.9            # via cfn-lint
-lxml==4.5.2               # via f8a-utils
+lxml==4.6.2               # via f8a-utils
 markupsafe==1.1.1         # via jinja2
 mock==4.0.2               # via moto
 moto==1.3.14              # via -r requirements.in
@@ -62,7 +61,7 @@ websocket-client==0.57.0  # via docker
 werkzeug==1.0.1           # via -r requirements.in, moto
 wrapt==1.12.1             # via aws-xray-sdk
 xmltodict==0.12.0         # via moto
-zipp==3.2.0               # via importlib-metadata, importlib-resources
+zipp==3.2.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
