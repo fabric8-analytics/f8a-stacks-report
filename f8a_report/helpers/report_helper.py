@@ -86,8 +86,8 @@ class ReportHelper:
         logger.info('Cleanup of  "%s" table has completed with status %r', table_name,
                     self.cursor.statusmessage)
 
-    def cleanup_feedback(self, table_name, foreign_key, key, ftable_name, column_name, num_days):
-        """Cleanup recommendation feedback table ona periodic basis."""
+    def cleanup_reference(self, table_name, foreign_key, key, ftable_name, column_name, num_days):
+        """Cleanup of tables with foreignkey reference on periodic basis."""
         # Query to delete data
         query = sql.SQL("""DELETE FROM {0} WHERE {1} in
                         (SELECT {2} FROM {3} WHERE {4} <= NOW() - interval %s day)""").format(
@@ -123,8 +123,8 @@ class ReportHelper:
 
         # Number of days to retain recommendation feedback data data
         num_days = os.environ.get('KEEP_RECOMMENDATION_FEEDBACK_NUM_DAYS', '180')
-        self.cleanup_feedback('recommendation_feedback', 'stack_id', 'id',
-                              'stack_analyses_request', 'submitTime', num_days)
+        self.cleanup_reference('recommendation_feedback', 'stack_id', 'id',
+                               'stack_analyses_request', 'submitTime', num_days)
 
         # Number of days to retain the stack analyses request data
         num_days = os.environ.get('KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS', '181')
@@ -136,10 +136,11 @@ class ReportHelper:
 
         # Number of days to retain the package worker results data
         num_days = os.environ.get('KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS', '30')
-        self.cleanup_tables('package_worker_results', 'ended_at', num_days)
+        self.cleanup_reference('package_worker_results', 'package_analysis_id', 'id',
+                               'package_analyses', 'started_at', num_days)
 
         # Number of days to retain the package analyses data
-        num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '35')
+        num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
         self.cleanup_tables('package_analyses', 'finished_at', num_days)
 
     def validate_and_process_date(self, some_date):

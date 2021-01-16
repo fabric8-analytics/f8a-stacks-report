@@ -58,7 +58,7 @@ objects:
                 - name: KEEP_WORKER_RESULT_NUM_DAYS
                   value: "30"
                 - name: KEEP_PACKAGE_ANALYSES_NUM_DAYS
-                  value: "35"
+                  value: "30"
                 - name: KEEP_PACKAGE_WORKER_RESULT_NUM_DAYS
                   value: "30"
                 - name: KEEP_STACK_ANALYSES_REQUESTS_NUM_DAYS
