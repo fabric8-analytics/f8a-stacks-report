@@ -18,7 +18,6 @@
 
 import logging
 import json
-import string
 
 from helpers.cve_helper import CVE
 from datetime import datetime as dt
@@ -146,7 +145,8 @@ class StackReportBuilder():
             if ecosystem not in self.supported_ecosystems:
                 logger.error("Unexpected Ecosystem type: %s, value: %s", type(ecosystem), ecosystem)
                 ecosystem = re.sub(r'\W+', '', ecosystem)
-                assert ecosystem in self.supported_ecosystems, f"Not Supported Ecosystem value: {ecosystem}"
+                assert ecosystem in self.supported_ecosystems, \
+                    f"Not Supported Ecosystem value: {ecosystem}"
             analysed_dependencies = stack.get('analyzed_dependencies', [])
             unknown_dependencies = stack.get('unknown_dependencies', [])
             normalised_unknown_dependencies = self.normalize_deps_list(unknown_dependencies)
