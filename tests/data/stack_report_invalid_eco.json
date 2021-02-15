@@ -1,0 +1,147 @@
+[
+    [
+        {
+            "uuid": null,
+            "_audit": {
+                "version": "v2",
+                "ended_at": "2020-05-27T07:44:57.181500",
+                "started_at": "2020-05-27T07:44:56.968213"
+            },
+            "ecosystem": "golang,",
+            "manifest_name": null,
+            "license_analysis": {
+                "total_licenses": 3,
+                "outlier_packages": [],
+                "unknown_licenses": {
+                    "unknown": [
+                        {
+                            "license": "dual license",
+                            "package": "python-dateutil"
+                        },
+                        {
+                            "license": "unknown",
+                            "package": "aniso8601"
+                        }
+                    ],
+                    "component_conflict": []
+                },
+                "conflict_packages": [],
+                "distinct_licenses": [
+                    "MIT",
+                    "UNKNOWN",
+                    "Dual License"
+                ],
+                "current_stack_license": null,
+                "stack_license_conflict": true
+            },
+            "registration_link": "https://snyk.io/login",
+            "manifest_file_path": "/tmp/bin",
+            "external_request_id": "049d0b127ec043e296403dab5cac3498",
+            "registration_status": "freetier",
+            "unknown_dependencies": [],
+            "analyzed_dependencies": [
+                {
+                    "url": "https://snyk.io/vuln/pip:aniso8601",
+                    "name": "aniso8601",
+                    "github": {
+                        "size": "N/A",
+                        "issues": {
+                            "year": {
+                                "closed": -1,
+                                "opened": -1
+                            },
+                            "month": {
+                                "closed": -1,
+                                "opened": -1
+                            }
+                        },
+                        "used_by": [
+                            {
+                                "name": "CanalTP/navitia",
+                                "stars": 217
+                            },
+                            {
+                                "name": "DormyMo/SpiderKeeper",
+                                "stars": 890
+                            },
+                            {
+                                "name": "RusticiSoftware/TinCanPython",
+                                "stars": 11
+                            },
+                            {
+                                "name": "armadillica/flamenco",
+                                "stars": 124
+                            },
+                            {
+                                "name": "biosustain/potion",
+                                "stars": 384
+                            },
+                            {
+                                "name": "getredash/redash",
+                                "stars": 6989
+                            },
+                            {
+                                "name": "hashbang/hashbang.sh",
+                                "stars": 48
+                            },
+                            {
+                                "name": "jcjohnson/densecap",
+                                "stars": 769
+                            },
+                            {
+                                "name": "mediadrop/mediadrop",
+                                "stars": 649
+                            },
+                            {
+                                "name": "noirbizarre/flask-restplus",
+                                "stars": 470
+                            }
+                        ],
+                        "watchers": null,
+                        "forks_count": -1,
+                        "contributors": -1,
+                        "pull_requests": {
+                            "year": {
+                                "closed": -1,
+                                "opened": -1
+                            },
+                            "month": {
+                                "closed": -1,
+                                "opened": -1
+                            }
+                        },
+                        "total_releases": 25,
+                        "dependent_repos": 2763,
+                        "stargazers_count": -1,
+                        "open_issues_count": -1,
+                        "dependent_projects": 4,
+                        "first_release_date": "Apr 16, 2010",
+                        "latest_release_duration": "2018-10-25 15:03:43"
+                    },
+                    "version": "1.2.0",
+                    "licenses": [
+                        "UNKNOWN"
+                    ],
+                    "ecosystem": "'golang',",
+                    "dependencies": [
+                        {
+                            "name": "python-dateutil",
+                            "version": "2.7.3",
+                            "dependencies": null
+                        },
+                        {
+                            "name": "six",
+                            "version": "1.12.0",
+                            "dependencies": null
+                        }
+                    ],
+                    "latest_version": "8.0.0",
+                    "recommended_version": null,
+                    "public_vulnerabilities": [],
+                    "private_vulnerabilities": [],
+                    "vulnerable_dependencies": []
+                }
+            ]
+        }
+    ]
+]

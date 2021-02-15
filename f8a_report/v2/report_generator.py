@@ -18,11 +18,14 @@
 
 import logging
 import json
+import string
+
 from helpers.cve_helper import CVE
 from datetime import datetime as dt
 from helpers.db_gateway import ReportQueries
 from helpers.unknown_deps_report_helper import UnknownDepsReportHelperV2
 from helpers.s3_helper import S3Helper
+import re
 
 logger = logging.getLogger(__file__)
 
@@ -140,6 +143,10 @@ class StackReportBuilder():
             stack = stack[0]
             stack_info_template = self.get_stack_info_template()
             ecosystem = stack.get('ecosystem')
+            if ecosystem not in self.supported_ecosystems:
+                logger.error("Unexpected Ecosystem type: %s, value: %s", type(ecosystem), ecosystem)
+                ecosystem = re.sub(r'\W+', '', ecosystem)
+                assert ecosystem in self.supported_ecosystems, f"Not Supported Ecosystem value: {ecosystem}"
             analysed_dependencies = stack.get('analyzed_dependencies', [])
             unknown_dependencies = stack.get('unknown_dependencies', [])
             normalised_unknown_dependencies = self.normalize_deps_list(unknown_dependencies)

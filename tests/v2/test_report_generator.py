@@ -17,6 +17,9 @@ class TestStackReportBuilder(TestCase):
         with open('tests/data/stack_report_v2.json', 'r') as f:
             cls.stack_analyses_v2 = json.load(f)
 
+        with open('tests/data/stack_report_invalid_eco.json', 'r') as f:
+            cls.invalid_eco = json.load(f)
+
     def test_normalize_deps_list(self):
         """Test Normalize deps list."""
         dependencies = self.stack_analyses_v2[0][0].get(
@@ -82,6 +85,15 @@ class TestStackReportBuilder(TestCase):
         self.assertIn('stacks_details', result)
         self.assertGreater(len('stacks_details'), 0)
         self.assertGreater(len('stacks_summary'), 0)
+
+    def test_analyse_stack_with_invalid_ecosystem(self):
+        """Test Analyse Stack with Invalid Ecosystem."""
+        start_date = "01-01-2020"
+        end_date = "05-01-2020"
+        stack = self.invalid_eco
+        report_template = self.ReportBuilder.get_report_template(start_date, end_date)
+        result = self.ReportBuilder.analyse_stack(stack, report_template)
+        self.assertEqual(result.get('stacks_details')[0].get('ecosystem'), 'golang')
 
     @patch('f8a_report.v2.report_generator.StackReportBuilder.create_venus_report')
     @patch('f8a_report.v2.report_generator.StackReportBuilder.save_worker_result_to_s3')
