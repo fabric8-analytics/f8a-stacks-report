@@ -108,13 +108,19 @@ class StackReportBuilder():
         return stack_info_template
 
     @staticmethod
-    def get_unknown_licenses(stack) -> list:
+    def get_unknown_licenses(stack: dict) -> list:
         """Fetch unknown_licenses from Stack.
 
         :param stack: stack data from DB
         :return: List of Unknown licenses.
         """
-        return stack.get('license_analysis', {}).get('unknown_licenses', {}).get('unknown', [])
+        unknown_licences = []
+        try:
+            unknown_licences = stack.get('license_analysis', {}).get('unknown_licenses', {}).get('unknown', [])
+        except AttributeError:
+            # AttributeError occurs in case of any None values of license_analysis or unknown_licenses
+            pass
+        return unknown_licences
 
     @staticmethod
     def get_audit_timelines(data) -> tuple:
@@ -145,8 +151,6 @@ class StackReportBuilder():
             normalised_unknown_dependencies = self.normalize_deps_list(unknown_dependencies)
             unknown_licenses = self.get_unknown_licenses(stack)
             try:
-                if len(analysed_dependencies) == 0:
-                    continue
                 stack_info_template['ecosystem'] = ecosystem
                 self.total_stack_requests['all'] += 1
                 self.total_stack_requests[ecosystem] += 1
