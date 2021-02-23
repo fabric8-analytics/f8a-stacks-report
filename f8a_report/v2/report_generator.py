@@ -116,9 +116,10 @@ class StackReportBuilder():
         """
         unknown_licences = []
         try:
-            unknown_licences = stack.get('license_analysis', {}).get('unknown_licenses', {}).get('unknown', [])
+            unknown_licences = stack.get('license_analysis', {}).get(
+                'unknown_licenses', {}).get('unknown', [])
         except AttributeError:
-            # AttributeError occurs in case of any None values of license_analysis or unknown_licenses
+            # AttributeError occurs in case of any None values of license_analysis or unknown_lic
             pass
         return unknown_licences
 
