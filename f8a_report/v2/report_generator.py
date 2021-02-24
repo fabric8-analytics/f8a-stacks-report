@@ -175,6 +175,8 @@ class StackReportBuilder():
                 self.total_response_time[stack_info_template['ecosystem']] += response_time
                 report_template['stacks_details'].append(stack_info_template)
             except (IndexError, KeyError, TypeError) as e:
+                logger.error("Total Stack Request State %r", self.total_stack_requests)
+                logger.error("Ecosystem, %s", ecosystem)
                 logger.exception('Error: %r' % e)
                 continue
         logger.info("Stacks Analyse Completed.")
