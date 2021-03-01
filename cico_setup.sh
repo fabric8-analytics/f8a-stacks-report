@@ -33,7 +33,7 @@ prep() {
     yum -y install epel-release
     yum -y install git which python36-pip python36-virtualenv gcc openssl-devel docker
     systemctl start docker
-    pip3 install cryptography==3.3.2
+    pip3 install --upgrade pip
     pip3 install docker-compose
     yum -y install libffi libffi-devel
 }
