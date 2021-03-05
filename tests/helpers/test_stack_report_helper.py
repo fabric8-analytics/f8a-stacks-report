@@ -302,7 +302,7 @@ def test_store_training_data(_mock1):
 def test_store_training_data_loop(_mock1):
     """Test the count of calls to store to S3."""
     r.store_training_data(collateddata)
-    _mock1.assert_called_once()
+    assert _mock1.call_count == 2
 
 
 def test_get_training_data_for_eco():
