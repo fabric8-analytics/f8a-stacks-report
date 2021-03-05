@@ -362,8 +362,8 @@ class ReportHelper:
             else:
                 continue
 
-            if eco in ("maven", "npm", "go"):
-                logger.info("Handling only pypi retraining")
+            if eco in ("npm", "go"):
+                logger.info("Handling only pypi, maven retraining")
                 continue
 
             if bucket_name:
