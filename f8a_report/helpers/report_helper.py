@@ -140,7 +140,7 @@ class ReportHelper:
                                'package_analyses', 'started_at', num_days)
 
         # Number of days to retain the package analyses data
-        num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '30')
+        num_days = os.environ.get('KEEP_PACKAGE_ANALYSES_NUM_DAYS', '31')
         self.cleanup_tables('package_analyses', 'started_at', num_days)
 
     def validate_and_process_date(self, some_date):
