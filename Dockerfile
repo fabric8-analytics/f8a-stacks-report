@@ -1,18 +1,18 @@
-FROM registry.centos.org/centos/centos:7
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
   
 ENV APP_DIR='/f8a_report'
 
 WORKDIR ${APP_DIR}
 
-RUN yum install -y epel-release &&\
-    yum install -y gcc git python36-pip python36-devel &&\
-    yum clean all &&\
-    mkdir -p ${APP_DIR}
+RUN mkdir -p ${APP_DIR}
 
-RUN pip3 install --upgrade pip
+RUN microdnf update -y && rm -rf /var/cache/yum
+RUN microdnf install python3 git && microdnf clean all
+
+RUN pip3 install --upgrade pip --no-cache-dir
 
 COPY f8a_report/ ${APP_DIR}/f8a_report
 COPY requirements.txt ${APP_DIR}
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt --no-cache-dir
 CMD ["f8a_report/stack_report_main.py"]
 ENTRYPOINT ["python3"]
