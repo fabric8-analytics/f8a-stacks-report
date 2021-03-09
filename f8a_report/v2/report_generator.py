@@ -18,6 +18,8 @@
 
 import logging
 import json
+from typing import List, Dict
+
 from helpers.cve_helper import CVE
 from datetime import datetime as dt
 from helpers.db_gateway import ReportQueries
@@ -114,7 +116,14 @@ class StackReportBuilder():
         :param stack: stack data from DB
         :return: List of Unknown licenses.
         """
-        return stack.get('license_analysis', {}).get('unknown_licenses', {}).get('unknown', [])
+        unknown_licences = []
+        try:
+            unknown_licences = stack.get('license_analysis', {}).get(
+                'unknown_licenses', {}).get('unknown', [])
+        except AttributeError:
+            # AttributeError occurs in case of any None values of license_analysis or unknown_lic
+            pass
+        return unknown_licences
 
     @staticmethod
     def get_audit_timelines(data) -> tuple:
@@ -182,7 +191,7 @@ class StackReportBuilder():
         logger.info("Stacks Analyse Completed.")
         return report_template
 
-    def collate_vulnerabilites(self, stack_info_template, package) -> dict:
+    def collate_vulnerabilites(self, stack_info_template: Dict, package: Dict) -> Dict:
         """Collate Vulnerability list of Private and Public Vulnerabilities.
 
         :param
@@ -191,12 +200,23 @@ class StackReportBuilder():
         :return: Stack Data template filled with data
         """
         for vul_type in ('private_vulnerabilities', "public_vulnerabilities"):
-            for cve_info in package.get(vul_type):
-                stack_info_template[vul_type]['cve_list'].append(cve_info)
-                cve_id = cve_info.get('cve_ids')
-                cvss = cve_info.get('cvss')
-                self.all_cve_list.append(f'{cve_id}:{cvss}')
+            vulnerabilities: List[Dict] = package.get(vul_type)
+            cve_list: List = self.get_vulnerability_data(vulnerabilities)
+            # Appending CVE data to Global CVE List
+            self.all_cve_list += cve_list
+            # Appending Verbose CVE details
+            stack_info_template[vul_type]['cve_list'] += vulnerabilities
         return stack_info_template
+
+    @staticmethod
+    def get_vulnerability_data(vulnerabilities: List[Dict]) -> List[str]:
+        """Iterate over each Vulnerability to filter out valuable data."""
+        cve_list = []
+        for cve_info in vulnerabilities:
+            cve_id: str = cve_info.get('id')
+            cvss: str = cve_info.get('cvss')
+            cve_list.append(f'{cve_id}:{cvss}')
+        return cve_list
 
     def build_report_summary(self, unknown_deps_ingestion_report, report_content) -> dict:
         """Build Final Report Summary."""
