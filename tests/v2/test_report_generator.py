@@ -113,10 +113,10 @@ class TestStackReportBuilder(TestCase):
     def test_collate_vulnerabilites(self):
         """Test Collate Vulnerability method."""
         analysed_dependencies = {
-            "public_vulnerabilities": [{'cvss': "9.8", "cve_ids": "CVE-2014-0474"}],
-            "private_vulnerabilities": [{'cvss': "8.9", "cve_ids": "CVE-2014-0475"}]
+            "public_vulnerabilities": [{'cvss': "9.8", "id": "SNYK-GOLANG-GITHUB-12345"}],
+            "private_vulnerabilities": [{'cvss': "8.9", "id": "SNYK-GOLANG-GITHUB2-45678"}]
         }
-        response = ['CVE-2014-0475:8.9', 'CVE-2014-0474:9.8']
+        response = ['SNYK-GOLANG-GITHUB2-45678:8.9', 'SNYK-GOLANG-GITHUB-12345:9.8']
         template = self.ReportBuilder.get_stack_info_template()
         result = self.ReportBuilder.collate_vulnerabilites(template, analysed_dependencies)
         self.assertListEqual(self.ReportBuilder.all_cve_list, response)
