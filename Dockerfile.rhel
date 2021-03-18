@@ -1,13 +1,12 @@
-FROM registry.centos.org/centos/centos:7
+# base image source https://github.com/rhdt/EL-Dockerfiles/blob/master/base/python3/Dockerfile
+
+FROM quay.io/openshiftio/rhel-base-python3:latest
   
 ENV APP_DIR='/f8a_report'
 
 WORKDIR ${APP_DIR}
 
-RUN yum install -y epel-release &&\
-    yum install -y gcc git python36-pip python36-devel &&\
-    yum clean all &&\
-    mkdir -p ${APP_DIR}
+RUN mkdir -p ${APP_DIR}
 
 RUN pip3 install --upgrade pip
 
