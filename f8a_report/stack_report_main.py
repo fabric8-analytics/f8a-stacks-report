@@ -2,16 +2,17 @@
 
 import logging
 from datetime import datetime as dt, timedelta
+
+from helpers.sentry_report_helper import generate_sentry_report
 from helpers.report_helper import ReportHelper
 from v2.report_generator import StackReportBuilder
-from helpers.ingestion_helper import ingest_epv
+from helpers.ingestion_helper import ingest_epv, generate_ingestion_report
 
 logger = logging.getLogger(__file__)
 
 
 def main():
     """Generate the daily stacks report."""
-    r = ReportHelper()
     report_builder_v2 = StackReportBuilder(ReportHelper)
     today = dt.today()
     start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
@@ -19,14 +20,11 @@ def main():
     missing_latest_nodes = {}
     response = {}
 
-    # Daily Venus Report v1
-    logger.info('Generating Daily report v1 from %s to %s', start_date, end_date)
-    try:
-        response, missing_latest_nodes = r.get_report(
-            start_date, end_date, 'daily', retrain=False)
-        logger.info('Daily report v1 Processed.')
-    except Exception:
-        logger.exception("Error Generating v1 report")
+    # Generate Ingestion Report and save in S3
+    generate_ingestion_report(start_date, end_date)
+
+    # Generate Sentry Report and save in S3
+    generate_sentry_report(start_date, end_date)
 
     # Daily Venus Report v2
     logger.info('Generating Daily report v2 from %s to %s', start_date, end_date)
