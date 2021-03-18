@@ -53,22 +53,23 @@ class NPMMetadata:
 
     def update(self):
         """Read and update metadata for all NPM packages in S3."""
-        logger.info("Existing node package length: %d", self.stats['existing_count'])
-        logger.info("Number of node package in manifest: %d", self.stats['unique_manifest_count'])
+        logger.debug("Existing node package length: %d", self.stats['existing_count'])
+        logger.debug("Number of node package in manifest: %d", self.stats['unique_manifest_count'])
 
         index = 0
         # Force update package after 30 days (2592000 seconds) to get latest version data.
         update_timestamp = int(datetime.datetime.now().timestamp()) - 2592000
         for package_name in self.package_list:
+            # Print progress for every 500 packages
+            if index % 500 == 0:
+                logger.debug("Processing [%d/%d %d%%] ==> '%s'", index + 1,
+                             self.stats['unique_manifest_count'],
+                             index * 100 / self.stats['unique_manifest_count'], package_name)
             index += 1
-            logger.info("Processing [%d/%d %d%%] ==> '%s'", index,
-                        self.stats['unique_manifest_count'],
-                        index * 100 / self.stats['unique_manifest_count'], package_name)
             package_details = self.existing_data.get(package_name, None)
 
             if not package_details or \
                package_details.get("updated_timestamp", 0) < update_timestamp:
-                logger.info("Package '%s' is missing or out-dated, updating it.", package_name)
                 self.stats['total_missing'] += 1
 
                 if not package_details:
@@ -84,30 +85,32 @@ class NPMMetadata:
                 else:
                     self.stats['still_missing'] += 1
             else:
-                logger.info("Package '%s' is up-to-date", package_name)
                 self.stats['metadata_exists'] += 1
+
+        logger.info("Processing completed [%d/%d %d%%]", index,
+                    self.stats['unique_manifest_count'],
+                    index * 100 / self.stats['unique_manifest_count'])
 
         self._save_data()
         self._print_stats()
 
     def _print_stats(self):
         """Print statistics about operation."""
-        logger.info("NPM Metadata update statistics")
-        logger.info("    1. Existing number of NPM packages : %d", self.stats['existing_count'])
-        logger.info("    2. Unique packages in manifest : %d", self.stats['unique_manifest_count'])
-        logger.info("    3. Packages with metadata : %d", self.stats['metadata_exists'])
-        logger.info("    4. Total missing packages : %d", self.stats['total_missing'])
-        logger.info("    5. New packages : %d", self.stats['new_packages'])
-        logger.info("    6. Packages updated : %d", self.stats['updated_count'])
-        logger.info("    7. Packages missing after update : %d", self.stats['still_missing'])
-        logger.info("    8. Data fetched from registry : %d", self.stats['fetched_from_npm'])
-        logger.info("    9. Registry fetch errors : %d", self.stats['npm_fetch_errors'])
-        logger.info("   10. Data fetched from github : %d", self.stats['fetched_from_github'])
-        logger.info("   11. Github fetch errors : %d", self.stats['github_fetch_errors'])
+        logger.debug("NPM Metadata update statistics")
+        logger.debug("    1. Existing number of NPM packages : %d", self.stats['existing_count'])
+        logger.debug("    2. Unique packages in manifest : %d", self.stats['unique_manifest_count'])
+        logger.debug("    3. Packages with metadata : %d", self.stats['metadata_exists'])
+        logger.debug("    4. Total missing packages : %d", self.stats['total_missing'])
+        logger.debug("    5. New packages : %d", self.stats['new_packages'])
+        logger.debug("    6. Packages updated : %d", self.stats['updated_count'])
+        logger.debug("    7. Packages missing after update : %d", self.stats['still_missing'])
+        logger.debug("    8. Data fetched from registry : %d", self.stats['fetched_from_npm'])
+        logger.debug("    9. Registry fetch errors : %d", self.stats['npm_fetch_errors'])
+        logger.debug("   10. Data fetched from github : %d", self.stats['fetched_from_github'])
+        logger.debig("   11. Github fetch errors : %d", self.stats['github_fetch_errors'])
 
     def _fetch(self, package_name=str):
         """Fetch metadata for a package and return it as json."""
-        logger.info("Finding metadata for npm package '%s'", package_name)
         package_metadata = self._from_npm_registry(package_name)
 
         # If key words are not found in repository, get it from github.
@@ -163,7 +166,6 @@ class NPMMetadata:
         topic_names = [i.get("node", {}).get("topic", {}).get("name", None)
                        for i in topic_edges["edges"]]
         topic_names = [i for i in topic_names if i is not None]
-        logger.info("github found keywords: %s", topic_names)
         return topic_names
 
     def _from_github(self, repo_url=str):
@@ -178,10 +180,7 @@ class NPMMetadata:
         }
         headers = {"Authorization": "token %s" % self.github_token}
         try:
-            logger.info("Getting keywords from githhub for org: %s and package: %s",
-                        github_org, package_name)
             response = requests.post(url=api_url, json=payload, headers=headers)
-            logger.info("github response code for '%s' => %d", package_name, response.status_code)
             keywords = list(self._github_clean_response(response.json()))
             self.stats['fetched_from_github'] += 1
             return keywords
@@ -197,11 +196,8 @@ class NPMMetadata:
         api_url = "https://registry.npmjs.org/" + str(package_name)
         try:
             response = requests.get(api_url)
-            logger.info("npm registry url '%s' gave reponse code %d", api_url, response.status_code)
-
             json_data = response.json()
             latest_version = json_data.get("dist-tags", {}).get("latest", None)
-            logger.info("Found latest version %s for package %s", latest_version, package_name)
             if latest_version:
                 latest_version_data = json_data.get("versions", {}).get(latest_version, {})
                 data_dict = {
@@ -227,6 +223,7 @@ class NPMMetadata:
                 self.stats['fetched_from_npm'] += 1
         except Exception as e:
             self.stats['npm_fetch_errors'] += 1
-            logger.error("Can't fetch the keywords from NPM Registry, it throws %s", e)
+            logger.error("Can't fetch the keywords for %s from NPM Registry, it throws %s",
+                         package_name, e)
 
         return data_dict
