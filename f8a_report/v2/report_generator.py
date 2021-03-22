@@ -313,13 +313,10 @@ class StackReportBuilder():
         ids = rds_obj.retrieve_stack_analyses_ids(start_date, end_date)
         worker = 'stack_aggregator_v2'
 
-        # Ingestion Reporting is in v1
-        ingestion_results = False
-
         if not len(ids):
             logger.info(f'No stack analyses found from {start_date} to {end_date} '
                         f'to generate an aggregated report')
-            return False, ingestion_results
+            return False
 
         query_data = rds_obj.get_worker_results_v2(worker=worker, stack_ids=ids)
 
@@ -328,11 +325,11 @@ class StackReportBuilder():
         worker_result = {}
         if not generated_report:
             logger.error(f'No v2 Stack Analyses found from {start_date} to {end_date}.')
-            return worker_result, ingestion_results
+            return worker_result
 
         worker_result[worker] = self.create_venus_report(generated_report)
 
-        return worker_result, ingestion_results
+        return worker_result
 
     def create_venus_report(self, venus_input):
         """Create venus report."""

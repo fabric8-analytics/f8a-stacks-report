@@ -3,7 +3,7 @@
 import json
 from unittest import TestCase
 from f8a_report.v2.report_generator import StackReportBuilder
-from helpers.report_helper import ReportHelper
+from f8a_report.helpers.report_helper import ReportHelper
 from unittest.mock import patch
 
 
@@ -100,9 +100,9 @@ class TestStackReportBuilder(TestCase):
             _mock5.return_value = generated_report[2]
 
         result = self.ReportBuilder.get_report(start_date, end_date)
-        self.assertIn('stack_aggregator_v2', result[0])
+        self.assertIn('stack_aggregator_v2', result)
         self.assertEqual(
-            result[0]['stack_aggregator_v2']['stacks_summary']['total_stack_requests_count'], 10)
+            result['stack_aggregator_v2']['stacks_summary']['total_stack_requests_count'], 10)
 
     @patch('f8a_report.v2.report_generator.S3Helper.store_json_content')
     def test_save_result(self, _mock1):
@@ -143,13 +143,13 @@ class TestStackReportBuilder(TestCase):
             _mock3.return_value = generated_report
             _mock5.return_value = generated_report[2]
         result = self.ReportBuilder.get_report(start_date, end_date)
-        self.assertIn('stack_aggregator_v2', result[0])
+        self.assertIn('stack_aggregator_v2', result)
         self.assertEqual(
-                result[0]['stack_aggregator_v2']['stacks_summary']
+                result['stack_aggregator_v2']['stacks_summary']
                 ['total_stack_requests_count'], 1)
         self.assertEqual(
-            result[0]['stack_aggregator_v2']['stacks_summary']['golang']
+            result['stack_aggregator_v2']['stacks_summary']['golang']
             ['stack_requests_count'], 1)
         self.assertEqual(
-            result[0]['stack_aggregator_v2']['stacks_details']
+            result['stack_aggregator_v2']['stacks_details']
             [0]['stack'][0], "github.com/thoughtworks/talisman 0.3.3")
