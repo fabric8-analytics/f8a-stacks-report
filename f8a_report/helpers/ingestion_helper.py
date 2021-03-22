@@ -2,8 +2,12 @@
 
 import logging
 import os
+from typing import Dict
 import requests
 import tenacity
+
+from helpers.db_gateway import ReportQueries
+from helpers.report_helper import ReportHelper
 
 logger = logging.getLogger(__file__)
 
@@ -50,3 +54,26 @@ def ingest_epv(missing_latest_nodes):
         logger.error("Error while ingesting missing versions {}".format(e))
 
     return result
+
+
+def generate_ingestion_report(start_date: str, end_date: str, frequency='daily') -> Dict:
+    """Collect Ingestion data from Database and generates Report out of it.
+
+    :param frequency: daily/monthly
+    :param start_date: Start date of Ingestion data
+    :param end_date: End date of Ingestion data
+
+    :returns: Ingestion Results dump
+    """
+    rds_obj = ReportQueries()
+
+    # Query DB to fetch ingestion data
+    ingestion_db_data = rds_obj.retrieve_ingestion_results(start_date, end_date)
+    if not ingestion_db_data:
+        logger.error('No Ingestion data found in last 24 hours')
+
+    result = {'EPV_DATA': ingestion_db_data}
+    # Generate Ingestion Report
+    ingestion_result, _ = ReportHelper().normalize_ingestion_data(
+        start_date, end_date, result, frequency)
+    return ingestion_result

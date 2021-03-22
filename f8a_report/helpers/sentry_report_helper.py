@@ -99,7 +99,7 @@ class SentryReportHelper:
             # Check for status code
             # If status is not success, log it as an error
             if resp.status_code == 200:
-                logger.info('Successfully invoked Sentry API \n {resp}'.format(resp=resp.json()))
+                logger.info('Successfully invoked Sentry API')
                 output = resp.json()
             else:
                 logger.error('Error received from Sentry API \n {resp}'.format(resp=resp.json()))
@@ -138,3 +138,11 @@ class SentryReportHelper:
         except NameError as e:
             logger.error('Name not found while parsing. Reason: %r' % e)
         return events
+
+
+def generate_sentry_report(start_date: str, end_date: str):
+    """Entrypoint to generate sentry daily report."""
+    sentry_helper = SentryReportHelper()
+    sentry_results = sentry_helper.retrieve_sentry_logs(start_date, end_date)
+    if not sentry_results:
+        logger.error('No Sentry Error Logs found in last 24 hours')
