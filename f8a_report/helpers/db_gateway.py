@@ -97,7 +97,7 @@ class ReportQueries(Postgres):
         id_list = [row[0] for row in rows]
         return id_list
 
-    def retrieve_ingestion_results(self, start_date, end_date) -> dict:
+    def retrieve_ingestion_results(self, start_date, end_date) -> str:
         """Retrieve results for selected worker from RDB."""
         logger.info('Retrieving ingestion results.')
         # Query to fetch the EPVs that were ingested on a particular day
