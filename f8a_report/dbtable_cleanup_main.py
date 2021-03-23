@@ -1,7 +1,7 @@
 """Daily clean up of DB tables."""
 
 import logging
-from helpers.report_helper import ReportHelper
+from f8a_report.helpers.report_helper import ReportHelper
 
 logger = logging.getLogger(__file__)
 
