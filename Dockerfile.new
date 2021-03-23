@@ -1,7 +1,7 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
 ENV APP_DIR='/f8a_report'
-
+ENV PYTHONPATH=.
 WORKDIR ${APP_DIR}
 
 RUN mkdir -p ${APP_DIR}

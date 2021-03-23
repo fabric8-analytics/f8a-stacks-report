@@ -6,8 +6,8 @@ from typing import Dict
 import requests
 import tenacity
 
-from helpers.db_gateway import ReportQueries
-from helpers.report_helper import ReportHelper
+from f8a_report.helpers.db_gateway import ReportQueries
+from f8a_report.helpers.report_helper import ReportHelper
 
 logger = logging.getLogger(__file__)
 

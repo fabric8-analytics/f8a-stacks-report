@@ -13,13 +13,12 @@ from operator import itemgetter
 from datetime import datetime as dt
 from psycopg2 import sql
 from collections import Counter
-from helpers.graph_report_generator import generate_report_for_unknown_epvs, \
+from f8a_report.helpers.graph_report_generator import generate_report_for_unknown_epvs, \
     generate_report_for_latest_version, rectify_latest_version
-from helpers.s3_helper import S3Helper
-from helpers.unknown_deps_report_helper import UnknownDepsReportHelper
-from helpers.sentry_report_helper import SentryReportHelper
-from helpers.cve_helper import CVE
-from helpers.npm_metadata import NPMMetadata
+from f8a_report.helpers.s3_helper import S3Helper
+from f8a_report.helpers.unknown_deps_report_helper import UnknownDepsReportHelper
+from f8a_report.helpers.sentry_report_helper import SentryReportHelper
+from f8a_report.helpers.cve_helper import CVE
 
 logger = logging.getLogger(__file__)
 
