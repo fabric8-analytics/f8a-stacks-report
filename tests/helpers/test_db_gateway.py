@@ -1,7 +1,7 @@
 """Tests DB Gateway v2."""
 
 from unittest import TestCase
-from helpers.db_gateway import ReportQueries
+from f8a_report.helpers.db_gateway import ReportQueries
 from tests.helpers.test_stack_report_helper import MockPostgres
 
 

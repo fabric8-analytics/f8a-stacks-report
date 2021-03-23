@@ -2,8 +2,8 @@
 
 import logging
 from datetime import datetime as dt, timedelta
-from helpers.report_helper import ReportHelper
-from helpers.manifest_helper import manifest_interface
+from f8a_report.helpers.report_helper import ReportHelper
+from f8a_report.helpers.manifest_helper import manifest_interface
 import os
 
 logger = logging.getLogger(__file__)

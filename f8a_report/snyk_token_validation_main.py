@@ -1,6 +1,6 @@
 """Snyk Token Validation."""
 
-from helpers.db_gateway import TokenValidationQueries
+from f8a_report.helpers.db_gateway import TokenValidationQueries
 from f8a_utils.user_token_utils import decrypt_api_token, is_snyk_token_valid
 import logging
 
