@@ -19,7 +19,7 @@ from helpers.s3_helper import S3Helper
 from helpers.unknown_deps_report_helper import UnknownDepsReportHelper
 from helpers.sentry_report_helper import SentryReportHelper
 from helpers.cve_helper import CVE
-from helpers.npm_metadata import NPMMetadata
+from f8a_report.helpers.npm_metadata import NPMMetadata
 
 logger = logging.getLogger(__file__)
 

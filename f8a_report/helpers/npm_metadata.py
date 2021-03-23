@@ -18,7 +18,7 @@
 import datetime
 import requests
 import logging
-from helpers.s3_helper import S3Helper
+from f8a_report.helpers.s3_helper import S3Helper
 
 logger = logging.getLogger(__file__)
 
@@ -77,9 +77,6 @@ class NPMMetadata:
 
                 new_package_details = self._fetch(package_name)
                 if new_package_details:
-                    logger.info("Updated package '%s' has keywords %s",
-                                new_package_details['name'],
-                                new_package_details['keywords'])
                     self._track_stats('updated_count', 1)
                     self.existing_data[package_name] = new_package_details
                 else:
@@ -111,7 +108,7 @@ class NPMMetadata:
         logger.debug("    8. Data fetched from registry : %d", self.stats['fetched_from_npm'])
         logger.debug("    9. Registry fetch errors : %d", self.stats['npm_fetch_errors'])
         logger.debug("   10. Data fetched from github : %d", self.stats['fetched_from_github'])
-        logger.debig("   11. Github fetch errors : %d", self.stats['github_fetch_errors'])
+        logger.debug("   11. Github fetch errors : %d", self.stats['github_fetch_errors'])
 
     def _fetch(self, package_name=str):
         """Fetch metadata for a package and return it as json."""
@@ -120,8 +117,6 @@ class NPMMetadata:
         # If key words are not found in repository, get it from github.
         if package_metadata and len(package_metadata.get("keywords", [])) == 0 and \
            len(package_metadata.get("repositoryurl", "")) > 0:
-            logger.info("Trying to fetch keywords from Github for '%s'", package_name)
-
             package_metadata["keywords"] = self._from_github(package_metadata["repositoryurl"])
 
         return package_metadata
@@ -190,7 +185,7 @@ class NPMMetadata:
             return keywords
         except Exception as e:
             self._track_stats('github_fetch_errors', 1)
-            logger.warning("Github token missing / response is not coming, it throws %s", e)
+            logger.warning("Github response/token error for repo %s, it throws %s", repo_url, e)
 
         return []
 
