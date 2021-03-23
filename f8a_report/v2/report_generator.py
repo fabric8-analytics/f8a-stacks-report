@@ -25,7 +25,6 @@ from datetime import datetime as dt
 from f8a_report.helpers.db_gateway import ReportQueries
 from f8a_report.helpers.unknown_deps_report_helper import UnknownDepsReportHelperV2
 from f8a_report.helpers.s3_helper import S3Helper
-from f8a_report.helpers.report_helper import ReportHelper
 
 logger = logging.getLogger(__file__)
 

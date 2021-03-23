@@ -15,7 +15,7 @@ def main():
     """Generate the daily stacks report."""
     report_builder_v2 = StackReportBuilder(ReportHelper)
     today = dt.today()
-    start_date = (today - timedelta(days=100)).strftime('%Y-%m-%d')
+    start_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
     end_date = today.strftime('%Y-%m-%d')
     missing_latest_nodes = {}
     response = {}
