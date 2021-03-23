@@ -70,22 +70,22 @@ class NPMMetadata:
 
             if not package_details or \
                package_details.get("updated_timestamp", 0) < update_timestamp:
-                self._increase_stats('total_missing', 1)
+                self._track_stats('total_missing', 1)
 
                 if not package_details:
-                    self._increase_stats('new_packages', 1)
+                    self._track_stats('new_packages', 1)
 
                 new_package_details = self._fetch(package_name)
                 if new_package_details:
                     logger.info("Updated package '%s' has keywords %s",
                                 new_package_details['name'],
                                 new_package_details['keywords'])
-                    self._increase_stats('updated_count', 1)
+                    self._track_stats('updated_count', 1)
                     self.existing_data[package_name] = new_package_details
                 else:
-                    self._increase_stats('still_missing', 1)
+                    self._track_stats('still_missing', 1)
             else:
-                self._increase_stats('metadata_exists', 1)
+                self._track_stats('metadata_exists', 1)
 
         logger.info("Processing completed [%d/%d %d%%]", index,
                     self.stats['unique_manifest_count'],
@@ -94,7 +94,7 @@ class NPMMetadata:
         self._save_data()
         self._print_stats()
 
-    def _increase_stats(self, key=str, addition=int):
+    def _track_stats(self, key=str, addition=int):
         """Add the given number to stats key variable."""
         self.stats[key] += addition
 
@@ -186,10 +186,10 @@ class NPMMetadata:
         try:
             response = requests.post(url=api_url, json=payload, headers=headers)
             keywords = list(self._github_clean_response(response.json()))
-            self._increase_stats('fetched_from_github', 1)
+            self._track_stats('fetched_from_github', 1)
             return keywords
         except Exception as e:
-            self._increase_stats('github_fetch_errors', 1)
+            self._track_stats('github_fetch_errors', 1)
             logger.warning("Github token missing / response is not coming, it throws %s", e)
 
         return []
@@ -224,9 +224,9 @@ class NPMMetadata:
                 #        list(latest_version_data.get("peerDependencies", {}).keys()),
                 #  "readme": json_data.get("readme", ""),
 
-                self._increase_stats('fetched_from_npm', 1)
+                self._track_stats('fetched_from_npm', 1)
         except Exception as e:
-            self._increase_stats('npm_fetch_errors', 1)
+            self._track_stats('npm_fetch_errors', 1)
             logger.error("Can't fetch the keywords for %s from NPM Registry, it throws %s",
                          package_name, e)
 
