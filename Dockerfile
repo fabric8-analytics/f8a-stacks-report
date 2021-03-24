@@ -1,5 +1,5 @@
 FROM registry.centos.org/centos/centos:7
-  
+
 ENV APP_DIR='/f8a_report'
 ENV PYTHONPATH=.
 WORKDIR ${APP_DIR}

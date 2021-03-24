@@ -19,6 +19,7 @@ from f8a_report.helpers.s3_helper import S3Helper
 from f8a_report.helpers.unknown_deps_report_helper import UnknownDepsReportHelper
 from f8a_report.helpers.sentry_report_helper import SentryReportHelper
 from f8a_report.helpers.cve_helper import CVE
+from f8a_report.helpers.npm_metadata import NPMMetadata
 
 logger = logging.getLogger(__file__)
 
@@ -48,6 +49,7 @@ class ReportHelper:
         self.cursor = self.pg.cursor
         self.unknown_deps_helper = UnknownDepsReportHelper()
         self.sentry_helper = SentryReportHelper()
+        self.github_token = os.environ.get('GITHUB_TOKEN')
         self.npm_model_bucket = os.getenv('NPM_MODEL_BUCKET')
         self.maven_model_bucket = os.getenv('MAVEN_MODEL_BUCKET')
         self.pypi_model_bucket = os.getenv('PYPI_MODEL_BUCKET')
@@ -334,51 +336,58 @@ class ReportHelper:
 
         return training_data
 
+    def _get_bucket_repo_name(self, ecosystem):
+        """Return S3 bucket name and github repo name for given ecosystem."""
+        if ecosystem == 'maven':
+            logger.info(f'maven bucket name is: {self.maven_model_bucket}')
+            return self.maven_model_bucket, self.maven_training_repo
+        elif ecosystem == 'pypi':
+            logger.info(f'pypi bucket name is: {self.pypi_model_bucket}')
+            return self.pypi_model_bucket, self.pypi_training_repo
+        # We dont support golang yet.
+        # elif ecosystem == 'go':
+        #    logger.info(f'go bucket name is: {self.golang_model_bucket}')
+        #    return self.golang_model_bucket, self.golang_training_repo
+        elif ecosystem == 'npm':
+            logger.info(f'npm bucket name is: {self.npm_model_bucket}')
+            return self.npm_model_bucket, self.npm_training_repo
+        else:
+            raise Exception(f'Invalid/unsupported ecosystem {ecosystem}')
+
+    def _ecosystem_specific_action(self, ecosystem, bucket_name, manifest_data):
+        """Take ecosystem specific processing after manifest generation."""
+        # Update metadata of NPM packages in case of NPM ecosystem
+        if ecosystem == 'npm':
+            start = datetime.datetime.now()
+            npmMetadata = NPMMetadata(self.s3, self.github_token, bucket_name, manifest_data)
+            npmMetadata.update()
+            time_elapsed = (datetime.datetime.now() - start).total_seconds()
+            logger.info(f'It took {time_elapsed} seconds to update NPM package metadata.')
+
     def store_training_data(self, result):
         """Store Training Data for each ecosystem in their respective buckets."""
         model_version = dt.now().strftime('%Y-%m-%d')
 
         for eco, stack_dict in result.items():
             training_data = self.get_training_data_for_ecosystem(eco, stack_dict)
-            obj_key = '{model_version}/data/manifest.json'.format(model_version=model_version)
+            obj_key = f'{model_version}/data/manifest.json'
+            try:
+                # Get the bucket name based on ecosystems to store user-input stacks for retraining
+                bucket_name, github_repo = self._get_bucket_repo_name(eco)
+                logger.info(f'Storing manifest for ecosystem {eco} at {bucket_name}{obj_key}')
 
-            # Get the bucket name based on ecosystems to store user-input stacks for retraining
-            if eco == 'maven':
-                bucket_name = self.maven_model_bucket
-                github_repo = self.maven_training_repo
-                logger.info('maven bucket name is: {bucket}'.format(bucket=bucket_name))
-            elif eco == 'pypi':
-                bucket_name = self.pypi_model_bucket
-                github_repo = self.pypi_training_repo
-                logger.info('pypi bucket name is: {bucket}'.format(bucket=bucket_name))
-            elif eco == 'go':
-                bucket_name = self.golang_model_bucket
-                github_repo = self.golang_training_repo
-                logger.info('go bucket name is: {bucket}'.format(bucket=bucket_name))
-            elif eco == 'npm':
-                bucket_name = self.npm_model_bucket
-                github_repo = self.npm_training_repo
-                logger.info('npm bucket name is: {bucket}'.format(bucket=bucket_name))
-            else:
-                continue
+                # Store the training content for each ecosystem
+                self.s3.store_json_content(training_data, bucket_name, obj_key)
 
-            if eco in ("npm", "go"):
-                logger.info("Handling only pypi, maven retraining")
-                continue
+                # Take ecosystem specific action.
+                self._ecosystem_specific_action(eco, bucket_name, training_data)
 
-            if bucket_name:
-                logger.info('Storing user-input stacks for ecosystem {eco} at {dir}'.format(
-                    eco=eco, dir=bucket_name + obj_key))
-                try:
-                    # Store the training content for each ecosystem
-                    self.s3.store_json_content(content=training_data, bucket_name=bucket_name,
-                                               obj_key=obj_key)
-                    # Invoke the EMR API to kickstart retraining process
-                    # This EMR invocation happens for all ecosystems almost at the same time.
-                    # TODO - find an alternative if there is a need
-                    self.invoke_emr_api(bucket_name, eco, model_version, github_repo)
-                except Exception as e:
-                    logger.error('Unable to invoke EMR API. Reason: %r' % e)
+                # Invoke the EMR API to kickstart retraining process
+                # This EMR invocation happens for all ecosystems almost at the same time.
+                # TODO - find an alternative if there is a need
+                self.invoke_emr_api(bucket_name, eco, model_version, github_repo)
+            except Exception as e:
+                logger.error('Unable to invoke EMR API. Reason: %r' % e)
 
     def get_trending(self, mydict, top_trending_count=3):
         """Generate the top trending items list."""
@@ -445,7 +454,7 @@ class ReportHelper:
     def normalize_worker_data(self, start_date, end_date, stack_data, worker,
                               frequency='daily', retrain=False):
         """Normalize worker data for reporting."""
-        supported_ecosystems = ['npm', 'golang', 'pypi', 'maven']
+        supported_ecosystems = ['maven', 'pypi', 'golang', 'npm']
         total_stack_requests = {eco: 0 for eco in supported_ecosystems}
         total_stack_requests.update({'all': 0})
 
