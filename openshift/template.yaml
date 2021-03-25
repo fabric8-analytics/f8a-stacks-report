@@ -210,7 +210,7 @@ objects:
                 - name: GITHUB_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      key: github-token
+                      key: github_token
                       name: github
               resources:
                 requests:
