@@ -52,9 +52,9 @@ def test_list_objects():
     S3 = S3Helper(aws_access_key_id=AWS_KEY, aws_secret_access_key=AWS_SECRET)
     s3.meta.client.upload_file('tests/data/dev/weekly/data.json', BUCKET, 'dev/weekly/data.json')
     obj = S3.list_objects(BUCKET, 'weekly')
-    assert len(obj['objects']) == 0
+    assert len(obj['objects']) > 0
     data = S3.list_objects('dummy', 'weekly')
-    assert len(data['objects']) == 1
+    assert len(data['objects']) == 0
 
 
 @mock_s3
@@ -65,4 +65,4 @@ def test_store_file_object():
     S3 = S3Helper(aws_access_key_id=AWS_KEY, aws_secret_access_key=AWS_SECRET)
     S3.store_file_object('tests/data/dev/weekly/data.json', BUCKET, 'dev/weekly/data.json')
     obj = S3.list_objects(BUCKET, 'weekly')
-    assert len(obj['objects']) == 1
+    assert len(obj['objects']) > 0
