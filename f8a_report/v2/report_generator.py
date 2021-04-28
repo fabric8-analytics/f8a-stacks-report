@@ -18,7 +18,6 @@
 
 import logging
 import json
-from typing import List, Dict
 
 from f8a_report.helpers.cve_helper import CVE
 from datetime import datetime as dt
@@ -84,30 +83,8 @@ class StackReportBuilder():
                 'report_version': 'v2',
             },
             'stacks_summary': {},
-            'stacks_details': []
         }
         return template
-
-    @staticmethod
-    def get_stack_info_template() -> dict:
-        """Build Stack Template."""
-        stack_info_template = {
-            'ecosystem': '',
-            'stack': [],
-            'unknown_dependencies': [],
-            'license': {
-                'conflict': False,
-                'unknown': []
-            },
-            'public_vulnerabilities': {
-                'cve_list': [],
-            },
-            'private_vulnerabilities': {
-                'cve_list': [],
-            },
-            'response_time': ''
-        }
-        return stack_info_template
 
     @staticmethod
     def get_unknown_licenses(stack) -> list:
@@ -147,7 +124,6 @@ class StackReportBuilder():
         logger.info("Analysing Stack data")
         for stack in stacks_data:
             stack = stack[0]
-            stack_info_template = self.get_stack_info_template()
             ecosystem = stack.get('ecosystem')
             analysed_dependencies = stack.get('analyzed_dependencies', [])
             unknown_dependencies = stack.get('unknown_dependencies', [])
@@ -156,33 +132,21 @@ class StackReportBuilder():
             try:
                 if len(analysed_dependencies) == 0:
                     continue
-                stack_info_template['ecosystem'] = ecosystem
                 self.total_stack_requests['all'] += 1
                 self.total_stack_requests[ecosystem] += 1
 
-                stack_info_template['stack'] = self.normalize_deps_list(
+                normalised_stacks = self.normalize_deps_list(
                     analysed_dependencies)
 
-                self.all_deps[ecosystem].append(stack_info_template['stack'])
-                stack_str = ','.join(stack_info_template['stack'])
+                self.all_deps[ecosystem].append(normalised_stacks)
+                stack_str = ','.join(normalised_stacks)
                 self.stacks_list[ecosystem].append(stack_str)
-
-                stack_info_template['unknown_dependencies'] = normalised_unknown_dependencies
                 self.all_unknown_deps[ecosystem].append(normalised_unknown_dependencies)
-
-                stack_info_template['license']['unknown'] = unknown_licenses
-                self.all_unknown_lic.append(stack_info_template['license']['unknown'])
-
-                # Accumulating security information.
-                for package in analysed_dependencies:
-                    stack_info_template = self.collate_vulnerabilites(stack_info_template, package)
-
+                self.all_unknown_lic.append(unknown_licenses)
                 ended_at, started_at = self.get_audit_timelines(stack)
                 response_time = self.report_helper.datediff_in_millisecs(started_at, ended_at)
-                stack_info_template['response_time'] = '%f ms' % response_time
                 self.total_response_time['all'] += response_time
-                self.total_response_time[stack_info_template['ecosystem']] += response_time
-                report_template['stacks_details'].append(stack_info_template)
+                self.total_response_time[ecosystem] += response_time
             except (IndexError, KeyError, TypeError) as e:
                 logger.error("Total Stack Request State %r", self.total_stack_requests)
                 logger.error("Ecosystem, %s", ecosystem)
@@ -191,34 +155,7 @@ class StackReportBuilder():
         logger.info("Stacks Analyse Completed.")
         return report_template
 
-    def collate_vulnerabilites(self, stack_info_template: Dict, package: Dict) -> Dict:
-        """Collate Vulnerability list of Private and Public Vulnerabilities.
-
-        :param
-            :stack_info_template: Template
-            :package: Vulnerable package
-        :return: Stack Data template filled with data
-        """
-        for vul_type in ('private_vulnerabilities', "public_vulnerabilities"):
-            vulnerabilities: List[Dict] = package.get(vul_type)
-            cve_list: List = self.get_vulnerability_data(vulnerabilities)
-            # Appending CVE data to Global CVE List
-            self.all_cve_list += cve_list
-            # Appending Verbose CVE details
-            stack_info_template[vul_type]['cve_list'] += vulnerabilities
-        return stack_info_template
-
-    @staticmethod
-    def get_vulnerability_data(vulnerabilities: List[Dict]) -> List[str]:
-        """Iterate over each Vulnerability to filter out valuable data."""
-        cve_list = []
-        for cve_info in vulnerabilities:
-            cve_id: str = cve_info.get('id')
-            cvss: str = cve_info.get('cvss')
-            cve_list.append(f'{cve_id}:{cvss}')
-        return cve_list
-
-    def build_report_summary(self, unknown_deps_ingestion_report, report_content) -> dict:
+    def build_report_summary(self, unknown_deps_ingestion_report) -> dict:
         """Build Final Report Summary."""
         logger.info("Building Report summary.")
 
@@ -229,7 +166,7 @@ class StackReportBuilder():
             'unique_cves':
                 self.report_helper.populate_key_count(self.all_cve_list),
             'total_average_response_time': '{} ms'.format(
-                self.total_response_time['all'] / len(report_content['stacks_details'])),
+                self.total_response_time['all'] / self.total_stack_requests['all']),
             'cve_report': CVE().generate_cve_report(updated_on=self.start_date)
         }
         ecosystem_summary = {ecosystem: self.report_helper.get_ecosystem_summary(
@@ -284,7 +221,7 @@ class StackReportBuilder():
         unknown_deps_ingestion_report = UnknownDepsReportHelperV2().get_current_ingestion_status()
 
         report_content['stacks_summary'] = self.build_report_summary(
-            unknown_deps_ingestion_report, report_content)
+            unknown_deps_ingestion_report)
 
         if frequency == 'monthly':
             # monthly data collection on the 1st of every month

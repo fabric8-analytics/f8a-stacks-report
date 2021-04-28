@@ -33,17 +33,6 @@ class TestStackReportBuilder(TestCase):
         self.assertIsInstance(result, dict)
         self.assertIn("report", result)
 
-    def test_get_stack_info_template(self):
-        """Test Stack Info Template."""
-        result = self.ReportBuilder.get_stack_info_template()
-        self.assertIsInstance(result, dict)
-        self.assertIn('ecosystem', result)
-        self.assertIn('unknown_dependencies', result)
-        self.assertIn('license', result)
-        self.assertIn('public_vulnerabilities', result)
-        self.assertIn('private_vulnerabilities', result)
-        self.assertIn('response_time', result)
-
     def test_get_unknown_licenses(self):
         """Test Get Unknown Licenses."""
         stack = self.stack_analyses_v2[0][0]
@@ -66,7 +55,6 @@ class TestStackReportBuilder(TestCase):
         result = self.ReportBuilder.analyse_stack(stack, report_template)
         self.assertIn('report', result)
         self.assertIn('stacks_summary', result)
-        self.assertIn('stacks_details', result)
         self.assertGreater(len('stacks_details'), 0)
         self.assertGreater(len('stacks_summary'), 0)
 
@@ -79,8 +67,6 @@ class TestStackReportBuilder(TestCase):
         result = self.ReportBuilder.analyse_stack(stack, report_template)
         self.assertIn('report', result)
         self.assertIn('stacks_summary', result)
-        self.assertIn('stacks_details', result)
-        self.assertGreater(len('stacks_details'), 0)
         self.assertGreater(len('stacks_summary'), 0)
 
     @patch('f8a_report.v2.report_generator.StackReportBuilder.create_venus_report')
@@ -109,23 +95,6 @@ class TestStackReportBuilder(TestCase):
         """Test save to s3."""
         result = self.ReportBuilder.save_worker_result_to_s3('daily', 'report_name', 'content')
         self.assertTrue(result)
-
-    def test_collate_vulnerabilites(self):
-        """Test Collate Vulnerability method."""
-        analysed_dependencies = {
-            "public_vulnerabilities": [{'cvss': "9.8", "id": "SNYK-GOLANG-GITHUB-12345"}],
-            "private_vulnerabilities": [{'cvss': "8.9", "id": "SNYK-GOLANG-GITHUB2-45678"}]
-        }
-        response = ['SNYK-GOLANG-GITHUB2-45678:8.9', 'SNYK-GOLANG-GITHUB-12345:9.8']
-        template = self.ReportBuilder.get_stack_info_template()
-        result = self.ReportBuilder.collate_vulnerabilites(template, analysed_dependencies)
-        self.assertListEqual(self.ReportBuilder.all_cve_list, response)
-        self.assertListEqual(
-            result['public_vulnerabilities']['cve_list'],
-            analysed_dependencies['public_vulnerabilities'])
-        self.assertListEqual(
-            result['private_vulnerabilities']['cve_list'],
-            analysed_dependencies['private_vulnerabilities'])
 
     @patch('f8a_report.v2.report_generator.StackReportBuilder.create_venus_report')
     @patch('f8a_report.v2.report_generator.StackReportBuilder.save_worker_result_to_s3')
