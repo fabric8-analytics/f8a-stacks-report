@@ -32,20 +32,15 @@ class TestSnykTokenValidation(unittest.TestCase):
 
     @patch.object(TokenValidationQueries, 'get_registered_user_tokens')
     @patch.object(TokenValidationQueries, 'update_users_to_unregistered')
-    @patch.object(TokenValidationQueries, 'get_all_user')
     @patch('f8a_report.snyk_token_validation_main.decrypt_api_token')
     @patch('f8a_report.snyk_token_validation_main.is_snyk_token_valid')
     def test_main(self, is_snyk_token_valid, decrypt_api_token,
-                  update_users_to_unregistered, get_registered_user_tokens,
-                  get_all_user):
+                  update_users_to_unregistered, get_registered_user_tokens):
         """Test cases for statement flow in main."""
         decrypt_api_token.return_value = b'gAAAAABfNTgGNBoO7RkDM'
         is_snyk_token_valid.return_value = False
-
         token_validation.main()
 
         get_registered_user_tokens.assert_called_once()
 
         update_users_to_unregistered.assert_called_once()
-
-        get_all_user.assert_called_once()

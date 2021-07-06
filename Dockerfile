@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 
-ENV APP_DIR='/f8a_report' DB_CACHE_DIR="/db-cache"
+ENV APP_DIR='/f8a_report'
 ENV PYTHONPATH=.
 WORKDIR ${APP_DIR}
 

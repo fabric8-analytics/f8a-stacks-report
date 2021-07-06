@@ -219,23 +219,6 @@ objects:
                 limits:
                   memory: ${MEMORY_LIMIT}
                   cpu: ${CPU_LIMIT}
-              volumeMounts:
-                - mountPath: "/db-cache"
-                  name: bayesian-user-pvc
-            volumes:
-              - name: bayesian-user-pvc
-                persistentVolumeClaim:
-                  claimName: bayesian-user-pvc
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    name: bayesian-user-pvc
-  spec:
-    accessModes:
-      - ReadWriteMany
-    resources:
-      requests:
-        storage: 1Gi
 parameters:
 - description: Docker registry
   displayName: Docker registry
