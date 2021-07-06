@@ -148,14 +148,3 @@ class TokenValidationQueries(Postgres):
             self.conn.commit()
         finally:
             self.conn.close()
-
-    def get_all_user(self) -> dict:
-        """Get all users from RDS table."""
-        try:
-            logger.info("Getting all users for caching")
-            get_all_user_sql = sql.SQL("select * from user_details")
-            self.cursor.execute(get_all_user_sql.as_string(self.conn))
-            result = self.cursor.fetchall()
-            return result
-        finally:
-            self.conn.close()
