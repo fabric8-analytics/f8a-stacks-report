@@ -9,10 +9,9 @@ import os
 
 logger = logging.getLogger(__file__)
 
-_USER_CACHE_API_URL = "http://{host}:{port}/user/refresh_user_cache".format(
-    host=os.environ.get("CACHE_SERVICE_HOST", "bayesian-api"),
-    port=os.environ.get("CACHE_SERVICE_PORT", "32000"),)
-_APP_SECRET_KEY = os.getenv('APP_SECRET_KEY', 'not-set')
+_USER_CACHE_API_URL = "http://{host}:{port}/internal/ingestions/refresh_user_cache".format(
+    host=os.environ.get("CACHE_SERVICE_HOST", "bayesian-jobs"),
+    port=os.environ.get("CACHE_SERVICE_PORT", "34000"),)
 
 
 def main():
@@ -40,8 +39,7 @@ def cache_all_users():
     """Cache all users into PVC."""
     logger.info("Invoking API to create user cache.")
     try:
-        response = requests.get(_USER_CACHE_API_URL,
-                                headers={"APP_SECRET_KEY": _APP_SECRET_KEY})
+        response = requests.get(_USER_CACHE_API_URL)
         logger.info(response.json())
     except Exception as e:
         logger.error(e)
