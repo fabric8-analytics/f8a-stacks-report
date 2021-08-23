@@ -20,6 +20,7 @@ objects:
     schedule: "${CRON_SCHEDULE}"
     jobTemplate:
       spec:
+        activeDeadlineSeconds: 21600
         template:
           spec:
             restartPolicy: Never
